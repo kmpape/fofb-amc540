@@ -1,16 +1,19 @@
+#ifdef SOC_C6678
 #include <c6x.h>
 #include <ti/csl/csl_chip.h>
 #include <csl_cache.h>
 #include <csl_cacheAux.h>
-
-#include "fofb_config.h"
-#include "DTF_IMC_DI.h"
-#include "IMC_DI_ctr.h"
+#else
+#include <stdio.h>
+#endif
 
 #if (defined(SOC_C6678) && (USE_IPC==1))
 #include "ipc_utils.h"
 #endif
 
+#include "fofb_config.h"
+#include "DTF_IMC_DI.h"
+#include "IMC_DI_ctr.h"
 
 #if (IMC_DI_XDIR == 1)
 #include "IMC_DI_gain_mc_x.h"
@@ -126,7 +129,7 @@ static void mat_mpy(const imc_float * in_mat, const imc_float * in_vec, imc_floa
 
 void gain_step(const imc_float * in_vec, imc_float * out_vec)
 {
-    mat_mpy(&IMC_DI_gain_mat[0], (const imc_float *)in_vec, &out_vec[0], IMC_DI_NU, IMC_DI_NY);
+    mat_mpy(&IMC_DI_gain_mat[0], (const imc_float *)in_vec, (imc_float *)&out_vec[0], IMC_DI_NU, IMC_DI_NY);
 }
 #endif
 
@@ -142,7 +145,7 @@ imc_float * IMC_DI_ctr(void)
     ipc_master_wait_ack();
     CACHE_invL1d ((void *) &ctr_input[0], IMC_DI_BYTES_GLOBAL_ARRAYS, CACHE_FENCE_WAIT);
 #else
-    mat_mpy(&IMC_DI_gain_mat[0], (const imc_float *)measurements, &ctr_input[0], IMC_DI_TOT_NROWS, IMC_DI_TOT_NCOLS);
+    mat_mpy(&IMC_DI_gain_mat[0], (const imc_float *)measurements, (imc_float *)&ctr_input[0], IMC_DI_TOT_NROWS, IMC_DI_TOT_NCOLS);
 #endif
 
     /* Filter */
@@ -171,7 +174,7 @@ int IMC_DI_unit_test(void)
     ipc_master_wait_ack();
     CACHE_invL1d ((void *) &ctr_input[0], IMC_DI_BYTES_GLOBAL_ARRAYS, CACHE_FENCE_WAIT);
 #else
-    mat_mpy(&IMC_DI_gain_mat[0], (const imc_float *)measurements, &ctr_input[0], IMC_DI_TOT_NROWS, IMC_DI_TOT_NCOLS);
+    mat_mpy(&IMC_DI_gain_mat[0], (const imc_float *)measurements, (imc_float *)&ctr_input[0], IMC_DI_TOT_NROWS, IMC_DI_TOT_NCOLS);
 #endif
 
     for (i=0; i<IMC_DI_NU; i++)
