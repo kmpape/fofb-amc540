@@ -1,0 +1,61 @@
+/****************************************************************************/
+/*  IMC_mc_only.cmd                                                         */
+/*  Author: Idris Kempf                                                     */
+/*                                                                          */
+/*  Description: Linker command file for custom IPC and IMC libraries       */
+/*                                                                          */
+/****************************************************************************/
+
+-stack 0xAFA00
+-heap  0xAFA00
+
+SECTIONS
+{
+	/* TI */
+	sharedL2 	> MSMCSRAM
+	systemHeap 	> MSMCSRAM
+	.sysmem 	> MSMCSRAM
+	.args 		> MSMCSRAM
+	.cio 		> MSMCSRAM
+	.far 		> MSMCSRAM
+	.rodata 	> MSMCSRAM
+	.neardata 	> MSMCSRAM
+	.cppi 		> MSMCSRAM
+	.init_array > MSMCSRAM
+	.qmss 		> MSMCSRAM
+	.cinit 		> MSMCSRAM
+	.bss 		> MSMCSRAM
+	.const 		> MSMCSRAM
+	.text 		> MSMCSRAM
+	.code 		> MSMCSRAM
+	.switch 	> MSMCSRAM
+	.data 		> MSMCSRAM
+	.fardata 	> MSMCSRAM
+	.args 		> MSMCSRAM
+	.cio 		> MSMCSRAM
+	.vecs 		> MSMCSRAM
+	.far:taskStackSection > L2SRAM
+	.stack 		> L2SRAM // must be in L2 for multi-core
+	.fardata:benchmarking > DDR3
+
+    /* Various */
+    .init_data				> DDR3
+    .shared_data			> MSMCSRAM
+	.local_data				> L2SRAM
+
+	/* IPC Sections */
+	.ipc_nocache_section	> MSMCSRAM_NC_VIRT
+	.ipc_local_data			> L2SRAM type=NOINIT
+    .ipc_shared_section		> MSMCSRAM
+
+    /* IMC Sections */
+    .imc_DI					> L2SRAM
+    .imc_di_shared			> MSMCSRAM
+    .imc_di_local			> L2SRAM
+    .imc_DI_init			> DDR3
+    .imc_UNIT_TEST			> DDR3
+
+	/* AMC540 */
+    platform_lib			> DDR3
+    .dstBufSec				> MSMCSRAM
+}
