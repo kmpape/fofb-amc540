@@ -54,7 +54,9 @@ int IMC_DI_unit_test(void);
 
 #ifdef SOC_C6678
 #pragma FUNC_NEVER_RETURNS(IMC_DI_ctr_worker)
-#endif
 void IMC_DI_ctr_worker(Uint32 selfId);
+#endif
+
+void gain_step(const imc_float * in_vec, imc_float * out_vec);
 
 #endif /* IMC_DI_CTR_H_ */

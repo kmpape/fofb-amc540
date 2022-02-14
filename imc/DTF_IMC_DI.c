@@ -1,8 +1,11 @@
 #include "DTF_IMC_DI.h"
 
+#ifdef SOC_C6678
+#include <c6x.h>
+#endif
+
 #if (DTF_IMC_DI_UNIT_TEST == 1)
 #include "DTF_IMC_DI_UNIT_TEST.h"
-#include <c6x.h>
 #endif
 
 /* Arrays */
