@@ -8,7 +8,9 @@
 #ifndef IMC_DI_CTR_H_
 #define IMC_DI_CTR_H_
 
+#if (defined(SOC_C6678) && (USE_IPC==1))
 #include "ipc_utils.h"
+#endif
 #include "fofb_config.h"
 
 typedef float imc_float;
@@ -20,10 +22,16 @@ typedef float imc_float;
 
 #define IMC_DI_NY       (TOT_NUM_BPM)
 #define IMC_DI_NU       (TOT_NUM_CM)
+#if (defined(SOC_C6678) && (USE_IPC==1))
 #define IMC_DI_NUM_WORKERS  (NUMSLAVES)
+#else
+#define IMC_DI_NUM_WORKERS  (6)
+#endif
 #define IMC_DI_W_NROWS  (32)
 #define IMC_DI_W_NCOLS  (IMC_DI_W_NROWS * IMC_DI_NUM_WORKERS)
 #define IMC_DI_DIM      (IMC_DI_W_NROWS * IMC_DI_NUM_WORKERS)
+#define IMC_DI_TOT_NROWS  (IMC_DI_W_NROWS * IMC_DI_NUM_WORKERS)
+#define IMC_DI_TOT_NCOLS  (IMC_DI_W_NCOLS)
 
 #define IMC_DI_CACHE_LINESIZE      (64) // bytes
 #define IMC_DI_ARRAY_ALIGN         (IMC_DI_CACHE_LINESIZE)
@@ -44,7 +52,9 @@ imc_float * IMC_DI_ctr(void);   // returned ptr is of length IMC_DI_DIM and alig
 int IMC_DI_unit_test(void);
 #endif
 
+#ifdef SOC_C6678
 #pragma FUNC_NEVER_RETURNS(IMC_DI_ctr_worker)
+#endif
 void IMC_DI_ctr_worker(Uint32 selfId);
 
 #endif /* IMC_DI_CTR_H_ */

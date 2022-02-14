@@ -15,7 +15,10 @@
 #define IMC_CONTROL         (0) // enable=1, set to 0 if loopback only
 #define INTEGRATOR_LIMIT    (4.99) // in Amperes
 #define XDIR                (0) // 1=horizontal plane, 0=vertical plane
-#define USE_IPC             (IMC_CONTROL) // switch multi-core (1) and single-core (0)
+#define USE_IPC             (0) // switch multi-core (1) and single-core (0)
+#ifndef SOC_C6678
+#define USE_IPC             (0)
+#endif
 
 /*
  * Interface
