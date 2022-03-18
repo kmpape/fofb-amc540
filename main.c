@@ -20,6 +20,7 @@
 /* IMC */
 #include "imc/DTF_IMC_DI.h"
 #include "imc/IMC_DI_ctr.h"
+#include "imc/IMC_transfer.h"
 
 /* Utilities */
 #include "utils/pcie_sample.h"
@@ -56,12 +57,6 @@ volatile LIBQDMA_ARR_TYPE pcie_write_buffer[ARRAY_LEN_WRITE];
 #pragma DATA_ALIGN(selfId, CACHE_L1D_LINESIZE)
 #pragma DATA_SECTION(selfId, ".local_data")
 Uint32 volatile selfId;
-
-/*
- * Use to cast inputs and outputs
- */
-extern int BPM_to_float(const LIBQDMA_ARR_TYPE * in_vec, imc_float * out_vec);
-extern int CM_to_int(const imc_float * in_vec, LIBQDMA_ARR_TYPE * out_vec);
 
 int counter = 0;
 void pcie_loop (void)
