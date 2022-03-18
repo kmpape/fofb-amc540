@@ -251,7 +251,8 @@ int ipc_slave_get_selfId(void) {
 }
 
 
-void ipc_slave_wait_req(void) {
+int ipc_slave_wait_req(void) {
+    int req_val;
     unsigned int restore_val;
 #ifdef IPC_ASSERTS
     /* Check if pointers have been assigned */
@@ -264,6 +265,7 @@ void ipc_slave_wait_req(void) {
 #endif
     restore_val = _disable_interrupts();
     while (*req_flag == 0);
+    req_val = *req_flag;
     _restore_interrupts(restore_val);
     *ncalls = *ncalls + 1;
 #if IPC_DEBUGLEVEL >= 4
@@ -272,6 +274,8 @@ void ipc_slave_wait_req(void) {
     restore_val = _disable_interrupts();
     ipc_slave_reset_req();
     _restore_interrupts(restore_val);
+
+    return req_val;
 }
 
 

@@ -104,7 +104,7 @@ void ipc_master_reset_req(void);
 *******************/
 void ipc_slave_init(Uint32 volatile selfId); // Must be called first
 void ipc_slave_init2(void); // selfId extracted automatically
-void ipc_slave_wait_req(void); // calls ipc_slave_reset_req() on return
+int ipc_slave_wait_req(void); // calls ipc_slave_reset_req() on return
 void ipc_slave_reset_req(void);
 void ipc_slave_set_ack(int ack_val); // increases ncalls
 int ipc_slave_get_num_requests(void); // no protection from int overflow

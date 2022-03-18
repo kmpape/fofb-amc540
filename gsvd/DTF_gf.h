@@ -4,7 +4,7 @@
 #include "fofb_config.h"
 #define DTF_gf_UNIT_TEST    (1)
 /*
- * Hard-coded vector-wise (length K=32) filter with * N+1 (N=3) output and M+1 (M=3) input taps: * 
+ * Hard-coded vector-wise (length K=32) filter with * N+1 (N=11) output and M+1 (M=3) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,
  * 
  * where cyi and cui are scalar filter coefficients and
