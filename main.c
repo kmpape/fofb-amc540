@@ -63,9 +63,12 @@ Uint32 volatile selfId;
 extern int BPM_to_float(const LIBQDMA_ARR_TYPE * in_vec, imc_float * out_vec);
 extern int CM_to_int(const imc_float * in_vec, LIBQDMA_ARR_TYPE * out_vec);
 
+int counter = 0;
 void pcie_loop (void)
 {
-    int i, read_errors=0, write_errors=0;
+    int i;
+    int read_errors = 0;
+    int write_errors = 0;
     LIBQDMA_STATUS QDMAresult;
     volatile uint32_t *fpga_array;
 
@@ -87,6 +90,7 @@ void pcie_loop (void)
     while (1)
     {
         /* Check for DSP errors */
+#if 1
         if ((read_errors > 0) || (write_errors > 0)) {
             System_printf ("Loop halt on read_erros=%d and write_errors=%d.\n", read_errors, write_errors);
             set_GPIO_out_to_1(GPIO_OUT_2);
@@ -96,6 +100,7 @@ void pcie_loop (void)
             write_errors = 0;
             DTF_IMC_DI_init();
         }
+#endif
 
         /* Wait for FPGA */
         while (read_GPIO_in(GPIO_IN_1) != 1) {;}
@@ -126,9 +131,18 @@ void pcie_loop (void)
         }
 #else // loopback
         if (read_GPIO_in(GPIO_IN_2) == 1) {
+#if 1
             int len_cpy = (ARRAY_LEN_READ > ARRAY_LEN_WRITE) ? ARRAY_LEN_WRITE : ARRAY_LEN_READ;
             for (i = 0; i < len_cpy; i++)
                 pcie_write_buffer[i] = pcie_read_buffer[i];
+#endif
+#if 0
+            read_errors = BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), IMC_DI_get_input());
+            imc_float tmp[TOT_NUM_CM];
+            for (i = 0; i < TOT_NUM_CM; i++)
+                tmp[i] = ((float)i+1.0)*0.00005*1000.0;
+            write_errors = CM_to_int(tmp, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
+#endif
         } else {
             memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
@@ -164,6 +178,7 @@ void pcie_loop (void)
         QDMAresult = LIBQDMA_change_transfer_params_AB(CHUNK_LEN_READ, CHUNK_NUM_READ,
                         (LIBQDMA_ARR_TYPE *)fpga_array,
                         (LIBQDMA_ARR_TYPE *)LIBQDMA_getGlobalAddr((LIBQDMA_ARR_TYPE *)pcie_read_buffer));
+        counter++;
     }
 }
 

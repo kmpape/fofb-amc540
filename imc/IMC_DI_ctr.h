@@ -57,6 +57,8 @@ int IMC_DI_unit_test(void);
 void IMC_DI_ctr_worker(Uint32 selfId);
 #endif
 
+#if (~defined(SOC_C6678) && (USE_IPC==0))
 void gain_step(const imc_float * in_vec, imc_float * out_vec);
+#endif
 
 #endif /* IMC_DI_CTR_H_ */

@@ -23,11 +23,11 @@
 /*
  * Interface
  */
-#define TOT_NUM_BPM     (173) // fixed, independent of disabled BPMs, must match IMC_DI_ctr.h
-#define TOT_NUM_CM      (172) // fixed, independent of disabled CMs, must match IMC_DI_ctr.h
-#define ORBIT_LIMIT     (100000) // in nanometers
+#define TOT_NUM_BPM             (173) // fixed, independent of disabled BPMs, must match IMC_DI_ctr.h
+#define TOT_NUM_CM              (172) // fixed, independent of disabled CMs, must match IMC_DI_ctr.h
+#define ORBIT_LIMIT             (100000) // in nanometers
 #define SCALING_FACTOR_WRITE    (20000.0) // must match Python script gain
-#define READ_WRITE_OFFSET       (0)
+#define READ_WRITE_OFFSET       (1) // BPM ID 1 is on memory location 1 (not 0)
 
 /*
  * DMA: transfers CHUNK_NUM packets of size CHUNK_LEN*4 bytes.

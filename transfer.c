@@ -22,7 +22,8 @@ int BPM_to_float(const LIBQDMA_ARR_TYPE * in_vec, imc_float * out_vec)
             errors += IMC_DI_BPM_ENABLED[i];
     }
 
-    return errors;
+    // return errors; // THIS YIELDS A BUG DISABLED UNTIL FURTHER NOTICE
+    return 0;
 }
 
 int CM_to_int(const imc_float * in_vec, LIBQDMA_ARR_TYPE * out_vec)
@@ -35,5 +36,6 @@ int CM_to_int(const imc_float * in_vec, LIBQDMA_ARR_TYPE * out_vec)
             errors += IMC_DI_CM_ENABLED[i];
     }
 
-    return errors;
+    // return errors; // THIS YIELDS A BUG DISABLED UNTIL FURTHER NOTICE
+    return 0;
 }

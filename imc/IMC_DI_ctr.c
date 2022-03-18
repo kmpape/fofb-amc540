@@ -126,12 +126,12 @@ static void mat_mpy(const imc_float * in_mat, const imc_float * in_vec, imc_floa
         out_vec[i] = row_res;
     }
 }
-#endif
 
 void gain_step(const imc_float * in_vec, imc_float * out_vec)
 {
     mat_mpy(&IMC_DI_gain_mat[0], (const imc_float *)in_vec, (imc_float *)&out_vec[0], IMC_DI_NU, IMC_DI_NY);
 }
+#endif
 
 imc_float * IMC_DI_ctr(void)
 {
