@@ -6,6 +6,8 @@
 /*                                                                          */
 /****************************************************************************/
 
+#include "fofb_config.h"
+
 -stack 0xAFA00
 -heap  0xAFA00
 
@@ -49,13 +51,16 @@ SECTIONS
     .ipc_shared_section		> MSMCSRAM
 
     /* IMC Sections */
+#if (IMC_CONTROL == 1)
     .imc_DI					> L2SRAM
     .imc_di_shared			> MSMCSRAM
     .imc_di_local			> L2SRAM
     .imc_DI_init			> DDR3
     .imc_UNIT_TEST			> DDR3
+#endif
 
     /* GSVD Sections */
+#if (GSVD_CONTROL == 1)
     .gsvd_gs				> L2SRAM
     .gsvd_gf				> L2SRAM
     .gsvd_qs				> L2SRAM
@@ -66,6 +71,7 @@ SECTIONS
     .gsvd_local				> L2SRAM
     .gsvd_init				> DDR3
     .gsvd_UNIT_TEST			> DDR3
+#endif
 
 	/* AMC540 */
     platform_lib			> DDR3

@@ -92,17 +92,6 @@ void pcie_loop (void)
     set_GPIO_out_to_0(GPIO_OUT_1);
     while (1)
     {
-        /* Check for DSP errors */
-        if ((read_errors > 0) || (write_errors > 0)) {
-            System_printf ("Loop halt on read_erros=%d and write_errors=%d.\n", read_errors, write_errors);
-            set_GPIO_out_to_1(GPIO_OUT_2);
-            while ((read_GPIO_in(GPIO_IN_1) != 0) && (read_GPIO_in(GPIO_IN_2) != 0)) {;}
-            set_GPIO_out_to_0(GPIO_OUT_2);
-            read_errors = 0;
-            write_errors = 0;
-            DTF_IMC_DI_init();
-        }
-
         /* Wait for FPGA */
         while (read_GPIO_in(GPIO_IN_1) != 1) {;}
 
