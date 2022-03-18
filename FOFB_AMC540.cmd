@@ -55,6 +55,18 @@ SECTIONS
     .imc_DI_init			> DDR3
     .imc_UNIT_TEST			> DDR3
 
+    /* GSVD Sections */
+    .gsvd_gs				> L2SRAM
+    .gsvd_gf				> L2SRAM
+    .gsvd_qs				> L2SRAM
+    .gsvd_qf				> L2SRAM
+    .gsvd_pmcs				> L2SRAM
+    .gsvd_pmcf				> L2SRAM
+    .gsvd_shared			> MSMCSRAM
+    .gsvd_local				> L2SRAM
+    .gsvd_init				> DDR3
+    .gsvd_UNIT_TEST			> DDR3
+
 	/* AMC540 */
     platform_lib			> DDR3
     .dstBufSec				> MSMCSRAM

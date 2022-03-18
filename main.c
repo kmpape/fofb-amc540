@@ -18,9 +18,17 @@
 #include "fofb_config.h"
 
 /* IMC */
+#if (IMC_CONTROL == 1)
 #include "imc/DTF_IMC_DI.h"
 #include "imc/IMC_DI_ctr.h"
 #include "imc/IMC_transfer.h"
+#endif
+
+/* IMC */
+#if (GSVD_CONTROL == 1)
+#include "gsvd/GSVD_ctr.h"
+#include "gsvd/GSVD_transfer.h"
+#endif
 
 /* Utilities */
 #include "utils/pcie_sample.h"
@@ -85,7 +93,6 @@ void pcie_loop (void)
     while (1)
     {
         /* Check for DSP errors */
-#if 1
         if ((read_errors > 0) || (write_errors > 0)) {
             System_printf ("Loop halt on read_erros=%d and write_errors=%d.\n", read_errors, write_errors);
             set_GPIO_out_to_1(GPIO_OUT_2);
@@ -95,7 +102,6 @@ void pcie_loop (void)
             write_errors = 0;
             DTF_IMC_DI_init();
         }
-#endif
 
         /* Wait for FPGA */
         while (read_GPIO_in(GPIO_IN_1) != 1) {;}
@@ -124,20 +130,23 @@ void pcie_loop (void)
         if ((read_errors > 0) || (write_errors > 0)) {
             memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
+#elif (GSVD_CONTROL == 1)
+        int restart_gsvd = (read_GPIO_in(GPIO_IN_2) == 0);
+        read_errors = GSVD_BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), GSVD_get_input());
+        gsvd_float * corr_values = GSVD_ctr(restart_gsvd); // calls parallel routines and invalidates cache
+        if (restart_gsvd == 0) {
+            write_errors = GSVD_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
+        } else {
+            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
+        }
+        if ((read_errors > 0) || (write_errors > 0)) {
+            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
+        }
 #else // loopback
         if (read_GPIO_in(GPIO_IN_2) == 1) {
-#if 1
             int len_cpy = (ARRAY_LEN_READ > ARRAY_LEN_WRITE) ? ARRAY_LEN_WRITE : ARRAY_LEN_READ;
             for (i = 0; i < len_cpy; i++)
                 pcie_write_buffer[i] = pcie_read_buffer[i];
-#endif
-#if 0
-            read_errors = BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), IMC_DI_get_input());
-            imc_float tmp[TOT_NUM_CM];
-            for (i = 0; i < TOT_NUM_CM; i++)
-                tmp[i] = ((float)i+1.0)*0.00005*1000.0;
-            write_errors = CM_to_int(tmp, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
-#endif
         } else {
             memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
@@ -188,8 +197,15 @@ int main() {
     if (selfId == IPC_MASTER_CORENUM)
     {   // MASTER
         PCIE_logPrintf ("Master core is %d.\n", (int)selfId);
-        PCIE_logPrintf ("TOT_NUM_BPM=%d, NUM_ENABLED=%d, NUM_CMs=%d\n",
+#if (IMC_CONTROL == 1)
+        PCIE_logPrintf ("IMC_CONTROL\nTOT_NUM_BPM=%d, NUM_ENABLED=%d, NUM_CMs=%d\n",
                         TOT_NUM_BPM, IMC_DI_NY, IMC_DI_NU);
+#elif (GSVD_CONTROL == 1)
+        PCIE_logPrintf ("GSVD_CONTROL\nNY=%d, NS=%d, NF=%d\n",
+                        TOT_NUM_BPM, GSVD_NY, GSVD_NS, GSVD_NF);
+#else
+        PCIE_logPrintf ("LOOPBACK\n");
+#endif
 #if (USE_IPC == 1)
         /* Initialise IPC framework */
         ipc_master_init();
@@ -199,15 +215,18 @@ int main() {
             ipc_master_set_req_slave_i(1, i); // INIT 1
             ipc_master_wait_ack_slave_i(i);
         }
+#if (IMC_CONTROL == 1)
 #if (DTF_IMC_DI_UNIT_TEST == 1)
         DTF_IMC_DI_unit_test();
 #endif
 #if (IMC_DI_UNIT_TESTS == 1)
         IMC_DI_unit_test();
 #endif
-#endif
         PCIE_logPrintf ("Initialize IMC.\n");
         DTF_IMC_DI_init();
+#endif /* (IMC_CONTROL == 1) */
+#endif /* ((USE_IPC == 1) */
+
         PCIE_logPrintf ("Start PCIe loop.\n");
         pcie_loop();
     } else {
@@ -224,8 +243,12 @@ int main() {
             ipc_slave_wait_req(); // INIT 1
             ipc_slave_set_ack(1);
 
+#if (IMC_CONTROL == 1)
             IMC_DI_ctr_worker(ipc_slave_get_selfId());
+#elif (GSVD_CONTROL == 1)
+            GSVD_ctr_worker(ipc_slave_get_selfId());
 #endif
+#endif /* (USE_IPC == 1) */
 
         }
     }
