@@ -4,7 +4,7 @@
 const int DTF_pmcs_test_nsamples = 10;
 const int DTF_pmcs_test_vec_len = 32;
 #ifdef SOC_C6678
-#pragma DATA_SECTION(DTF_pmcs_test_input_data, ".imc_UNIT_TEST");
+#pragma DATA_SECTION(DTF_pmcs_test_input_data, ".gsvd_unit_test");
 #pragma DATA_ALIGN(DTF_pmcs_test_input_data, 2);
 #endif // SOC_C6678
 const float DTF_pmcs_test_input_data[320] = {(float)-2.166338522817710111, 
@@ -328,7 +328,7 @@ const float DTF_pmcs_test_input_data[320] = {(float)-2.166338522817710111,
 (float)0.814469569087516332, 
 (float)0.879837752535385209};
 #ifdef SOC_C6678
-#pragma DATA_SECTION(DTF_pmcs_test_output_data, ".imc_UNIT_TEST");
+#pragma DATA_SECTION(DTF_pmcs_test_output_data, ".gsvd_unit_test");
 #pragma DATA_ALIGN(DTF_pmcs_test_output_data, 2);
 #endif // SOC_C6678
 const float DTF_pmcs_test_output_data[320] = {(float)0.000000000000000000, 

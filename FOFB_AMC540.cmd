@@ -70,7 +70,7 @@ SECTIONS
     .gsvd_shared			> MSMCSRAM
     .gsvd_local				> L2SRAM
     .gsvd_init				> DDR3
-    .gsvd_UNIT_TEST			> DDR3
+    .gsvd_unit_test			> DDR3
 #endif
 
 	/* AMC540 */

@@ -4,7 +4,7 @@
 const int DTF_qf_test_nsamples = 10;
 const int DTF_qf_test_vec_len = 16;
 #ifdef SOC_C6678
-#pragma DATA_SECTION(DTF_qf_test_input_data, ".imc_UNIT_TEST");
+#pragma DATA_SECTION(DTF_qf_test_input_data, ".gsvd_unit_test");
 #pragma DATA_ALIGN(DTF_qf_test_input_data, 2);
 #endif // SOC_C6678
 const float DTF_qf_test_input_data[160] = {(float)0.550929999928471359, 
@@ -168,7 +168,7 @@ const float DTF_qf_test_input_data[160] = {(float)0.550929999928471359,
 (float)0.298640507452732074, 
 (float)0.535309374886977940};
 #ifdef SOC_C6678
-#pragma DATA_SECTION(DTF_qf_test_output_data, ".imc_UNIT_TEST");
+#pragma DATA_SECTION(DTF_qf_test_output_data, ".gsvd_unit_test");
 #pragma DATA_ALIGN(DTF_qf_test_output_data, 2);
 #endif // SOC_C6678
 const float DTF_qf_test_output_data[160] = {(float)0.000000000000000000, 
