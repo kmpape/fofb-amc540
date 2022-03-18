@@ -4,11 +4,17 @@
 #include <c6x.h>
 #include <ti/csl/csl.h>
 
+#include "fofb_config.h"
+
 /* Global print level */
 #define DEBUGLEVEL  0
 
 /* Number of slaves to use */
+#if (GSVD_CONTROL == 1)
+#define NUMSLAVES   4
+#else
 #define NUMSLAVES   6
+#endif
 
 /* IPC print level */
 #define IPC_DEBUGLEVEL   DEBUGLEVEL

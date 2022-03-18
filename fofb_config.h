@@ -1,10 +1,3 @@
-/*
- * fofb_config.h
- *
- *  Created on: 13 Feb 2022
- *      Author: etv24172
- */
-
 #ifndef FOFB_CONFIG_H_
 #define FOFB_CONFIG_H_
 
@@ -16,7 +9,7 @@
 #define GSVD_CONTROL        (1) // enable=1, set to 0 if loopback only
 #define INTEGRATOR_LIMIT    (4.99) // in Amperes
 #define XDIR                (0) // 1=horizontal plane, 0=vertical plane
-#define USE_IPC             (0) // switch multi-core (1) and single-core (0)
+#define USE_IPC             (1) // switch multi-core (1) and single-core (0)
 #ifndef SOC_C6678
 #define USE_IPC             (0)
 #endif
