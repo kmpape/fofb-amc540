@@ -32,12 +32,10 @@
 #pragma DATA_ALIGN(out_sum,         GSVD_ARRAY_ALIGN)
 #pragma SET_DATA_SECTION(".gsvd_shared")
 #endif /* SOC_C6678 */
-volatile gsvd_float GSVD_ctr_input[GSVD_NU_PAD];     // = [pmcs(z) * us[k]; pmcf(z) * uf[k]]
+volatile gsvd_float GSVD_ctr_input[GSVD_NU_PAD];
 volatile gsvd_float GSVD_measurements[GSVD_NY_PAD];  // y[k] in nanometers
 volatile gsvd_float out_Ps[GSVD_NY_PAD];        // = gs(z) * Ps * us[k]
 volatile gsvd_float out_Pf[GSVD_NY_PAD];        // = gf(z) * Pf * uf[k]
-volatile gsvd_float out_Ks[GSVD_NS_PAD];        // = qs(z) * Ks * out_sum[k]
-volatile gsvd_float out_Kf[GSVD_NF_PAD];        // = qf(z) * Kf * out_sum[k]
 volatile gsvd_float out_sum[GSVD_NY_PAD];       // = GSVD_measurements[k] + out_Ps[k] + out_Pf[k]
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
@@ -69,18 +67,6 @@ void GSVD_double_to_float(const double *in, float *out, const int len)
 #endif /* SOC_C6678 */
     for (i=0; i<len; i++)
         out[i] = (float)in[i];
-}
-
-void GSVD_float_to_double(const float *in, double *out, const int len)
-{
-    int i;
-#ifdef SOC_C6678
-    _nassert((int) in % GSVD_ARRAY_ALIGN == 0);
-    _nassert((int) out % GSVD_ARRAY_ALIGN == 0);
-#pragma MUST_ITERATE(16, , 16)
-#endif /* SOC_C6678 */
-    for (i=0; i<len; i++)
-        out[i] = (double)in[i];
 }
 
 void GSVD_copy_vec(const gsvd_float *in, gsvd_float *out, const int len)
