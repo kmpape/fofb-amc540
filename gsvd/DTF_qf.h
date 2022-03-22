@@ -2,7 +2,8 @@
 #define DTF_QF_H_
 
 #include "fofb_config.h"
-#define DTF_qf_UNIT_TEST    (1)
+#define DTF_qf_UNIT_TEST    (0)
+#define DTF_qf_MAXVAL    (4.9900000000)
 /*
  * Hard-coded vector-wise (length K=16) filter with * N+1 (N=8) output and M+1 (M=8) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,
@@ -13,11 +14,9 @@
  */
 #define DTF_qf_LEN (16)
 
-#define DTF_qf_LIMIT (INTEGRATOR_LIMIT)
-
 #define DTF_qf_XDIR (XDIR)
 
-typedef float DTF_qf_ARR_TYPE;
+typedef double DTF_qf_ARR_TYPE;
 
 
 /*
@@ -55,9 +54,6 @@ void DTF_qf_execute(void);
  * void DTF_qf_init(void);
  */
 void DTF_qf_init(void);
-#if (DTF_qf_UNIT_TEST == 1)
-int DTF_qf_unit_test(void);
-#endif
 
 #define DTF_qf_min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define DTF_qf_max(X, Y)  ((X) > (Y) ? (X) : (Y))

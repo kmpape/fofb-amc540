@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 
 #include "fofb_config.h"
 #include "utils/libQDMA.h"
@@ -23,13 +24,13 @@ int GSVD_BPM_to_float(const LIBQDMA_ARR_TYPE * in_vec, gsvd_float * out_vec)
 int GSVD_CM_to_int(const gsvd_float * in_vec, LIBQDMA_ARR_TYPE * out_vec)
 {
     int i;
-    memset((LIBQDMA_ARR_TYPE *)out_vec, 0.0, TOT_NUM_CM*sizeof(LIBQDMA_ARR_TYPE));
+    memset((LIBQDMA_ARR_TYPE *)out_vec, 0, TOT_NUM_CM*sizeof(LIBQDMA_ARR_TYPE));
     for (i = 0; i < GSVD_NS; i++) {
-        LIBQDMA_ARR_TYPE tmp = (LIBQDMA_ARR_TYPE)(in_vec[i]*SCALING_FACTOR_WRITE);
+        LIBQDMA_ARR_TYPE tmp = round(in_vec[i]*SCALING_FACTOR_WRITE);
         out_vec[GSVD_SLOW_TO_BPM[i]] = T_sat(tmp, ORBIT_LIMIT);
     }
     for (i = 0; i < GSVD_NF; i++) {
-        LIBQDMA_ARR_TYPE tmp = (LIBQDMA_ARR_TYPE)(in_vec[GSVD_NS_PAD+i]*SCALING_FACTOR_WRITE);
+        LIBQDMA_ARR_TYPE tmp = round(in_vec[GSVD_NS_PAD+i]*SCALING_FACTOR_WRITE);
         out_vec[GSVD_FAST_TO_BPM[i]] = T_sat(tmp, ORBIT_LIMIT);
     }
     return 0;

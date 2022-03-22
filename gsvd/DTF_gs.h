@@ -2,9 +2,10 @@
 #define DTF_GS_H_
 
 #include "fofb_config.h"
-#define DTF_gs_UNIT_TEST    (1)
+#define DTF_gs_UNIT_TEST    (0)
+#define DTF_gs_MAXVAL    (100000000000000000000.0000000000)
 /*
- * Hard-coded vector-wise (length K=32) filter with * N+1 (N=10) output and M+1 (M=2) input taps: * 
+ * Hard-coded vector-wise (length K=32) filter with * N+1 (N=9) output and M+1 (M=1) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,
  * 
  * where cyi and cui are scalar filter coefficients and
@@ -13,11 +14,9 @@
  */
 #define DTF_gs_LEN (32)
 
-#define DTF_gs_LIMIT (INTEGRATOR_LIMIT)
-
 #define DTF_gs_XDIR (XDIR)
 
-typedef float DTF_gs_ARR_TYPE;
+typedef double DTF_gs_ARR_TYPE;
 
 
 /*
@@ -55,9 +54,6 @@ void DTF_gs_execute(void);
  * void DTF_gs_init(void);
  */
 void DTF_gs_init(void);
-#if (DTF_gs_UNIT_TEST == 1)
-int DTF_gs_unit_test(void);
-#endif
 
 #define DTF_gs_min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define DTF_gs_max(X, Y)  ((X) > (Y) ? (X) : (Y))

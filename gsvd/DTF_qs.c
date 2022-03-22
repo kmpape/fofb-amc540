@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "DTF_qs.h"
 
 #ifdef SOC_C6678
@@ -59,15 +60,15 @@ DTF_qs_ARR_TYPE *DTF_qs_u4_ptr = DTF_qs_u4;
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION(".gsvd_qs")
 #endif // SOC_C6678
-DTF_qs_ARR_TYPE DTF_qs_cy1 = (DTF_qs_ARR_TYPE)3.9943512468013100;
-DTF_qs_ARR_TYPE DTF_qs_cy2 = (DTF_qs_ARR_TYPE)-5.9830635921697510;
-DTF_qs_ARR_TYPE DTF_qs_cy3 = (DTF_qs_ARR_TYPE)3.9830734372540126;
-DTF_qs_ARR_TYPE DTF_qs_cy4 = (DTF_qs_ARR_TYPE)-0.9943610918871258;
+DTF_qs_ARR_TYPE DTF_qs_cy1 = (DTF_qs_ARR_TYPE)3.8893063372560475;
+DTF_qs_ARR_TYPE DTF_qs_cy2 = (DTF_qs_ARR_TYPE)-5.6717272849293376;
+DTF_qs_ARR_TYPE DTF_qs_cy3 = (DTF_qs_ARR_TYPE)3.6754844410226744;
+DTF_qs_ARR_TYPE DTF_qs_cy4 = (DTF_qs_ARR_TYPE)-0.8930637290546378;
 DTF_qs_ARR_TYPE DTF_qs_cu0 = (DTF_qs_ARR_TYPE)0.0000000000000000;
-DTF_qs_ARR_TYPE DTF_qs_cu1 = (DTF_qs_ARR_TYPE)0.0000000022018152;
-DTF_qs_ARR_TYPE DTF_qs_cu2 = (DTF_qs_ARR_TYPE)-0.0000000020966603;
-DTF_qs_ARR_TYPE DTF_qs_cu3 = (DTF_qs_ARR_TYPE)-0.0000000022470842;
-DTF_qs_ARR_TYPE DTF_qs_cu4 = (DTF_qs_ARR_TYPE)0.0000000021434835;
+DTF_qs_ARR_TYPE DTF_qs_cu1 = (DTF_qs_ARR_TYPE)0.0000001020231482;
+DTF_qs_ARR_TYPE DTF_qs_cu2 = (DTF_qs_ARR_TYPE)0.0000003746147757;
+DTF_qs_ARR_TYPE DTF_qs_cu3 = (DTF_qs_ARR_TYPE)-0.0000001636103578;
+DTF_qs_ARR_TYPE DTF_qs_cu4 = (DTF_qs_ARR_TYPE)-0.0000000773223123;
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -110,8 +111,7 @@ void DTF_qs_swap_u(void)
 void DTF_qs_execute(void)
 {
 	int i;
-	const DTF_qs_ARR_TYPE maxval = 10000.0;
-
+	
 	DTF_qs_swap_y();
 
 	for (i=0; i<DTF_qs_LEN; i++)
@@ -125,7 +125,7 @@ void DTF_qs_execute(void)
 			+ DTF_qs_cu1 * DTF_qs_u1_ptr[i]
 			+ DTF_qs_cu2 * DTF_qs_u2_ptr[i]
 			+ DTF_qs_cu3 * DTF_qs_u3_ptr[i]
-			+ DTF_qs_cu4 * DTF_qs_u4_ptr[i], maxval);
+			+ DTF_qs_cu4 * DTF_qs_u4_ptr[i], DTF_qs_MAXVAL);
 	}
 
 	DTF_qs_swap_u();
