@@ -17,8 +17,6 @@
 #include "gsvd/DTF_gf.h"
 #include "gsvd/DTF_qs.h"
 #include "gsvd/DTF_qf.h"
-#include "gsvd/DTF_pmcs.h"
-#include "gsvd/DTF_pmcf.h"
 
 #if (GSVD_XDIR == 1)
 #include "GSVD_gain_x.h"
@@ -122,7 +120,7 @@ static void GSVD_mat_mpy(const gsvd_float * in_mat, const gsvd_float * in_vec, d
 #endif /* SOC_C6678 */
         for (j = 0; j < ncols; j++)
         {
-            row_res += (double)(in_mat_ptr[j] * in_vec[j]);
+            row_res += (double)(in_mat_ptr[j] * in_vec[j]); // note
         }
         out_vec[i] = row_res;
         in_mat_ptr += ncols;
@@ -180,45 +178,37 @@ void GSVD_ctr_worker(Uint32 selfId)
         CACHE_invL1d ((void *) &out_sum[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
 
         GSVD_mat_mpy((const gsvd_float *)&mat_Ks_local[0], (const gsvd_float *)out_sum,
-                (gsvd_float *)DTF_qs_get_u0_ptr(), GSVD_KS_W_NROWS, GSVD_KS_W_NCOLS);
+                     (DTF_qs_ARR_TYPE *)DTF_qs_get_u0_ptr(), GSVD_KS_W_NROWS, GSVD_KS_W_NCOLS);
         DTF_qs_execute();
-        GSVD_copy_vec((const gsvd_float *)DTF_qs_get_y0_ptr(), (gsvd_float *)&out_Ks[(selfId-1)*GSVD_NS_W], GSVD_NS_W);
-        GSVD_copy_vec((const gsvd_float *)DTF_qs_get_y0_ptr(), (gsvd_float *)DTF_pmcs_get_u0_ptr(), GSVD_NS_W);
-        DTF_pmcs_execute();
-        GSVD_copy_vec((const gsvd_float *)DTF_pmcs_get_y0_ptr(), (gsvd_float *)&GSVD_ctr_input[(selfId-1)*GSVD_NS_W], GSVD_NS_W);
-
-        CACHE_wbL1d ((void *) &out_Ks[(selfId-1)*GSVD_NS_W], GSVD_NS_W*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
+        GSVD_double_to_float((const DTF_qs_ARR_TYPE *)DTF_qs_get_y0_ptr(),
+                             (gsvd_float *)&GSVD_ctr_input[(selfId-1)*GSVD_NS_W], GSVD_NS_W);
         CACHE_wbL1d ((void *) &GSVD_ctr_input[(selfId-1)*GSVD_NS_W], GSVD_NS_W*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
 
         GSVD_mat_mpy((const gsvd_float *)&mat_Kf_local[0], (const gsvd_float *)out_sum,
-                (gsvd_float *)DTF_qf_get_u0_ptr(), GSVD_KF_W_NROWS, GSVD_KF_W_NCOLS);
+                     (DTF_qf_ARR_TYPE *)DTF_qf_get_u0_ptr(), GSVD_KF_W_NROWS, GSVD_KF_W_NCOLS);
         DTF_qf_execute();
-        GSVD_copy_vec((const gsvd_float *)DTF_qf_get_y0_ptr(), (gsvd_float *)&out_Kf[(selfId-1)*GSVD_NF_W], GSVD_NF_W);
-        GSVD_copy_vec((const gsvd_float *)DTF_qf_get_y0_ptr(), (gsvd_float *)DTF_pmcf_get_u0_ptr(), GSVD_NF_W);
-        DTF_pmcf_execute();
-        GSVD_copy_vec((const gsvd_float *)DTF_pmcf_get_y0_ptr(), (gsvd_float *)&GSVD_ctr_input[GSVD_NS_PAD+(selfId-1)*GSVD_NF_W], GSVD_NF_W);
-
-        CACHE_wbL1d ((void *) &out_Kf[(selfId-1)*GSVD_NF_W], GSVD_NF_W*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
+        GSVD_double_to_float((const DTF_qf_ARR_TYPE *)DTF_qf_get_y0_ptr(),
+                             (gsvd_float *)&GSVD_ctr_input[GSVD_NS_PAD+(selfId-1)*GSVD_NF_W], GSVD_NF_W);
         CACHE_wbL1d ((void *) &GSVD_ctr_input[GSVD_NS_PAD+(selfId-1)*GSVD_NF_W], GSVD_NF_W*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
 
         ipc_slave_set_ack(1); // ML 0
 
         ipc_slave_wait_req(); // ML 1: Update slow and fast model outputs
 
-        CACHE_invL1d ((void *) &out_Ks[0], GSVD_NS_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
-        CACHE_invL1d ((void *) &out_Kf[0], GSVD_NF_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
+        CACHE_invL1d ((void *) &GSVD_ctr_input[0], GSVD_NU_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
 
-        GSVD_mat_mpy((const gsvd_float *)&mat_Ps_local[0], (const gsvd_float *)out_Ks,
-                (gsvd_float *)DTF_gs_get_u0_ptr(), GSVD_PS_W_NROWS, GSVD_PS_W_NCOLS);
+        GSVD_mat_mpy((const gsvd_float *)&mat_Ps_local[0], (const gsvd_float *)GSVD_ctr_input,
+                     (DTF_gs_ARR_TYPE *)DTF_gs_get_u0_ptr(), GSVD_PS_W_NROWS, GSVD_PS_W_NCOLS);
         DTF_gs_execute();
-        GSVD_copy_vec((const gsvd_float *)DTF_gs_get_y0_ptr(), (gsvd_float *)&out_Ps[(selfId-1)*GSVD_NY_W], GSVD_NY_W);
-
+        GSVD_double_to_float((const DTF_gs_ARR_TYPE *)DTF_gs_get_y0_ptr(),
+                             (gsvd_float *)&out_Ps[(selfId-1)*GSVD_NY_W], GSVD_NY_W);
         CACHE_wbL1d ((void *) &out_Ps[(selfId-1)*GSVD_NY_W], GSVD_NY_W*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
 
-        GSVD_mat_mpy((const gsvd_float *)&mat_Pf_local[0], (const gsvd_float *)out_Kf,
-                (gsvd_float *)DTF_gf_get_u0_ptr(), GSVD_PF_W_NROWS, GSVD_PF_W_NCOLS);
+        GSVD_mat_mpy((const gsvd_float *)&mat_Pf_local[0], (const gsvd_float *)&GSVD_ctr_input[GSVD_NS_PAD],
+                     (DTF_gf_ARR_TYPE *)DTF_gf_get_u0_ptr(), GSVD_PF_W_NROWS, GSVD_PF_W_NCOLS);
         DTF_gf_execute();
-        GSVD_copy_vec((const gsvd_float *)DTF_gf_get_y0_ptr(), (gsvd_float *)&out_Pf[(selfId-1)*GSVD_NY_W], GSVD_NY_W);
+        GSVD_double_to_float((const DTF_gf_ARR_TYPE *)DTF_gf_get_y0_ptr(),
+                             (gsvd_float *)&out_Pf[(selfId-1)*GSVD_NY_W], GSVD_NY_W);
 
         CACHE_wbL1d ((void *) &out_Pf[(selfId-1)*GSVD_NY_W], GSVD_NY_W*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
 
@@ -237,7 +227,7 @@ gsvd_float * GSVD_ctr(int restart)
     CACHE_wbL1d ((void *) &out_sum[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
 
     if (restart == 1) {
-        ipc_master_set_req(2); // ML 0: Compute slow and fast inputs
+        ipc_master_set_req(2); // Restart
     } else {
         ipc_master_set_req(1); // ML 0: Compute slow and fast inputs
     }
@@ -268,10 +258,6 @@ gsvd_float * GSVD_ctr(int restart)
     DTF_qf_execute();
     GSVD_double_to_float((const DTF_qf_ARR_TYPE *)DTF_qf_get_y0_ptr(),
                          (gsvd_float *)&GSVD_ctr_input[GSVD_NS_PAD], GSVD_NF_W);
-
-    DTF_pmcf_execute();
-    GSVD_copy_vec((const gsvd_float *)DTF_pmcf_get_y0_ptr(),
-             (gsvd_float *)&GSVD_ctr_input[GSVD_NS_PAD], GSVD_NF_W);
 
     // ML 1: Update slow and fast model outputs
     GSVD_mat_mpy((const gsvd_float *)&GSVD_Ps_gain[0], (const gsvd_float *)&GSVD_ctr_input[0],
