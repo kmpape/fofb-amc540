@@ -20,13 +20,16 @@ SECTIONS
 	.args 		> MSMCSRAM
 	.cio 		> MSMCSRAM
 	.far 		> MSMCSRAM
-	.rodata 	> MSMCSRAM
-	.neardata 	> MSMCSRAM
+	GROUP // moved to a group for MPC, were all in MSMCSRAM before
+	{
+		.rodata
+		.bss
+		.neardata
+	}			> MSMCSRAM
 	.cppi 		> MSMCSRAM
-	.init_array > MSMCSRAM
+	.init_array > DDR3 // changed for MPC was MSMCSRAM before
 	.qmss 		> MSMCSRAM
-	.cinit 		> MSMCSRAM
-	.bss 		> MSMCSRAM
+	.cinit 		> DDR3 // changed for MPC was MSMCSRAM before
 	.const 		> MSMCSRAM
 	.text 		> MSMCSRAM
 	.code 		> MSMCSRAM

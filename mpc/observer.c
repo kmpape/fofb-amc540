@@ -40,14 +40,20 @@ void OBS_vec_copy_vol(const obs_float * restrict in, volatile obs_float * restri
 void OBS_vec_copy_vol_vol(const volatile obs_float * restrict in, volatile obs_float * restrict out,
                   const int len);
 
-/* Shared arrays */
-//#pragma DATA_ALIGN(OBS_y_new_static,    OBS_ARRAY_ALIGN)
-#pragma DATA_ALIGN(OBS_delta_y_static,  OBS_ARRAY_ALIGN)
-#pragma DATA_ALIGN(OBS_delta_x8_static, OBS_ARRAY_ALIGN)
-#pragma DATA_ALIGN(OBS_delta_xd_static, OBS_ARRAY_ALIGN)
+/* Arrays used for initalization*/
 #pragma DATA_ALIGN(OBS_Lx_static,       OBS_ARRAY_ALIGN)
 #pragma DATA_ALIGN(OBS_Ld_static,       OBS_ARRAY_ALIGN)
 #pragma DATA_ALIGN(OBS_Cx_static,       OBS_ARRAY_ALIGN)
+#pragma SET_DATA_SECTION(".mpc_init")
+volatile obs_float OBS_Lx_static[OBS_DIM*OBS_DIM];
+volatile obs_float OBS_Ld_static[OBS_DIM*OBS_DIM];
+volatile obs_float OBS_Cx_static[OBS_DIM*OBS_DIM];
+#pragma SET_DATA_SECTION()
+
+/* Shared arrays */
+#pragma DATA_ALIGN(OBS_delta_y_static,  OBS_ARRAY_ALIGN)
+#pragma DATA_ALIGN(OBS_delta_x8_static, OBS_ARRAY_ALIGN)
+#pragma DATA_ALIGN(OBS_delta_xd_static, OBS_ARRAY_ALIGN)
 #pragma DATA_ALIGN(OBS_x0_new_static,   OBS_ARRAY_ALIGN)
 #pragma DATA_ALIGN(OBS_x0_old_static,   OBS_ARRAY_ALIGN)
 #pragma DATA_ALIGN(OBS_x1_static,       OBS_ARRAY_ALIGN)
@@ -64,9 +70,6 @@ void OBS_vec_copy_vol_vol(const volatile obs_float * restrict in, volatile obs_f
 volatile obs_float OBS_delta_y_static[OBS_DIM];     // delta_y = y - Cx*x7 - xd
 volatile obs_float OBS_delta_x8_static[OBS_DIM];    // delta_x7 = Lx*delta_y
 volatile obs_float OBS_delta_xd_static[OBS_DIM];    // delta_xd = Ld*delta_y
-volatile obs_float OBS_Lx_static[OBS_DIM*OBS_DIM];
-volatile obs_float OBS_Ld_static[OBS_DIM*OBS_DIM];
-volatile obs_float OBS_Cx_static[OBS_DIM*OBS_DIM];
 volatile obs_float OBS_x0_new_static[OBS_DIM];  // 0 delay  -> RESULT
 volatile obs_float OBS_x0_old_static[OBS_DIM];  // 0 delay
 volatile obs_float OBS_x1_static[OBS_DIM];      // 1 step delay
@@ -99,7 +102,7 @@ volatile obs_float OBS_Cx_local[OBS_W_NROWS*OBS_DIM];
 #pragma SET_DATA_SECTION()
 
 /* Local pointers */
-#pragma DATA_ALIGN(OBS_delta_y_local,    OBS_ARRAY_ALIGN)
+#pragma DATA_ALIGN(OBS_xd_local,    OBS_ARRAY_ALIGN)
 #pragma SET_DATA_SECTION(".obs_local_data")
 volatile obs_float * volatile OBS_xd_local;
 volatile obs_float * volatile OBS_x0_new_local;

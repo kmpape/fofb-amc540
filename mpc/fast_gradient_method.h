@@ -151,23 +151,4 @@ float FGM_MPC_total_time(FGM_MPC_Timer *t);
 void FGM_MPC_print_timer_info(FGM_MPC_Timer timer, char *timer_name);
 #endif
 
-fgm_float FGM_MPC_max(fgm_float in1, fgm_float in2)
-{
-    return (in1 > in2) ? in1 : in2;
-}
-
-fgm_float FGM_MPC_min(fgm_float in1, fgm_float in2)
-{
-    return (in1 < in2) ? in1 : in2;
-}
-
-fgm_float FGM_MPC_abs_float(fgm_float in)
-{
-    return (in > 0) ? in : -in;
-}
-
-#define FGM_MPC_min(X, Y)  ((X) < (Y) ? (X) : (Y))
-#define FGM_MPC_max(X, Y)  ((X) > (Y) ? (X) : (Y))
-#define FGM_MPC_abs_float(X)  (((X) > 0) ? (X) : -(X))
-
 #endif /* FAST_GRADIENT_METHOD_H_ */

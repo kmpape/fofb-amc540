@@ -3,9 +3,9 @@
 #include <vect.h>
 #include <xdc/std.h>
 
-#include "fast_gradient_method.h"
-#include "fgm_utils.h"
-#include "observer.h"
+#include "mpc/fast_gradient_method.h"
+#include "mpc/fgm_utils.h"
+#include "mpc/observer.h"
 
 #if defined(FGM_MPC_DEBUG) || defined(FGM_MPC_PROFILING)
 #include <stdio.h>
@@ -40,33 +40,47 @@
  *
  */
 
-/* Problem Data */
+
+#define FGM_MPC_min(X, Y)  ((X) < (Y) ? (X) : (Y))
+#define FGM_MPC_max(X, Y)  ((X) > (Y) ? (X) : (Y))
+#define FGM_MPC_abs_float(X)  (((X) > 0) ? (X) : -(X))
+
+/* Arrays used for initalization*/
+#ifdef SOC_C6678
+#pragma DATA_ALIGN(FGM_MPC_in_mat_static,       FGM_MPC_ARRAY_ALIGN)
+#pragma DATA_ALIGN(FGM_MPC_in_mat_vec_static,   FGM_MPC_ARRAY_ALIGN)
+#if (FGM_MPC_DEBUG_LEVEL > 0)
+#pragma DATA_ALIGN(FGM_MPC_in_vec_global,       FGM_MPC_ARRAY_ALIGN)
+#endif
+#pragma SET_DATA_SECTION(".mpc_init")
+#endif // SOC_C6678
+volatile fgm_float FGM_MPC_in_mat_static[FGM_MPC_DIM * FGM_MPC_DIM];    // J
+volatile fgm_float FGM_MPC_in_mat_vec_static[FGM_MPC_DIM * 2 * FGM_MPC_N_X0_OR_XD]; // q = in_mat_vec*[x0_obs; xd_obs]
+#ifdef SOC_C6678
+#pragma SET_DATA_SECTION()
+#endif // SOC_C6678
 
 /* Shared Arrays */
 #ifdef SOC_C6678
-#pragma DATA_ALIGN(FGM_MPC_in_mat_static,       FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_in_vec_static,       FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_out_vec_static,      FGM_MPC_ARRAY_ALIGN)
-#pragma DATA_ALIGN(FGM_MPC_ampl_max_static,     FGM_MPC_ARRAY_ALIGN)
-#pragma DATA_ALIGN(FGM_MPC_rate_max_static,     FGM_MPC_ARRAY_ALIGN)
-#pragma DATA_ALIGN(FGM_MPC_in_mat_vec_static,   FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_x0_obs_static,       FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_xd_obs_static,       FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_y_meas_in,           FGM_MPC_ARRAY_ALIGN)
+#pragma DATA_ALIGN(FGM_MPC_ampl_max_static,     FGM_MPC_ARRAY_ALIGN)
+#pragma DATA_ALIGN(FGM_MPC_rate_max_static,     FGM_MPC_ARRAY_ALIGN)
 #if (FGM_MPC_DEBUG_LEVEL > 0)
 #pragma DATA_ALIGN(FGM_MPC_in_vec_global,       FGM_MPC_ARRAY_ALIGN)
 #endif
 #pragma SET_DATA_SECTION(".fgm_shared_data")
 #endif // SOC_C6678
-volatile fgm_float FGM_MPC_in_mat_static[FGM_MPC_DIM * FGM_MPC_DIM];    // J
 volatile fgm_float FGM_MPC_in_vec_static[FGM_MPC_DIM];                  // q
 volatile fgm_float FGM_MPC_out_vec_static[FGM_MPC_DIM];
-volatile fgm_float FGM_MPC_ampl_max_static[FGM_MPC_DIM];
-volatile fgm_float FGM_MPC_rate_max_static[FGM_MPC_DIM];
-volatile fgm_float FGM_MPC_in_mat_vec_static[FGM_MPC_DIM * 2 * FGM_MPC_N_X0_OR_XD]; // q = in_mat_vec*[x0_obs; xd_obs]
 volatile fgm_float FGM_MPC_x0_obs_static[FGM_MPC_N_X0_OR_XD];
 volatile fgm_float FGM_MPC_xd_obs_static[FGM_MPC_N_X0_OR_XD];
 volatile fgm_float FGM_MPC_y_meas_in[FGM_MPC_N_X0_OR_XD];
+volatile fgm_float FGM_MPC_ampl_max_static[FGM_MPC_DIM];
+volatile fgm_float FGM_MPC_rate_max_static[FGM_MPC_DIM];
 #if (FGM_MPC_DEBUG_LEVEL > 0)
 volatile fgm_float FGM_MPC_in_vec_global[FGM_MPC_DIM];
 #endif
