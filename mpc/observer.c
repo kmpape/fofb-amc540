@@ -591,6 +591,7 @@ void OBS_update_observer_worker(const obs_float * y_meas, const obs_float * u_ol
 {
     const int ind_shift = (OBS_selfId - 1) * OBS_W_NROWS;
     ipc_slave_wait_req();      // ML 0
+    CACHE_invL1d((void *) &(y_meas[0]), FGM_MPC_BYTES_X0_OR_XD, CACHE_WAIT);
     OBS_swap_local_pointers();
     OBS_swap_global_pointers();
 

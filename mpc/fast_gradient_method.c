@@ -1292,7 +1292,7 @@ int FGM_MPC_solve(void)
 #if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
     FGM_MPC_tic(5);
 #endif
-    CACHE_invL1d((void *) &(FGM_MPC_y_meas_in[0]), FGM_MPC_BYTES_X0_OR_XD, CACHE_WAIT);
+    //CACHE_invL1d((void *) &(FGM_MPC_y_meas_in[0]), FGM_MPC_BYTES_X0_OR_XD, CACHE_WAIT);
     OBS_update_observer_master((const obs_float *)&(FGM_MPC_y_meas_in[0]),
                                (const obs_float *)&(out_global[0]));
 #if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
