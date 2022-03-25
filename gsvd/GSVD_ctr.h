@@ -19,7 +19,7 @@
 #define GSVD_XDIR               (XDIR)
 
 typedef float gsvd_float;
-#define GSVD_FLOAT_SIZE         (4)
+#define GSVD_FLOAT_SIZE         (sizeof(gsvd_float))
 #define GSVD_CACHE_LINESIZE     (64) // bytes
 #define GSVD_ARRAY_ALIGN        (GSVD_CACHE_LINESIZE)
 #define GSVD_UNIT_TESTS         (1)

@@ -30,6 +30,13 @@
 #include "gsvd/GSVD_transfer.h"
 #endif
 
+/* MPC */
+#if (MPC_CONTROL == 1)
+#include "mpc/MPC_ctr.h"
+#include "mpc/MPC_transfer.h"
+#include "mpc/fast_gradient_method.h"
+#endif
+
 /* Utilities */
 #include "utils/pcie_sample.h"
 #include "utils/libQDMA.h"
@@ -131,6 +138,18 @@ void pcie_loop (void)
         if ((read_errors > 0) || (write_errors > 0)) {
             memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
+#elif (MPC_CONTROL == 1)
+        int restart_mpc = (read_GPIO_in(GPIO_IN_2) == 0);
+        read_errors = MPC_BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), MPC_get_input());
+        gsvd_float * corr_values = MPC_ctr(restart_mpc); // calls parallel routines and invalidates cache
+        if (restart_mpc == 0) {
+            write_errors = MPC_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
+        } else {
+            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
+        }
+        if ((read_errors > 0) || (write_errors > 0)) {
+            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
+        }
 #else // loopback
         if (read_GPIO_in(GPIO_IN_2) == 1) {
             int len_cpy = (ARRAY_LEN_READ > ARRAY_LEN_WRITE) ? ARRAY_LEN_WRITE : ARRAY_LEN_READ;
@@ -192,6 +211,8 @@ int main() {
 #elif (GSVD_CONTROL == 1)
         PCIE_logPrintf ("GSVD_CONTROL\nNY=%d, NS=%d, NF=%d\n",
                         TOT_NUM_BPM, GSVD_NY, GSVD_NS, GSVD_NF);
+#elif (MPC_CONTROL == 1)
+        PCIE_logPrintf ("MPC_CONTROL\nNY=%d, NU=%d\n", MPC_NY, MPC_NU);
 #else
         PCIE_logPrintf ("LOOPBACK\n");
 #endif
@@ -199,18 +220,16 @@ int main() {
         /* Initialise IPC framework */
         ipc_master_init();
         ipc_master_wait_for_slaves_after_init();
+#if (MPC_CONTROL == 1)
+        PCIE_logPrintf ("Initialize MPC.\n");
+        MPC_initialize();
+#endif /* (MPC_CONTROL == 1) */
         int i;
         for (i = 1; i <= NUMSLAVES; i++) {
             ipc_master_set_req_slave_i(1, i); // INIT 1
             ipc_master_wait_ack_slave_i(i);
         }
 #if (IMC_CONTROL == 1)
-#if (DTF_IMC_DI_UNIT_TEST == 1)
-        DTF_IMC_DI_unit_test();
-#endif
-#if (IMC_DI_UNIT_TESTS == 1)
-        IMC_DI_unit_test();
-#endif
         PCIE_logPrintf ("Initialize IMC.\n");
         DTF_IMC_DI_init();
 #endif /* (IMC_CONTROL == 1) */
@@ -236,6 +255,8 @@ int main() {
             IMC_DI_ctr_worker(ipc_slave_get_selfId());
 #elif (GSVD_CONTROL == 1)
             GSVD_ctr_worker(ipc_slave_get_selfId());
+#elif (MPC_CONTROL == 1)
+            FGM_MPC_solve_worker();
 #endif
 #endif /* (USE_IPC == 1) */
 

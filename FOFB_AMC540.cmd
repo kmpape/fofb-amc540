@@ -50,7 +50,6 @@ SECTIONS
 	.ipc_local_data			> L2SRAM type=NOINIT
     .ipc_shared_section		> MSMCSRAM
 
-    /* IMC Sections */
 #if (IMC_CONTROL == 1)
     .imc_DI					> L2SRAM
     .imc_di_shared			> MSMCSRAM
@@ -59,7 +58,6 @@ SECTIONS
     .imc_UNIT_TEST			> DDR3
 #endif
 
-    /* GSVD Sections */
 #if (GSVD_CONTROL == 1)
     .gsvd_gs				> L2SRAM
     .gsvd_gf				> L2SRAM
@@ -71,6 +69,17 @@ SECTIONS
     .gsvd_local				> L2SRAM
     .gsvd_init				> DDR3
     .gsvd_unit_test			> DDR3
+#endif
+
+#if (MPC_CONTROL == 1)
+	.mpc_init				> DDR3
+	.mpc_shared				> L2SRAM
+    .fgm_local_data  		> L2SRAM
+    .fgm_shared_data 		> MSMCSRAM
+    .fgm_local_code  		> L2SRAM
+    .obs_shared_data 		> MSMCSRAM type=NOINIT
+    .obs_shared_const 		> MSMCSRAM
+    .obs_local_data  		> L2SRAM type=NOINIT
 #endif
 
 	/* AMC540 */
