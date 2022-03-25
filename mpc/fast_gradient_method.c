@@ -9,10 +9,10 @@
 
 #if defined(FGM_MPC_DEBUG) || defined(FGM_MPC_PROFILING)
 #include <stdio.h>
-#endif
+#endif // defined(FGM_MPC_DEBUG) || defined(FGM_MPC_PROFILING)
 #if defined(FGM_MPC_PROFILING)
 #include <time.h>
-#endif
+#endif // defined(FGM_MPC_PROFILING)
 
 #ifdef SOC_C6678
 #include <c6x.h>
@@ -126,7 +126,7 @@ fgm_float FGM_MPC_xd_mat_local[FGM_MPC_W_NROWS * FGM_MPC_N_X0_OR_XD];
 volatile fgm_float FGM_MPC_vec_t_static[FGM_MPC_DIM];
 volatile fgm_float FGM_MPC_vec_z_new_static[FGM_MPC_DIM];
 volatile fgm_float FGM_MPC_vec_z_old_static[FGM_MPC_DIM];
-#endif
+#endif // (FGM_MPC_DEBUG_LEVEL == 0)
 #if (FGM_MPC_HORIZON == 1)
 volatile fgm_float FGM_MPC_box_min_local[FGM_MPC_W_NROWS];
 volatile fgm_float FGM_MPC_box_max_local[FGM_MPC_W_NROWS];
@@ -142,7 +142,7 @@ fgm_float FGM_MPC_C3_local[FGM_MPC_W_NROWS];
 fgm_float FGM_MPC_C4_local[FGM_MPC_W_NROWS];
 fgm_float FGM_MPC_diag_lim1_local[FGM_MPC_W_NROWS];
 fgm_float FGM_MPC_diag_lim2_local[FGM_MPC_W_NROWS];
-#endif
+#endif // (FGM_MPC_HORIZON == 1)
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -157,7 +157,7 @@ volatile fgm_float FGM_MPC_vec_z_old_static[FGM_MPC_DIM];
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
-#endif
+#endif // (FGM_MPC_DEBUG_LEVEL > 0)
 
 /* Local Pointers */
 #ifdef SOC_C6678
@@ -401,7 +401,7 @@ void FGM_MPC_gradient_step(const fgm_float *restrict in_mat,
                                  FGM_MPC_min(out_vec[i+7], FGM_MPC_box_max_local[i+7]));
 #endif
     }
-#else // uses dual mpy function
+#else // not FGM_MPC_QMPY: uses dual mpy function
 
 #pragma MUST_ITERATE(FGM_MPC_W_NROWS/8, FGM_MPC_W_NROWS/8)
 #pragma UNROLL(1)
@@ -473,7 +473,7 @@ void FGM_MPC_gradient_step(const fgm_float *restrict in_mat,
                                  FGM_MPC_min(out_vec[i+7], FGM_MPC_box_max_local[i+7]));
 #endif
     }
-#endif
+#endif // FGM_MPC_QMPY
 #else
     for (i = 0; i < FGM_MPC_W_NROWS; i++)
     {
@@ -484,7 +484,7 @@ void FGM_MPC_gradient_step(const fgm_float *restrict in_mat,
         }
         out_vec[i] = row_res - in_vec_sub[i];
     }
-#endif
+#endif // FGM_MPC_UNROLL
 }
 
 
@@ -567,7 +567,6 @@ void FGM_MPC_initialize_obj_func_vec(const fgm_float * restrict in_x0_mat,
  */
 #if (FGM_MPC_HORIZON == 1)
 
-
 void FGM_MPC_initialize_projection(void)
 {
     int i_row;
@@ -647,7 +646,7 @@ void FGM_MPC_project(const fgm_float * restrict in,
 #endif
 }
 
-#else
+#else // (FGM_MPC_HORIZON == 1)
 
 void FGM_MPC_initialize_projection(void)
 {
@@ -741,7 +740,7 @@ void FGM_MPC_project(const fgm_float * restrict in, fgm_float * restrict out)
         }
     }
 }
-#endif
+#endif // (FGM_MPC_HORIZON == 1)
 
 #pragma FUNCTION_OPTIONS(FGM_MPC_initialize, "--opt_level=off --opt_for_speed=0")
 void FGM_MPC_initialize(
@@ -928,14 +927,14 @@ void FGM_MPC_initialize_worker(volatile int selfId)
     // for DMPY following unrolling is optimal
     permXN_2waySIMD(&FGM_MPC_in_mat_static[ind_shift], FGM_MPC_in_mat_local, 8,
                     FGM_MPC_W_NROWS, FGM_MPC_W_NCOLS);
-#endif
+#endif // FGM_MPC_QMPY
 #else
     // no unrolling, just copy the matrix
     for (i = 0; i < FGM_MPC_W_NROWS * FGM_MPC_W_NCOLS; i++)
     {
         FGM_MPC_in_mat_local[i] = FGM_MPC_in_mat_static[ind_shift + i];
     }
-#endif
+#endif // FGM_MPC_UNROLL
     FGM_MPC_in_mat = &FGM_MPC_in_mat_local[0];
 
     /* Copy worker's matrix to compute vector */
@@ -1240,9 +1239,8 @@ fgm_float * FGM_MPC_get_output(void)
 }
 
 
-#if (defined(SOC_C6678) && (USE_IPC == 1))
+//#if (defined(SOC_C6678) && (USE_IPC == 1))
 #pragma FUNCTION_OPTIONS(FGM_MPC_solve, "--opt_level=off --opt_for_speed=0")
-#endif
 int FGM_MPC_solve(void)
 {
     /* Algorithm:
@@ -1710,4 +1708,3 @@ void FGM_MPC_solve_worker(void)
 #endif
     } while (1);
 }
-#else // SOC_C6678 && USE_IPC==1
