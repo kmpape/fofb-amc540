@@ -1,8 +1,8 @@
 #ifndef MPC_STORAGE_RING_CONFIG_H_
 #define MPC_STORAGE_RING_CONFIG_H_
 
-#define MPC_NU (172)
-#define MPC_NY (171)
+#define MPC_NU_ (172)
+#define MPC_NY_ (171)
 
 #ifdef SOC_C6678
 #pragma DATA_SECTION(MPC_ID_TO_BPM, ".mpc_shared");

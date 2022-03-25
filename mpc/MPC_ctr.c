@@ -54,7 +54,7 @@ void MPC_initialize(void)
 
 fgm_float * MPC_get_input(void)
 {
-    return (fgm_float *)FGM_MPC_get_input():
+    return (fgm_float *)FGM_MPC_get_input();
 }
 
 fgm_float * MPC_ctr(int restart)

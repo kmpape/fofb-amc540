@@ -38,6 +38,7 @@ void OBS_initialize_master(const obs_float * Lx_init,
                            const obs_float * x5_init,
                            const obs_float * x6_init,
                            const obs_float * x7_init,
+                           const obs_float * x8_init,
                            const int obs_dim);
 void OBS_initialize_worker(volatile int selfId);
 

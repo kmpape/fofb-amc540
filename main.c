@@ -141,7 +141,7 @@ void pcie_loop (void)
 #elif (MPC_CONTROL == 1)
         int restart_mpc = (read_GPIO_in(GPIO_IN_2) == 0);
         read_errors = MPC_BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), MPC_get_input());
-        gsvd_float * corr_values = MPC_ctr(restart_mpc); // calls parallel routines and invalidates cache
+        fgm_float * corr_values = MPC_ctr(restart_mpc); // calls parallel routines and invalidates cache
         if (restart_mpc == 0) {
             write_errors = MPC_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
         } else {
