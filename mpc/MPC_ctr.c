@@ -31,7 +31,7 @@ void MPC_initialize(void)
                        solution_0,
                        obj_func_max_eigval,
                        obj_func_min_eigval,
-                       TOT_NUM_CM,
+                       192, // = 6 cores x 32
                        FGM_MPC_HORIZON);
 
     /* Observer */
