@@ -3,6 +3,7 @@
 
 #include "fofb_config.h"
 #include "utils/libQDMA.h"
+#include "mpc/MPC_transfer.h"
 #include "mpc/MPC_ctr.h"
 #include "mpc/MPC_storage_ring_config.h"
 
