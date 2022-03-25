@@ -32,8 +32,7 @@ void MPC_initialize(void)
                        obj_func_max_eigval,
                        obj_func_min_eigval,
                        TOT_NUM_CM,
-                       FGM_MPC_HORIZON,
-                       (const obs_float *)&(y_meas_in[0]));
+                       FGM_MPC_HORIZON);
 
     /* Observer */
     OBS_initialize_master(Lx_pad,

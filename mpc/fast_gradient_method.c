@@ -1242,6 +1242,7 @@ fgm_float * FGM_MPC_get_output(void)
 
 #if (defined(SOC_C6678) && (USE_IPC == 1))
 #pragma FUNCTION_OPTIONS(FGM_MPC_solve, "--opt_level=off --opt_for_speed=0")
+#endif
 int FGM_MPC_solve(void)
 {
     /* Algorithm:
