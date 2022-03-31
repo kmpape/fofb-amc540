@@ -17,7 +17,7 @@
  */
 #define TOT_NUM_BPM             (173) // fixed, independent of disabled BPMs, must match IMC_DI_ctr.h or GSVD_ctr.h
 #define TOT_NUM_CM              (172) // fixed, independent of disabled CMs, must match IMC_DI_ctr.h or GSVD_ctr.h
-#define ORBIT_LIMIT             (1000000) // in nanometers
+#define ORBIT_LIMIT             (5000000) // in nanometers
 #define SCALING_FACTOR_WRITE    (1000000.0) // must match Python script gain
 #define READ_WRITE_OFFSET       (1) // BPM ID 1 is on memory location 1 (not 0)
 
