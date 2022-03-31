@@ -6,8 +6,8 @@
  * Internal model control
  */
 #define IMC_CONTROL         (0) // enable=1, set to 0 if loopback only
-#define GSVD_CONTROL        (0) // enable=1, set to 0 if loopback only
-#define MPC_CONTROL         (1) // enable=1, set to 0 if loopback only
+#define GSVD_CONTROL        (1) // enable=1, set to 0 if loopback only
+#define MPC_CONTROL         (0) // enable=1, set to 0 if loopback only
 #define INTEGRATOR_LIMIT    (4.99) // in Amperes
 #define XDIR                (0) // 1=horizontal plane, 0=vertical plane
 #define USE_IPC             (1) // switch multi-core (1) and single-core (0)
@@ -17,8 +17,8 @@
  */
 #define TOT_NUM_BPM             (173) // fixed, independent of disabled BPMs, must match IMC_DI_ctr.h or GSVD_ctr.h
 #define TOT_NUM_CM              (172) // fixed, independent of disabled CMs, must match IMC_DI_ctr.h or GSVD_ctr.h
-#define ORBIT_LIMIT             (100000) // in nanometers
-#define SCALING_FACTOR_WRITE    (20000.0) // must match Python script gain
+#define ORBIT_LIMIT             (1000000) // in nanometers
+#define SCALING_FACTOR_WRITE    (1000000.0) // must match Python script gain
 #define READ_WRITE_OFFSET       (1) // BPM ID 1 is on memory location 1 (not 0)
 
 /*
