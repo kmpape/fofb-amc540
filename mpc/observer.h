@@ -29,16 +29,6 @@ typedef float obs_float;
 void OBS_initialize_master(const obs_float * Lx_init,
                            const obs_float * Ld_init,
                            const obs_float * Cx_init,
-                           const obs_float * xd_init,
-                           const obs_float * x0_init,
-                           const obs_float * x1_init,
-                           const obs_float * x2_init,
-                           const obs_float * x3_init,
-                           const obs_float * x4_init,
-                           const obs_float * x5_init,
-                           const obs_float * x6_init,
-                           const obs_float * x7_init,
-                           const obs_float * x8_init,
                            const int obs_dim);
 void OBS_initialize_worker(volatile int selfId);
 

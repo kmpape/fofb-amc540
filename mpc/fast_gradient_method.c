@@ -762,7 +762,6 @@ void FGM_MPC_initialize(
         const fgm_float * obj_func_vector_matrix,
         const fgm_float * ampl_max_vector,
         const fgm_float * rate_max_vector,
-        const fgm_float * warm_start_vec,
         const fgm_float obj_func_grad_max_eigval,
         const fgm_float obj_func_grad_min_eigval,
         const int fgm_dim,
@@ -847,7 +846,7 @@ void FGM_MPC_initialize(
     /* Initialize solution vector */
     for (i = 0; i < FGM_MPC_DIM; i++)
     {
-        FGM_MPC_out_vec_static[i] = (fgm_float)warm_start_vec[i];
+        FGM_MPC_out_vec_static[i] = (fgm_float)0.0;
     }
     CACHE_wbL1d((void *) &(FGM_MPC_out_vec_static[0]), FGM_MPC_BYTES_IN_VEC_TOTAL,
                 CACHE_WAIT);

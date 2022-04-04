@@ -28,7 +28,6 @@ void MPC_initialize(void)
                        obj_func_vector_matrix,
                        (const fgm_float*)ampl_max_vec,
                        (const fgm_float*)rate_max_vec,
-                       solution_0,
                        obj_func_max_eigval,
                        obj_func_min_eigval,
                        192, // = 6 cores x 32
@@ -38,16 +37,6 @@ void MPC_initialize(void)
     OBS_initialize_master(Lx_pad,
                           Ld_pad,
                           Cx_pad,
-                          xd_init_pad,
-                          x0_init_pad,
-                          x1_init_pad,
-                          x2_init_pad,
-                          x3_init_pad,
-                          x4_init_pad,
-                          x5_init_pad,
-                          x6_init_pad,
-                          x7_init_pad,
-                          x8_init_pad,
                           FGM_MPC_N_X0_OR_XD);
 }
 

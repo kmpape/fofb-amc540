@@ -66,21 +66,20 @@ volatile obs_float OBS_Cx_static[OBS_DIM*OBS_DIM];
 #pragma DATA_ALIGN(OBS_x8_static,       OBS_ARRAY_ALIGN)
 #pragma DATA_ALIGN(OBS_xd_static,       OBS_ARRAY_ALIGN)
 #pragma SET_DATA_SECTION(".obs_shared_data")
-//volatile obs_float OBS_y_new_static[OBS_DIM];       // new measurement  -> INPUT
-volatile obs_float OBS_delta_y_static[OBS_DIM];     // delta_y = y - Cx*x7 - xd
-volatile obs_float OBS_delta_x8_static[OBS_DIM];    // delta_x7 = Lx*delta_y
-volatile obs_float OBS_delta_xd_static[OBS_DIM];    // delta_xd = Ld*delta_y
-volatile obs_float OBS_x0_new_static[OBS_DIM];  // 0 delay  -> RESULT
-volatile obs_float OBS_x0_old_static[OBS_DIM];  // 0 delay
-volatile obs_float OBS_x1_static[OBS_DIM];      // 1 step delay
-volatile obs_float OBS_x2_static[OBS_DIM];      // 2 steps delay
-volatile obs_float OBS_x3_static[OBS_DIM];      // 3 steps delay
-volatile obs_float OBS_x4_static[OBS_DIM];      // 4 steps delay
-volatile obs_float OBS_x5_static[OBS_DIM];      // 5 steps delay
-volatile obs_float OBS_x6_static[OBS_DIM];      // 6 steps delay
-volatile obs_float OBS_x7_static[OBS_DIM];      // 7 steps delay
-volatile obs_float OBS_x8_static[OBS_DIM];      // 8 steps delay
-volatile obs_float OBS_xd_static[OBS_DIM];      // disturbance  -> RESULT
+volatile obs_float OBS_delta_y_static[OBS_DIM]={0.0};     // delta_y = y - Cx*x7 - xd
+volatile obs_float OBS_delta_x8_static[OBS_DIM]={0.0};    // delta_x7 = Lx*delta_y
+volatile obs_float OBS_delta_xd_static[OBS_DIM]={0.0};    // delta_xd = Ld*delta_y
+volatile obs_float OBS_x0_new_static[OBS_DIM]={0.0};  // 0 delay  -> RESULT
+volatile obs_float OBS_x0_old_static[OBS_DIM]={0.0};  // 0 delay
+volatile obs_float OBS_x1_static[OBS_DIM]={0.0};      // 1 step delay
+volatile obs_float OBS_x2_static[OBS_DIM]={0.0};      // 2 steps delay
+volatile obs_float OBS_x3_static[OBS_DIM]={0.0};      // 3 steps delay
+volatile obs_float OBS_x4_static[OBS_DIM]={0.0};      // 4 steps delay
+volatile obs_float OBS_x5_static[OBS_DIM]={0.0};      // 5 steps delay
+volatile obs_float OBS_x6_static[OBS_DIM]={0.0};      // 6 steps delay
+volatile obs_float OBS_x7_static[OBS_DIM]={0.0};      // 7 steps delay
+volatile obs_float OBS_x8_static[OBS_DIM]={0.0};      // 8 steps delay
+volatile obs_float OBS_xd_static[OBS_DIM]={0.0};      // disturbance  -> RESULT
 #pragma SET_DATA_SECTION()
 
 /* Shared pointers */
@@ -160,16 +159,6 @@ Uint32 volatile OBS_selfId;
 void OBS_initialize_master(const obs_float * Lx_init,
                            const obs_float * Ld_init,
                            const obs_float * Cx_init,
-                           const obs_float * xd_init,
-                           const obs_float * x0_init,
-                           const obs_float * x1_init,
-                           const obs_float * x2_init,
-                           const obs_float * x3_init,
-                           const obs_float * x4_init,
-                           const obs_float * x5_init,
-                           const obs_float * x6_init,
-                           const obs_float * x7_init,
-                           const obs_float * x8_init,
                            const int obs_dim)
 {
     int i;
@@ -188,8 +177,6 @@ void OBS_initialize_master(const obs_float * Lx_init,
                     OBS_BYTES_MAT_TOTAL/4,
                     CACHE_WAIT);
     }
-    _mfence();
-    _mfence();
 
     OBS_vec_copy_vol(&Ld_init[0], OBS_Ld_static, OBS_DIM * OBS_DIM);
 #pragma UNROLL(1)
@@ -199,8 +186,6 @@ void OBS_initialize_master(const obs_float * Lx_init,
                     OBS_BYTES_MAT_TOTAL/4,
                     CACHE_WAIT);
     }
-    _mfence();
-    _mfence();
 
     OBS_vec_copy_vol(&Cx_init[0], OBS_Cx_static, OBS_DIM * OBS_DIM);
 #pragma UNROLL(1)
@@ -210,52 +195,6 @@ void OBS_initialize_master(const obs_float * Lx_init,
                     OBS_BYTES_MAT_TOTAL/4,
                     CACHE_WAIT);
     }
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&xd_init[0], OBS_xd_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_xd_static[0]),       OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x0_init[0], OBS_x0_new_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x0_new_static[0]),   OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x0_init[0], OBS_x0_old_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x0_old_static[0]),   OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x1_init[0], OBS_x1_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x1_static[0]),       OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x2_init[0], OBS_x2_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x2_static[0]),       OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x3_init[0], OBS_x3_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x3_static[0]),       OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x4_init[0], OBS_x4_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x4_static[0]),       OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x5_init[0], OBS_x5_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x5_static[0]),       OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x6_init[0], OBS_x6_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x6_static[0]),       OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x7_init[0], OBS_x7_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x7_static[0]),       OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    OBS_vec_copy_vol(&x8_init[0], OBS_x8_static, OBS_DIM);
-    CACHE_wbL1d((void *) &(OBS_x8_static[0]),       OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
 
 #if (OBS_DEBUG_LEVEL > 1)
     for (i = 0; i < NUMSLAVES; i++)
@@ -334,40 +273,6 @@ void OBS_initialize_worker(volatile int selfId)
                      OBS_BYTES_MAT_TOTAL/4,
                      CACHE_WAIT);
     }
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_xd_static[0]),      OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x0_new_static[0]),  OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x0_old_static[0]),  OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x1_static[0]),      OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x2_static[0]),      OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x3_static[0]),      OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x4_static[0]),      OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x5_static[0]),      OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x6_static[0]),      OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x7_static[0]),      OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    CACHE_invL1d((void *) &(OBS_x8_static[0]),      OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
     _mfence();
 
     /* Assign workers part of matrices */
