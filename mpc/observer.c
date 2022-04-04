@@ -309,17 +309,17 @@ void OBS_initialize_worker(volatile int selfId)
 #endif
 
 
-    CACHE_invL1d((void *) &OBS_xd_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x0_new_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x0_old_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x1_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x2_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x3_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x4_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x5_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x6_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x7_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x8_static[0], OOBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_xd_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x0_new_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x0_old_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x1_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x2_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x3_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x4_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x5_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x6_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x7_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x8_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
 
     /* Assign pointers */
     ind_shift = (selfId - 1) * OBS_W_NROWS;
