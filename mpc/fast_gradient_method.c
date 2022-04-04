@@ -827,8 +827,6 @@ void FGM_MPC_initialize(
         CACHE_wbL1d((void *) &FGM_MPC_in_mat_static[(FGM_MPC_DIM*FGM_MPC_DIM)/4*i],
                      FGM_MPC_BYTES_IN_MAT_TOTAL/4,
                      CACHE_WAIT);
-        _mfence();
-        _mfence();
     }
 
     /* Store projection limits, projection initialized by slaves */
@@ -843,19 +841,13 @@ void FGM_MPC_initialize(
     CACHE_wbL1d((void *) &FGM_MPC_rate_max_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
                 CACHE_WAIT);
 
-    /* Initialize solution vector */
-    for (i = 0; i < FGM_MPC_DIM; i++)
-    {
-        FGM_MPC_out_vec_static[i] = (fgm_float)0.0;
-    }
-    CACHE_wbL1d((void *) &(FGM_MPC_out_vec_static[0]), FGM_MPC_BYTES_IN_VEC_TOTAL,
-                CACHE_WAIT);
-
     /* Zero all other vectors */
+    FGM_MPC_vec_init(FGM_MPC_out_vec_static, 0.0);
     FGM_MPC_vec_init(FGM_MPC_vec_t_static, 0.0);
     FGM_MPC_vec_init(FGM_MPC_vec_z_new_static, 0.0);
     FGM_MPC_vec_init(FGM_MPC_vec_z_old_static, 0.0);
-
+    CACHE_wbL1d((void *) &(FGM_MPC_out_vec_static[0]), FGM_MPC_BYTES_IN_VEC_TOTAL,
+                CACHE_WAIT);
     CACHE_wbL1d((void *) &FGM_MPC_vec_t_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
                 CACHE_WAIT);
     CACHE_wbL1d((void *) &FGM_MPC_vec_z_new_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
@@ -863,13 +855,6 @@ void FGM_MPC_initialize(
     CACHE_wbL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
                 CACHE_WAIT);
     _mfence();
-    _mfence();
-
-    /* Initialize measurement vector */
-    //FGM_MPC_vec_copy(y_meas_init, (fgm_float *) FGM_MPC_y_meas_in, FGM_MPC_N_X0_OR_XD, 1.0);
-    //CACHE_wbL1d((void *) &(FGM_MPC_y_meas_in[0]), FGM_MPC_BYTES_X0_OR_XD, CACHE_WAIT);
-    //_mfence();
-    //_mfence();
 
     /* Assign these pointer for printing of debug info */
     FGM_MPC_vec_t = &(FGM_MPC_vec_t_static[0]);

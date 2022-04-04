@@ -8,7 +8,8 @@
 #pragma DATA_SECTION(MPC_ID_TO_BPM, ".mpc_shared");
 #pragma DATA_ALIGN(MPC_ID_TO_BPM, 2);
 #endif // SOC_C6678
-const int MPC_ID_TO_BPM[171] = {(int)1, 
+const int MPC_ID_TO_BPM[171] = {(int)0, 
+(int)1, 
 (int)2, 
 (int)3, 
 (int)4, 
@@ -82,9 +83,9 @@ const int MPC_ID_TO_BPM[171] = {(int)1,
 (int)72, 
 (int)73, 
 (int)74, 
-(int)75, 
+(int)76, 
 (int)77, 
-(int)78, 
+(int)79, 
 (int)80, 
 (int)81, 
 (int)82, 
@@ -177,13 +178,13 @@ const int MPC_ID_TO_BPM[171] = {(int)1,
 (int)169, 
 (int)170, 
 (int)171, 
-(int)172, 
-(int)173};
+(int)172};
 #ifdef SOC_C6678
 #pragma DATA_SECTION(MPC_CM_TO_ID, ".mpc_shared");
 #pragma DATA_ALIGN(MPC_CM_TO_ID, 2);
 #endif // SOC_C6678
-const int MPC_CM_TO_ID[172] = {(int)1, 
+const int MPC_CM_TO_ID[172] = {(int)0, 
+(int)1, 
 (int)2, 
 (int)3, 
 (int)4, 
@@ -353,6 +354,5 @@ const int MPC_CM_TO_ID[172] = {(int)1,
 (int)168, 
 (int)169, 
 (int)170, 
-(int)171, 
-(int)172};
+(int)171};
 #endif /* MPC_STORAGE_RING_CONFIG_H_ */
