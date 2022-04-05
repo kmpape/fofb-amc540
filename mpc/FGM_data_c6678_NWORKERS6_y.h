@@ -3,7 +3,8 @@
 
 #include "mpc/fast_gradient_method.h"
 
-const fgm_float beta_fgm=0.6345120047366427;"
+#pragma DATA_SECTION(beta_fgm, ".mpc_init");
+const fgm_float beta_fgm=0.6345120047366427;
 #ifdef SOC_C6678
 #pragma DATA_SECTION(ampl_max_vec, ".mpc_init");
 #pragma DATA_ALIGN(ampl_max_vec, 2);
