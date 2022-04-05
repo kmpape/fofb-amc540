@@ -8,36 +8,17 @@
 #include "fofb_config.h"
 #include "mpc/fast_gradient_method.h"
 #include "mpc/observer.h"
-#if (XDIR == 1)
-#if (FGM_MPC_HORIZON == 1)
-#include "MPC_data_c6678_NWORKERS6_x.h"
-#else
-#include "MPC_data_c6678_NWORKERS6_H2_x.h"
-#endif /* FGM_MPC_HORIZON */
-#else
-#if (FGM_MPC_HORIZON == 1)
-#include "MPC_data_c6678_NWORKERS6_y.h"
-#else
-#include "MPC_data_c6678_NWORKERS6_H2_y.h"
-#endif /* FGM_MPC_HORIZON */
-#endif /* XDIR */
 
 void MPC_initialize(void)
 {
-    FGM_MPC_initialize(obj_func_matrix,
-                       obj_func_vector_matrix,
-                       (const fgm_float*)ampl_max_vec,
-                       (const fgm_float*)rate_max_vec,
-                       obj_func_max_eigval,
-                       obj_func_min_eigval,
-                       192, // = 6 cores x 32
-                       FGM_MPC_HORIZON);
+    FGM_MPC_initialize();
+    OBS_initialize_master();
+}
 
-    /* Observer */
-    OBS_initialize_master(Lx_pad,
-                          Ld_pad,
-                          Cx_pad,
-                          FGM_MPC_N_X0_OR_XD);
+void MPC_initialize_worker(volatile int selfId)
+{
+    FGM_MPC_initialize_worker(selfId);
+    OBS_initialize_worker(selfId);
 }
 
 fgm_float * MPC_get_input(void)

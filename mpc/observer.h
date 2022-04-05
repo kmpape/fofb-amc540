@@ -26,10 +26,7 @@ typedef float obs_float;
 #define OBS_BYTES_GLOBAL_ARRAYS (OBS_DIM * OBS_FLOAT_SIZE)
 
 
-void OBS_initialize_master(const obs_float * Lx_init,
-                           const obs_float * Ld_init,
-                           const obs_float * Cx_init,
-                           const int obs_dim);
+void OBS_initialize_master(void);
 void OBS_initialize_worker(volatile int selfId);
 
 void OBS_update_observer_master(const obs_float * y_meas,

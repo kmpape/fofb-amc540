@@ -256,8 +256,7 @@ int main() {
 #elif (GSVD_CONTROL == 1)
             GSVD_ctr_worker(ipc_slave_get_selfId());
 #elif (MPC_CONTROL == 1)
-            OBS_initialize_worker(ipc_slave_get_selfId());
-            FGM_MPC_initialize_worker(ipc_slave_get_selfId());
+            MPC_initialize_worker(ipc_slave_get_selfId());
             FGM_MPC_solve_worker();
 #endif
 #endif /* (USE_IPC == 1) */

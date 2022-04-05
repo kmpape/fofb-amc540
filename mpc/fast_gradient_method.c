@@ -3,6 +3,7 @@
 #include <vect.h>
 #include <xdc/std.h>
 
+#include "fofb_config.h"
 #include "mpc/fast_gradient_method.h"
 #include "mpc/fgm_utils.h"
 #include "mpc/observer.h"
@@ -20,6 +21,20 @@
 #include <csl_cache.h>
 #include <csl_cacheAux.h>
 #endif // SOC_C6678
+
+#if (XDIR == 1)
+#if (FGM_MPC_HORIZON == 1)
+#include "FGM_data_c6678_NWORKERS6_x.h"
+#else
+#include "FGM_data_c6678_NWORKERS6_H2_x.h"
+#endif /* FGM_MPC_HORIZON */
+#else
+#if (FGM_MPC_HORIZON == 1)
+#include "FGM_data_c6678_NWORKERS6_y.h"
+#else
+#include "FGM_data_c6678_NWORKERS6_H2_y.h"
+#endif /* FGM_MPC_HORIZON */
+#endif /* XDIR */
 
 /* Algorithm:
  *

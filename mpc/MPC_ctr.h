@@ -7,6 +7,7 @@
 #define MPC_NY (171)
 
 void MPC_initialize(void);
+void MPC_initialize_worker(volatile int selfId);
 fgm_float * MPC_get_input(void);
 fgm_float * MPC_ctr(int restart);
 

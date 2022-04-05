@@ -6,9 +6,24 @@
 #include <csl_cache.h>
 #include <csl_cacheAux.h>
 
+#include "fofb_config.h"
 #include "mpc/observer.h"
 #include "utils/ipc_utils.h"
 #include "mpc/fast_gradient_method.h"
+
+#if (XDIR == 1)
+#if (FGM_MPC_HORIZON == 1)
+#include "OBS_data_c6678_NWORKERS6_x.h"
+#else
+#include "OBS_data_c6678_NWORKERS6_H2_x.h"
+#endif /* FGM_MPC_HORIZON */
+#else
+#if (FGM_MPC_HORIZON == 1)
+#include "OBS_data_c6678_NWORKERS6_y.h"
+#else
+#include "OBS_data_c6678_NWORKERS6_H2_y.h"
+#endif /* FGM_MPC_HORIZON */
+#endif /* XDIR */
 
 /* Prototypes */
 void OBS_swap_global_pointers(void);
@@ -33,22 +48,8 @@ void OBS_update_xi(const obs_float * restrict delta_x7_in,
 void OBS_permXN_4waySIMD(const volatile obs_float * volatile in_mat,
                      volatile obs_float * volatile out_mat, const int unroll,
                      const int nrows, const int ncols);
-void OBS_vec_copy(const obs_float * restrict in, obs_float * restrict out,
-                  const int len);
-void OBS_vec_copy_vol(const obs_float * restrict in, volatile obs_float * restrict out,
-                  const int len);
 void OBS_vec_copy_vol_vol(const volatile obs_float * restrict in, volatile obs_float * restrict out,
                   const int len);
-
-/* Arrays used for initalization*/
-#pragma DATA_ALIGN(OBS_Lx_static,       OBS_ARRAY_ALIGN)
-#pragma DATA_ALIGN(OBS_Ld_static,       OBS_ARRAY_ALIGN)
-#pragma DATA_ALIGN(OBS_Cx_static,       OBS_ARRAY_ALIGN)
-#pragma SET_DATA_SECTION(".mpc_init")
-volatile obs_float OBS_Lx_static[OBS_DIM*OBS_DIM];
-volatile obs_float OBS_Ld_static[OBS_DIM*OBS_DIM];
-volatile obs_float OBS_Cx_static[OBS_DIM*OBS_DIM];
-#pragma SET_DATA_SECTION()
 
 /* Shared arrays */
 #pragma DATA_ALIGN(OBS_delta_y_static,  OBS_ARRAY_ALIGN)
@@ -159,500 +160,6 @@ void OBS_vec_init(obs_float volatile * out, const obs_float in)
     int i;
     for (i = 0; i < OBS_DIM; i++)
         out[i] = in;
-}
-
-#pragma FUNCTION_OPTIONS(OBS_initialize_master, "--opt_level=off --opt_for_speed=0")
-void OBS_initialize_master(const obs_float * Lx_init,
-                           const obs_float * Ld_init,
-                           const obs_float * Cx_init,
-                           const int obs_dim)
-{
-    int i;
-
-    OBS_selfId = 0;
-
-    assert(obs_dim == OBS_DIM);
-
-    /* Assign static data */
-
-    OBS_vec_copy_vol(&Lx_init[0], OBS_Lx_static, OBS_DIM * OBS_DIM);
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_wbL1d((void *) &OBS_Lx_static[(OBS_DIM * OBS_DIM)/4*i],
-                    OBS_BYTES_MAT_TOTAL/4,
-                    CACHE_WAIT);
-    }
-
-    OBS_vec_copy_vol(&Ld_init[0], OBS_Ld_static, OBS_DIM * OBS_DIM);
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_wbL1d((void *) &OBS_Ld_static[(OBS_DIM * OBS_DIM)/4*i],
-                    OBS_BYTES_MAT_TOTAL/4,
-                    CACHE_WAIT);
-    }
-
-    OBS_vec_copy_vol(&Cx_init[0], OBS_Cx_static, OBS_DIM * OBS_DIM);
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_wbL1d((void *) &OBS_Cx_static[(OBS_DIM * OBS_DIM)/4*i],
-                    OBS_BYTES_MAT_TOTAL/4,
-                    CACHE_WAIT);
-    }
-
-#if (OBS_DEBUG_LEVEL > 1)
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_xd_static[%d]=%.4f,", i * OBS_W_NROWS, OBS_xd_static[i * OBS_W_NROWS]);
-        printf("OBS_xd_static[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_xd_static[(i+1) * OBS_W_NROWS - 1]);
-    }
-
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("xd_init[%d]=%.4f,", i * OBS_W_NROWS, xd_init[i * OBS_W_NROWS]);
-        printf("xd_init[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, xd_init[(i+1) * OBS_W_NROWS - 1]);
-    }
-#endif
-
-    OBS_vec_init(OBS_delta_y_static,0.0);
-    OBS_vec_init(OBS_delta_x8_static,0.0);
-    OBS_vec_init(OBS_delta_xd_static,0.0);
-    OBS_vec_init(OBS_xd_static,0.0);
-    OBS_vec_init(OBS_x0_new_static,0.0);
-    OBS_vec_init(OBS_x0_old_static,0.0);
-    OBS_vec_init(OBS_x1_static,0.0);
-    OBS_vec_init(OBS_x2_static,0.0);
-    OBS_vec_init(OBS_x3_static,0.0);
-    OBS_vec_init(OBS_x4_static,0.0);
-    OBS_vec_init(OBS_x5_static,0.0);
-    OBS_vec_init(OBS_x6_static,0.0);
-    OBS_vec_init(OBS_x7_static,0.0);
-    OBS_vec_init(OBS_x8_static,0.0);
-
-    OBS_delta_y_global = &(OBS_delta_y_static[0]);
-    OBS_delta_x8_global = &(OBS_delta_x8_static[0]);
-    OBS_delta_xd_global = &(OBS_delta_xd_static[0]);
-    OBS_xd_global = &(OBS_xd_static[0]);
-    OBS_x0_new_global = &(OBS_x0_new_static[0]);
-    OBS_x0_old_global = &(OBS_x0_old_static[0]);
-    OBS_x1_global = &(OBS_x1_static[0]);
-    OBS_x2_global = &(OBS_x2_static[0]);
-    OBS_x3_global = &(OBS_x3_static[0]);
-    OBS_x4_global = &(OBS_x4_static[0]);
-    OBS_x5_global = &(OBS_x5_static[0]);
-    OBS_x6_global = &(OBS_x6_static[0]);
-    OBS_x7_global = &(OBS_x7_static[0]);
-    OBS_x8_global = &(OBS_x8_static[0]);
-
-#if (OBS_DEBUG_LEVEL > 1)
-    printf("OBS_Lx_static[%d]=%.4f,", 0, OBS_Cx_static[0]);
-    printf("OBS_Ld_static[%d]=%.4f,", 0, OBS_Ld_static[0]);
-    printf("OBS_Cx_static[%d]=%.4f,", 0, OBS_Cx_static[0]);
-    printf("OBS_xd_static[%d]=%.4f\n", 0, OBS_xd_static[0]);
-    printf("OBS_x0_new_static[%d]=%.4f,", 0, OBS_x0_new_static[0]);
-    printf("OBS_x0_old_static[%d]=%.4f,", 0, OBS_x0_old_static[0]);
-    printf("OBS_x1_static[%d]=%.4f,", 0, OBS_x1_static[0]);
-    printf("OBS_x2_static[%d]=%.4f\n", 0, OBS_x2_static[0]);
-    printf("OBS_x3_static[%d]=%.4f,", 0, OBS_x3_static[0]);
-    printf("OBS_x4_static[%d]=%.4f,", 0, OBS_x4_static[0]);
-    printf("OBS_x5_static[%d]=%.4f,", 0, OBS_x5_static[0]);
-    printf("OBS_x6_static[%d]=%.4f,", 0, OBS_x6_static[0]);
-    printf("OBS_x7_static[%d]=%.4f\n", 0, OBS_x7_static[0]);
-    printf("OBS_x8_static[%d]=%.4f\n", 0, OBS_x8_static[0]);
-#endif
-}
-
-#pragma FUNCTION_OPTIONS(OBS_initialize_worker, "--opt_level=off --opt_for_speed=0")
-void OBS_initialize_worker(volatile int selfId)
-{
-    int ind_shift,i;
-
-    OBS_selfId = selfId;
-    assert(OBS_selfId >= 1);
-
-    /* Invalidate all data written back by master */
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_invL1d((void *) &OBS_Lx_static[(OBS_DIM * OBS_DIM)/4*i],
-                     OBS_BYTES_MAT_TOTAL/4,
-                     CACHE_WAIT);
-    }
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_invL1d((void *) &OBS_Ld_static[(OBS_DIM * OBS_DIM)/4*i],
-                     OBS_BYTES_MAT_TOTAL/4,
-                     CACHE_WAIT);
-    }
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_invL1d((void *) &OBS_Cx_static[(OBS_DIM * OBS_DIM)/4*i],
-                     OBS_BYTES_MAT_TOTAL/4,
-                     CACHE_WAIT);
-    }
-    _mfence();
-
-    /* Assign workers part of matrices */
-    ind_shift = (selfId - 1) * OBS_W_NROWS * OBS_W_NCOLS;
-#ifdef OBS_UNROLL
-    OBS_permXN_4waySIMD(&(OBS_Lx_static[ind_shift]), OBS_Lx_local, 8, OBS_W_NROWS, OBS_W_NCOLS);
-    OBS_permXN_4waySIMD(&(OBS_Ld_static[ind_shift]), OBS_Ld_local, 8, OBS_W_NROWS, OBS_W_NCOLS);
-    OBS_permXN_4waySIMD(&(OBS_Cx_static[ind_shift]), OBS_Cx_local, 8, OBS_W_NROWS, OBS_W_NCOLS);
-#else
-    OBS_vec_copy_vol_vol(&OBS_Lx_static[ind_shift], OBS_Lx_local, OBS_W_NROWS * OBS_W_NCOLS);
-    OBS_vec_copy_vol_vol(&OBS_Ld_static[ind_shift], OBS_Ld_local, OBS_W_NROWS * OBS_W_NCOLS);
-    OBS_vec_copy_vol_vol(&OBS_Cx_static[ind_shift], OBS_Cx_local, OBS_W_NROWS * OBS_W_NCOLS);
-#endif
-
-
-    CACHE_invL1d((void *) &OBS_xd_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x0_new_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x0_old_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x1_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x2_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x3_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x4_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x5_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x6_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x7_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) &OBS_x8_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-
-    /* Assign pointers */
-    ind_shift = (selfId - 1) * OBS_W_NROWS;
-    OBS_xd_local = &(OBS_xd_static[ind_shift]);
-    OBS_x0_new_local = &(OBS_x0_new_static[ind_shift]);
-    OBS_x0_old_local = &(OBS_x0_old_static[ind_shift]);
-    OBS_x1_local = &(OBS_x1_static[ind_shift]);
-    OBS_x2_local = &(OBS_x2_static[ind_shift]);
-    OBS_x3_local = &(OBS_x3_static[ind_shift]);
-    OBS_x4_local = &(OBS_x4_static[ind_shift]);
-    OBS_x5_local = &(OBS_x5_static[ind_shift]);
-    OBS_x6_local = &(OBS_x6_static[ind_shift]);
-    OBS_x7_local = &(OBS_x7_static[ind_shift]);
-    OBS_x8_local = &(OBS_x8_static[ind_shift]);
-    OBS_delta_y_local = &(OBS_delta_y_static[ind_shift]);
-    OBS_delta_x8_local = &(OBS_delta_x8_static[ind_shift]);
-    OBS_delta_xd_local = &(OBS_delta_xd_static[ind_shift]);
-
-    OBS_delta_y_global = &(OBS_delta_y_static[0]);
-    OBS_delta_x8_global = &(OBS_delta_x8_static[0]);
-    OBS_delta_xd_global = &(OBS_delta_xd_static[0]);
-    OBS_xd_global = &(OBS_xd_static[0]);
-    OBS_x0_new_global = &(OBS_x0_new_static[0]);
-    OBS_x0_old_global = &(OBS_x0_old_static[0]);
-    OBS_x1_global = &(OBS_x1_static[0]);
-    OBS_x2_global = &(OBS_x2_static[0]);
-    OBS_x3_global = &(OBS_x3_static[0]);
-    OBS_x4_global = &(OBS_x4_static[0]);
-    OBS_x5_global = &(OBS_x5_static[0]);
-    OBS_x6_global = &(OBS_x6_static[0]);
-    OBS_x7_global = &(OBS_x7_static[0]);
-    OBS_x8_global = &(OBS_x8_static[0]);
-
-#if (OBS_DEBUG_LEVEL > 1)
-    if (OBS_selfId == 1) {
-        printf("OBS_Lx_static[%d]=%.4f, ", 0, OBS_Lx_static[0]);
-        printf("OBS_Ld_static[%d]=%.4f, ", 0, OBS_Ld_static[0]);
-        printf("OBS_Cx_static[%d]=%.4f\n", 0, OBS_Cx_static[0]);
-
-        printf("OBS_Lx_local[%d]=%.4f, ", 0, OBS_Lx_local[0]);
-        printf("OBS_Ld_local[%d]=%.4f, ", 0, OBS_Ld_local[0]);
-        printf("OBS_Cx_local[%d]=%.4f\n", 0, OBS_Cx_local[0]);
-
-        printf("OBS_x1_global[%d]=%.4f, ", 0, OBS_x1_global[0]);
-        printf("OBS_x2_global[%d]=%.4f, ", 0, OBS_x2_global[0]);
-        printf("OBS_x3_global[%d]=%.4f, ", 0, OBS_x3_global[0]);
-        printf("OBS_x4_global[%d]=%.4f, ", 0, OBS_x4_global[0]);
-        printf("OBS_x5_global[%d]=%.4f, ", 0, OBS_x5_global[0]);
-        printf("OBS_x6_global[%d]=%.4f, ", 0, OBS_x6_global[0]);
-        printf("OBS_x7_global[%d]=%.4f\n", 0, OBS_x7_global[0]);
-        printf("OBS_x8_global[%d]=%.4f\n", 0, OBS_x8_global[0]);
-
-        printf("OBS_xd_local[%d]=%.4f, ", 0, OBS_xd_local[0]);
-        printf("OBS_xd_static[%d]=%.4f\n", 0, OBS_xd_static[0]);
-
-        printf("OBS_x0_new_local[%d]=%.4f, ", 0, OBS_x0_new_local[0]);
-        printf("OBS_x0_old_local[%d]=%.4f\n", 0, OBS_x0_old_local[0]);
-    }
-#endif
-}
-
-
-// Observer update
-#pragma FUNCTION_OPTIONS(OBS_update_observer_master, "--opt_level=off --opt_for_speed=0")
-void OBS_update_observer_master(const obs_float * y_meas, const obs_float * u_old)
-{
-#if (OBS_DEBUG_LEVEL > 0)
-    int i;
-#endif
-    ipc_master_set_req(1);      // ML 0
-    OBS_swap_global_pointers();
-    OBS_swap_local_pointers();
-
-#if (OBS_DEBUG_LEVEL > 1)
-    printf("Master: Swap pointers\n");
-#endif
-
-
-    // Master updates the whole state
-    //CACHE_invL1d((void *) (&(OBS_old_input_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) (&(OBS_x0_old_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    OBS_update_state_global((const obs_float *)OBS_x0_old_global,
-                            (const obs_float *)u_old,
-                            OBS_Ax, OBS_Bx, (obs_float *)OBS_x0_new_global);
-    CACHE_wbL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-
-#if (OBS_DEBUG_LEVEL > 1)
-    printf("OBS_update_state_global\n");
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_x0_old_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_x0_old_global[i * OBS_W_NROWS]);
-        printf("OBS_x0_old_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_x0_old_global[(i+1) * OBS_W_NROWS - 1]);
-    }
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_old_input_global[%d]=%.4f,", i * OBS_W_NROWS, u_old[i * OBS_W_NROWS]);
-        printf("OBS_old_input_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, u_old[(i+1) * OBS_W_NROWS - 1]);
-    }
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_xd_static[%d]=%.4f,", i * OBS_W_NROWS, OBS_xd_static[i * OBS_W_NROWS]);
-        printf("OBS_xd_static[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_xd_static[(i+1) * OBS_W_NROWS - 1]);
-    }
-#endif
-#if (OBS_DEBUG_LEVEL > 0)
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_x0_new_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_x0_new_global[i * OBS_W_NROWS]);
-        printf("OBS_x0_new_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_x0_new_global[(i+1) * OBS_W_NROWS - 1]);
-    }
-#endif
-
-    // This is done in parallel to state update from master
-#if (OBS_DEBUG_LEVEL > 0)
-    printf("OBS_update_delta_y\n");
-#endif
-#ifdef OBS_SYNC_EVERY_STEP
-    ipc_master_wait_ack();
-    ipc_master_set_req(1);      // ML 1
-#endif
-    /* Compute: delta_y = y - Cx*x7 - xd */
-    /*update_delta_y(...);*/
-
-#if (OBS_DEBUG_LEVEL > 1)
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("y_meas[%d]=%.4f,", i * OBS_W_NROWS, y_meas[i * OBS_W_NROWS]);
-        printf("y_meas[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, y_meas[(i+1) * OBS_W_NROWS - 1]);
-    }
-#endif
-#if (OBS_DEBUG_LEVEL > 0)
-    CACHE_invL1d((void *) (&(OBS_delta_y_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_delta_y_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_delta_y_global[i * OBS_W_NROWS]);
-        printf("OBS_delta_y_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_delta_y_global[(i+1) * OBS_W_NROWS - 1]);
-    }
-#endif
-
-#if (OBS_DEBUG_LEVEL > 0)
-    printf("OBS_update_delta_x8_or_xd\n");
-#endif
-    ipc_master_wait_ack();
-    ipc_master_set_req(1);      // ML 2
-    /* Compute: delta_x8 = Lx*delta_y */
-    /* update_delta_x8(...); */
-    /* Compute: delta_xd = Ld*delta_y */
-    /* update_delta_xd(...); */
-#ifdef OBS_SYNC_EVERY_STEP
-    ipc_master_wait_ack();
-
-#if (OBS_DEBUG_LEVEL > 0)
-    CACHE_invL1d((void *) (&(OBS_delta_x8_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) (&(OBS_delta_xd_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_delta_x8_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_delta_x8_global[i * OBS_W_NROWS]);
-        printf("OBS_delta_x8_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_delta_x8_global[(i+1) * OBS_W_NROWS - 1]);
-    }
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_delta_xd_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_delta_xd_global[i * OBS_W_NROWS]);
-        printf("OBS_delta_xd_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_delta_xd_global[(i+1) * OBS_W_NROWS - 1]);
-    }
-#endif
-
-#if (OBS_DEBUG_LEVEL > 0)
-    printf("OBS_update_xi\n");
-#endif
-    ipc_master_set_req(1);      // ML 3
-#endif
-    /* update_x8(...); */
-    /* update_xd(...); */
-    /* update_xi(...); */
-    ipc_master_wait_ack();
-
-#if (OBS_DEBUG_LEVEL > 0)
-    CACHE_invL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) (&(OBS_xd_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_x0_new_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_x0_new_global[i * OBS_W_NROWS]);
-        printf("OBS_x0_new_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_x0_new_global[(i+1) * OBS_W_NROWS - 1]);
-    }
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("OBS_xd_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_xd_global[i * OBS_W_NROWS]);
-        printf("OBS_xd_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_xd_global[(i+1) * OBS_W_NROWS - 1]);
-    }
-#endif
-    ipc_master_set_req(1);      // ML 4
-    /* All workers invalidate global result */
-    ipc_master_wait_ack();
-}
-
-
-#pragma FUNCTION_OPTIONS(OBS_update_observer_worker, "--opt_level=off --opt_for_speed=0")
-void OBS_update_observer_worker(const obs_float * y_meas, const obs_float * u_old)
-{
-    const int ind_shift = (OBS_selfId - 1) * OBS_W_NROWS;
-    ipc_slave_wait_req();      // ML 0
-    CACHE_invL1d((void *) &(y_meas[0]), FGM_MPC_BYTES_X0_OR_XD, CACHE_WAIT);
-    OBS_swap_local_pointers();
-    OBS_swap_global_pointers();
-
-
-#if (OBS_DEBUG_LEVEL > 1)
-    if (OBS_selfId == 1)
-        printf("Slave: Waiting for state update from master\n");
-#endif
-
-
-    /* Master updates the whole state */
-    /* update_state_global(...); */
-
-#ifdef OBS_SYNC_EVERY_STEP
-    ipc_slave_set_ack(1);
-    ipc_slave_wait_req();      // ML 1
-#endif
-
-#if (OBS_DEBUG_LEVEL > 1)
-    if (OBS_selfId == 1)
-        printf("Slave: Updating delta y\n");
-
-    if (OBS_selfId == 1) {
-        printf("OBS_Cx_local[%d]=%.4f,", 0, OBS_Cx_local[0]);
-        printf("OBS_x8_global[%d]=%.4f,", 0, OBS_x8_global[0]);
-        printf("y_meas[%d]=%.4f,", 0, y_meas[0]);
-        printf("OBS_xd_local[%d]=%.4f,", 0, OBS_xd_local[0]);
-        printf("OBS_xd_static[%d]=%.4f,", 0, OBS_xd_static[0]);
-        printf("OBS_delta_y_local[%d]=%.4f\n", 0, OBS_delta_y_local[0]);
-    }
-#endif
-
-    CACHE_invL1d((void *) (&(OBS_x8_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-
-    /* Compute: delta_y = y - Cx*x7 - xd */
-    OBS_update_delta_y((const obs_float *)(&(OBS_Cx_local[0])),
-                       (const obs_float *)OBS_x8_global,
-                       (const obs_float *)&(y_meas[ind_shift]),
-                       (const obs_float *)OBS_xd_local,
-                       (obs_float *)OBS_delta_y_local);
-
-    CACHE_wbL1d((void *) (&(OBS_delta_y_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-
-#if (OBS_DEBUG_LEVEL > 1)
-    if (OBS_selfId == 1) {
-        printf("OBS_Cx_local[%d]=%.4f,", 0, OBS_Cx_local[0]);
-        printf("OBS_x8_global[%d]=%.4f,", 0, OBS_x8_global[0]);
-        printf("y_meas[%d]=%.4f,", 0, y_meas[0]);
-        printf("OBS_xd_local[%d]=%.4f,", 0, OBS_xd_local[0]);
-        printf("OBS_xd_static[%d]=%.4f,", 0, OBS_xd_static[0]);
-        printf("OBS_delta_y_local[%d]=%.4f\n", 0, OBS_delta_y_local[0]);
-    }
-#endif
-
-    ipc_slave_set_ack(1);
-    ipc_slave_wait_req();      // ML 2
-
-    CACHE_invL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);    // TODO: remove this?
-    CACHE_invL1d((void *) (&(OBS_delta_y_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-
-    /* Compute: delta_x8 = Lx*delta_y */
-    OBS_update_delta_x8_or_xd((const obs_float *)(&(OBS_Lx_local[0])),
-                              (const obs_float *)OBS_delta_y_global,
-                              (obs_float *)OBS_delta_x8_local);
-
-#if (OBS_DEBUG_LEVEL > 1)
-    if (OBS_selfId == 1) {
-        printf("OBS_Lx_local[%d]=%.4f,", 0, OBS_Lx_local[0]);
-        printf("OBS_delta_y_global[%d]=%.4f,", 0, OBS_delta_y_global[0]);
-        printf("OBS_delta_x8_local[%d]=%.4f\n", 0, OBS_delta_x8_local[0]);
-    }
-#endif
-
-    /* Compute: delta_xd = Ld*delta_y */
-    OBS_update_delta_x8_or_xd((const obs_float *)(&(OBS_Ld_local[0])),
-                              (const obs_float *)OBS_delta_y_global,
-                              (obs_float *)OBS_delta_xd_local);
-
-#if (OBS_DEBUG_LEVEL > 1)
-    if (OBS_selfId == 1) {
-        printf("OBS_Ld_local[%d]=%.4f,", 0, OBS_Ld_local[0]);
-        printf("OBS_delta_y_global[%d]=%.4f,", 0, OBS_delta_y_global[0]);
-        printf("OBS_delta_xd_local[%d]=%.4f\n", 0, OBS_delta_xd_local[0]);
-    }
-#endif
-
-#ifdef OBS_SYNC_EVERY_STEP
-    CACHE_wbL1d((void *) (&(OBS_delta_x8_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
-    CACHE_wbL1d((void *) (&(OBS_delta_xd_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-
-    ipc_slave_set_ack(1);
-
-    ipc_slave_wait_req();      // ML 3
-#endif
-
-    OBS_update_x8_or_xd((const obs_float *)OBS_delta_x8_local, (obs_float *)OBS_x8_local);
-    OBS_update_x8_or_xd((const obs_float *)OBS_delta_xd_local, (obs_float *)OBS_xd_local);
-    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax, (obs_float *)OBS_x7_local);
-    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_2, (obs_float *)OBS_x6_local);
-    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_3, (obs_float *)OBS_x5_local);
-    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_4, (obs_float *)OBS_x4_local);
-    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_5, (obs_float *)OBS_x3_local);
-    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_6, (obs_float *)OBS_x2_local);
-    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_7, (obs_float *)OBS_x1_local);
-    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_8, (obs_float *)OBS_x0_new_local);
-
-    CACHE_wbL1d((void *) (&(OBS_x0_new_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
-    CACHE_wbL1d((void *) (&(OBS_xd_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
-    _mfence();
-    _mfence();
-
-    ipc_slave_set_ack(1);
-    ipc_slave_wait_req();      // ML 4
-    CACHE_invL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    CACHE_invL1d((void *) (&(OBS_xd_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
-    ipc_slave_set_ack(1);
 }
 
 obs_float volatile * OBS_get_xd(void)
@@ -1068,26 +575,6 @@ void OBS_permXN_4waySIMD(const volatile obs_float * volatile in_mat,
     }
 }
 
-void OBS_vec_copy(const obs_float * restrict in, obs_float * restrict out,
-                  const int len)
-{
-    int i;
-    for (i = 0; i < len; i++)
-    {
-        out[i] = in[i];
-    }
-}
-
-void OBS_vec_copy_vol(const obs_float * restrict in, volatile obs_float * restrict out,
-                  const int len)
-{
-    int i;
-    for (i = 0; i < len; i++)
-    {
-        out[i] = in[i];
-    }
-}
-
 void OBS_vec_copy_vol_vol(const volatile obs_float * restrict in, volatile obs_float * restrict out,
                   const int len)
 {
@@ -1096,4 +583,427 @@ void OBS_vec_copy_vol_vol(const volatile obs_float * restrict in, volatile obs_f
     {
         out[i] = in[i];
     }
+}
+
+
+#pragma FUNCTION_OPTIONS(OBS_initialize_master, "--opt_level=off --opt_for_speed=0")
+void OBS_initialize_master(void)
+{
+    int i;
+
+    OBS_selfId = 0;
+
+    OBS_vec_init(OBS_delta_y_static,0.0);
+    OBS_vec_init(OBS_delta_x8_static,0.0);
+    OBS_vec_init(OBS_delta_xd_static,0.0);
+    OBS_vec_init(OBS_xd_static,0.0);
+    OBS_vec_init(OBS_x0_new_static,0.0);
+    OBS_vec_init(OBS_x0_old_static,0.0);
+    OBS_vec_init(OBS_x1_static,0.0);
+    OBS_vec_init(OBS_x2_static,0.0);
+    OBS_vec_init(OBS_x3_static,0.0);
+    OBS_vec_init(OBS_x4_static,0.0);
+    OBS_vec_init(OBS_x5_static,0.0);
+    OBS_vec_init(OBS_x6_static,0.0);
+    OBS_vec_init(OBS_x7_static,0.0);
+    OBS_vec_init(OBS_x8_static,0.0);
+    CACHE_wbL1d((void *) OBS_delta_y_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_delta_x8_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_delta_xd_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_xd_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x0_new_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x0_old_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x1_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x2_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x3_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x4_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x5_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x6_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x7_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) OBS_x8_static, OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+
+    OBS_delta_y_global = &(OBS_delta_y_static[0]);
+    OBS_delta_x8_global = &(OBS_delta_x8_static[0]);
+    OBS_delta_xd_global = &(OBS_delta_xd_static[0]);
+    OBS_xd_global = &(OBS_xd_static[0]);
+    OBS_x0_new_global = &(OBS_x0_new_static[0]);
+    OBS_x0_old_global = &(OBS_x0_old_static[0]);
+    OBS_x1_global = &(OBS_x1_static[0]);
+    OBS_x2_global = &(OBS_x2_static[0]);
+    OBS_x3_global = &(OBS_x3_static[0]);
+    OBS_x4_global = &(OBS_x4_static[0]);
+    OBS_x5_global = &(OBS_x5_static[0]);
+    OBS_x6_global = &(OBS_x6_static[0]);
+    OBS_x7_global = &(OBS_x7_static[0]);
+    OBS_x8_global = &(OBS_x8_static[0]);
+
+#if (OBS_DEBUG_LEVEL > 1)
+    printf("OBS_Lx_static[%d]=%.4f,", 0, OBS_Cx_static[0]);
+    printf("OBS_Ld_static[%d]=%.4f,", 0, OBS_Ld_static[0]);
+    printf("OBS_Cx_static[%d]=%.4f,", 0, OBS_Cx_static[0]);
+    printf("OBS_xd_static[%d]=%.4f\n", 0, OBS_xd_static[0]);
+    printf("OBS_x0_new_static[%d]=%.4f,", 0, OBS_x0_new_static[0]);
+    printf("OBS_x0_old_static[%d]=%.4f,", 0, OBS_x0_old_static[0]);
+    printf("OBS_x1_static[%d]=%.4f,", 0, OBS_x1_static[0]);
+    printf("OBS_x2_static[%d]=%.4f\n", 0, OBS_x2_static[0]);
+    printf("OBS_x3_static[%d]=%.4f,", 0, OBS_x3_static[0]);
+    printf("OBS_x4_static[%d]=%.4f,", 0, OBS_x4_static[0]);
+    printf("OBS_x5_static[%d]=%.4f,", 0, OBS_x5_static[0]);
+    printf("OBS_x6_static[%d]=%.4f,", 0, OBS_x6_static[0]);
+    printf("OBS_x7_static[%d]=%.4f\n", 0, OBS_x7_static[0]);
+    printf("OBS_x8_static[%d]=%.4f\n", 0, OBS_x8_static[0]);
+#endif
+}
+
+#pragma FUNCTION_OPTIONS(OBS_initialize_worker, "--opt_level=off --opt_for_speed=0")
+void OBS_initialize_worker(volatile int selfId)
+{
+    int ind_shift,i;
+
+    OBS_selfId = selfId;
+    assert(OBS_selfId >= 1);
+
+    /* Assign workers part of matrices */
+    ind_shift = (selfId - 1) * OBS_W_NROWS * OBS_W_NCOLS;
+#ifdef OBS_UNROLL
+    OBS_permXN_4waySIMD(&(Lx_pad[ind_shift]), OBS_Lx_local, 8, OBS_W_NROWS, OBS_W_NCOLS);
+    OBS_permXN_4waySIMD(&(Ld_pad[ind_shift]), OBS_Ld_local, 8, OBS_W_NROWS, OBS_W_NCOLS);
+    OBS_permXN_4waySIMD(&(Cx_pad[ind_shift]), OBS_Cx_local, 8, OBS_W_NROWS, OBS_W_NCOLS);
+#else
+    OBS_vec_copy_vol_vol(&Lx_pad[ind_shift], OBS_Lx_local, OBS_W_NROWS * OBS_W_NCOLS);
+    OBS_vec_copy_vol_vol(&Ld_pad[ind_shift], OBS_Ld_local, OBS_W_NROWS * OBS_W_NCOLS);
+    OBS_vec_copy_vol_vol(&Cx_pad[ind_shift], OBS_Cx_local, OBS_W_NROWS * OBS_W_NCOLS);
+#endif
+
+    CACHE_invL1d((void *) &OBS_xd_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x0_new_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x0_old_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x1_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x2_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x3_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x4_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x5_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x6_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x7_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_x8_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+
+    /* Assign pointers */
+    ind_shift = (selfId - 1) * OBS_W_NROWS;
+    OBS_xd_local = &(OBS_xd_static[ind_shift]);
+    OBS_x0_new_local = &(OBS_x0_new_static[ind_shift]);
+    OBS_x0_old_local = &(OBS_x0_old_static[ind_shift]);
+    OBS_x1_local = &(OBS_x1_static[ind_shift]);
+    OBS_x2_local = &(OBS_x2_static[ind_shift]);
+    OBS_x3_local = &(OBS_x3_static[ind_shift]);
+    OBS_x4_local = &(OBS_x4_static[ind_shift]);
+    OBS_x5_local = &(OBS_x5_static[ind_shift]);
+    OBS_x6_local = &(OBS_x6_static[ind_shift]);
+    OBS_x7_local = &(OBS_x7_static[ind_shift]);
+    OBS_x8_local = &(OBS_x8_static[ind_shift]);
+    OBS_delta_y_local = &(OBS_delta_y_static[ind_shift]);
+    OBS_delta_x8_local = &(OBS_delta_x8_static[ind_shift]);
+    OBS_delta_xd_local = &(OBS_delta_xd_static[ind_shift]);
+
+    OBS_delta_y_global = &(OBS_delta_y_static[0]);
+    OBS_delta_x8_global = &(OBS_delta_x8_static[0]);
+    OBS_delta_xd_global = &(OBS_delta_xd_static[0]);
+    OBS_xd_global = &(OBS_xd_static[0]);
+    OBS_x0_new_global = &(OBS_x0_new_static[0]);
+    OBS_x0_old_global = &(OBS_x0_old_static[0]);
+    OBS_x1_global = &(OBS_x1_static[0]);
+    OBS_x2_global = &(OBS_x2_static[0]);
+    OBS_x3_global = &(OBS_x3_static[0]);
+    OBS_x4_global = &(OBS_x4_static[0]);
+    OBS_x5_global = &(OBS_x5_static[0]);
+    OBS_x6_global = &(OBS_x6_static[0]);
+    OBS_x7_global = &(OBS_x7_static[0]);
+    OBS_x8_global = &(OBS_x8_static[0]);
+
+#if (OBS_DEBUG_LEVEL > 1)
+    if (OBS_selfId == 1) {
+        printf("OBS_Lx_local[%d]=%.4f, ", 0, OBS_Lx_local[0]);
+        printf("OBS_Ld_local[%d]=%.4f, ", 0, OBS_Ld_local[0]);
+        printf("OBS_Cx_local[%d]=%.4f\n", 0, OBS_Cx_local[0]);
+
+        printf("OBS_x1_global[%d]=%.4f, ", 0, OBS_x1_global[0]);
+        printf("OBS_x2_global[%d]=%.4f, ", 0, OBS_x2_global[0]);
+        printf("OBS_x3_global[%d]=%.4f, ", 0, OBS_x3_global[0]);
+        printf("OBS_x4_global[%d]=%.4f, ", 0, OBS_x4_global[0]);
+        printf("OBS_x5_global[%d]=%.4f, ", 0, OBS_x5_global[0]);
+        printf("OBS_x6_global[%d]=%.4f, ", 0, OBS_x6_global[0]);
+        printf("OBS_x7_global[%d]=%.4f\n", 0, OBS_x7_global[0]);
+        printf("OBS_x8_global[%d]=%.4f\n", 0, OBS_x8_global[0]);
+
+        printf("OBS_xd_local[%d]=%.4f, ", 0, OBS_xd_local[0]);
+        printf("OBS_xd_static[%d]=%.4f\n", 0, OBS_xd_static[0]);
+
+        printf("OBS_x0_new_local[%d]=%.4f, ", 0, OBS_x0_new_local[0]);
+        printf("OBS_x0_old_local[%d]=%.4f\n", 0, OBS_x0_old_local[0]);
+    }
+#endif
+}
+
+
+// Observer update
+#pragma FUNCTION_OPTIONS(OBS_update_observer_master, "--opt_level=off --opt_for_speed=0")
+void OBS_update_observer_master(const obs_float * y_meas, const obs_float * u_old)
+{
+#if (OBS_DEBUG_LEVEL > 0)
+    int i;
+#endif
+    ipc_master_set_req(1);      // ML 0
+    OBS_swap_global_pointers();
+    OBS_swap_local_pointers();
+
+#if (OBS_DEBUG_LEVEL > 1)
+    printf("Master: Swap pointers\n");
+#endif
+
+
+    // Master updates the whole state
+    OBS_update_state_global((const obs_float *)OBS_x0_old_global,
+                            (const obs_float *)u_old,
+                            OBS_Ax, OBS_Bx, (obs_float *)OBS_x0_new_global);
+    CACHE_wbL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+
+#if (OBS_DEBUG_LEVEL > 1)
+    printf("OBS_update_state_global\n");
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("OBS_x0_old_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_x0_old_global[i * OBS_W_NROWS]);
+        printf("OBS_x0_old_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_x0_old_global[(i+1) * OBS_W_NROWS - 1]);
+    }
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("OBS_old_input_global[%d]=%.4f,", i * OBS_W_NROWS, u_old[i * OBS_W_NROWS]);
+        printf("OBS_old_input_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, u_old[(i+1) * OBS_W_NROWS - 1]);
+    }
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("OBS_xd_static[%d]=%.4f,", i * OBS_W_NROWS, OBS_xd_static[i * OBS_W_NROWS]);
+        printf("OBS_xd_static[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_xd_static[(i+1) * OBS_W_NROWS - 1]);
+    }
+#endif
+#if (OBS_DEBUG_LEVEL > 0)
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("OBS_x0_new_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_x0_new_global[i * OBS_W_NROWS]);
+        printf("OBS_x0_new_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_x0_new_global[(i+1) * OBS_W_NROWS - 1]);
+    }
+#endif
+
+    // This is done in parallel to state update from master
+#if (OBS_DEBUG_LEVEL > 0)
+    printf("OBS_update_delta_y\n");
+#endif
+#ifdef OBS_SYNC_EVERY_STEP
+    ipc_master_wait_ack();
+    ipc_master_set_req(1);      // ML 1
+#endif
+    /* Compute: delta_y = y - Cx*x7 - xd */
+    /*update_delta_y(...);*/
+
+#if (OBS_DEBUG_LEVEL > 1)
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("y_meas[%d]=%.4f,", i * OBS_W_NROWS, y_meas[i * OBS_W_NROWS]);
+        printf("y_meas[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, y_meas[(i+1) * OBS_W_NROWS - 1]);
+    }
+#endif
+#if (OBS_DEBUG_LEVEL > 0)
+    CACHE_invL1d((void *) (&(OBS_delta_y_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    _mfence();
+    _mfence();
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("OBS_delta_y_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_delta_y_global[i * OBS_W_NROWS]);
+        printf("OBS_delta_y_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_delta_y_global[(i+1) * OBS_W_NROWS - 1]);
+    }
+#endif
+
+#if (OBS_DEBUG_LEVEL > 0)
+    printf("OBS_update_delta_x8_or_xd\n");
+#endif
+    ipc_master_wait_ack();
+    ipc_master_set_req(1);      // ML 2
+    /* Compute: delta_x8 = Lx*delta_y */
+    /* update_delta_x8(...); */
+    /* Compute: delta_xd = Ld*delta_y */
+    /* update_delta_xd(...); */
+#ifdef OBS_SYNC_EVERY_STEP
+    ipc_master_wait_ack();
+
+#if (OBS_DEBUG_LEVEL > 0)
+    CACHE_invL1d((void *) (&(OBS_delta_x8_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) (&(OBS_delta_xd_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    _mfence();
+    _mfence();
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("OBS_delta_x8_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_delta_x8_global[i * OBS_W_NROWS]);
+        printf("OBS_delta_x8_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_delta_x8_global[(i+1) * OBS_W_NROWS - 1]);
+    }
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("OBS_delta_xd_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_delta_xd_global[i * OBS_W_NROWS]);
+        printf("OBS_delta_xd_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_delta_xd_global[(i+1) * OBS_W_NROWS - 1]);
+    }
+#endif
+
+#if (OBS_DEBUG_LEVEL > 0)
+    printf("OBS_update_xi\n");
+#endif
+    ipc_master_set_req(1);      // ML 3
+#endif
+    /* update_x8(...); */
+    /* update_xd(...); */
+    /* update_xi(...); */
+    ipc_master_wait_ack();
+
+#if (OBS_DEBUG_LEVEL > 0)
+    CACHE_invL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) (&(OBS_xd_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("OBS_x0_new_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_x0_new_global[i * OBS_W_NROWS]);
+        printf("OBS_x0_new_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_x0_new_global[(i+1) * OBS_W_NROWS - 1]);
+    }
+    for (i = 0; i < NUMSLAVES; i++)
+    {
+        printf("OBS_xd_global[%d]=%.4f,", i * OBS_W_NROWS, OBS_xd_global[i * OBS_W_NROWS]);
+        printf("OBS_xd_global[%d]=%.4f\n", (i+1) * OBS_W_NROWS - 1, OBS_xd_global[(i+1) * OBS_W_NROWS - 1]);
+    }
+#endif
+    ipc_master_set_req(1);      // ML 4
+
+    /* All workers invalidate global result */
+    CACHE_invL1d((void *) (&(OBS_xd_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+
+    ipc_master_wait_ack();
+}
+
+
+#pragma FUNCTION_OPTIONS(OBS_update_observer_worker, "--opt_level=off --opt_for_speed=0")
+void OBS_update_observer_worker(const obs_float * y_meas, const obs_float * u_old)
+{
+    const int ind_shift = (OBS_selfId - 1) * OBS_W_NROWS;
+    ipc_slave_wait_req();      // ML 0
+
+    CACHE_invL1d((void *) &(y_meas[0]), FGM_MPC_BYTES_X0_OR_XD, CACHE_WAIT);
+    OBS_swap_local_pointers();
+    OBS_swap_global_pointers();
+
+
+#if (OBS_DEBUG_LEVEL > 1)
+    if (OBS_selfId == 1)
+        printf("Slave: Waiting for state update from master\n");
+#endif
+
+
+    /* Master updates the whole state */
+    /* update_state_global(...); */
+
+#ifdef OBS_SYNC_EVERY_STEP
+    ipc_slave_set_ack(1);
+    ipc_slave_wait_req();      // ML 1
+#endif
+
+#if (OBS_DEBUG_LEVEL > 1)
+    if (OBS_selfId == 1)
+        printf("Slave: Updating delta y\n");
+
+    if (OBS_selfId == 1) {
+        printf("OBS_Cx_local[%d]=%.4f,", 0, OBS_Cx_local[0]);
+        printf("OBS_x8_global[%d]=%.4f,", 0, OBS_x8_global[0]);
+        printf("y_meas[%d]=%.4f,", 0, y_meas[0]);
+        printf("OBS_xd_local[%d]=%.4f,", 0, OBS_xd_local[0]);
+        printf("OBS_xd_static[%d]=%.4f,", 0, OBS_xd_static[0]);
+        printf("OBS_delta_y_local[%d]=%.4f\n", 0, OBS_delta_y_local[0]);
+    }
+#endif
+    /* Compute: delta_y = y - Cx*x7 - xd */
+    CACHE_invL1d((void *) (&(OBS_x8_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    OBS_update_delta_y((const obs_float *)(&(OBS_Cx_local[0])),
+                       (const obs_float *)OBS_x8_global,
+                       (const obs_float *)&(y_meas[ind_shift]),
+                       (const obs_float *)OBS_xd_local,
+                       (obs_float *)OBS_delta_y_local);
+    CACHE_wbL1d((void *) (&(OBS_delta_y_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
+
+#if (OBS_DEBUG_LEVEL > 1)
+    if (OBS_selfId == 1) {
+        printf("OBS_Cx_local[%d]=%.4f,", 0, OBS_Cx_local[0]);
+        printf("OBS_x8_global[%d]=%.4f,", 0, OBS_x8_global[0]);
+        printf("y_meas[%d]=%.4f,", 0, y_meas[0]);
+        printf("OBS_xd_local[%d]=%.4f,", 0, OBS_xd_local[0]);
+        printf("OBS_xd_static[%d]=%.4f,", 0, OBS_xd_static[0]);
+        printf("OBS_delta_y_local[%d]=%.4f\n", 0, OBS_delta_y_local[0]);
+    }
+#endif
+
+    ipc_slave_set_ack(1);
+    ipc_slave_wait_req();      // ML 2
+
+    CACHE_invL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);    // TODO: remove this?
+    CACHE_invL1d((void *) (&(OBS_delta_y_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+
+    /* Compute: delta_x8 = Lx*delta_y */
+    OBS_update_delta_x8_or_xd((const obs_float *)(&(OBS_Lx_local[0])),
+                              (const obs_float *)OBS_delta_y_global,
+                              (obs_float *)OBS_delta_x8_local);
+
+#if (OBS_DEBUG_LEVEL > 1)
+    if (OBS_selfId == 1) {
+        printf("OBS_Lx_local[%d]=%.4f,", 0, OBS_Lx_local[0]);
+        printf("OBS_delta_y_global[%d]=%.4f,", 0, OBS_delta_y_global[0]);
+        printf("OBS_delta_x8_local[%d]=%.4f\n", 0, OBS_delta_x8_local[0]);
+    }
+#endif
+
+    /* Compute: delta_xd = Ld*delta_y */
+    OBS_update_delta_x8_or_xd((const obs_float *)(&(OBS_Ld_local[0])),
+                              (const obs_float *)OBS_delta_y_global,
+                              (obs_float *)OBS_delta_xd_local);
+
+#if (OBS_DEBUG_LEVEL > 1)
+    if (OBS_selfId == 1) {
+        printf("OBS_Ld_local[%d]=%.4f,", 0, OBS_Ld_local[0]);
+        printf("OBS_delta_y_global[%d]=%.4f,", 0, OBS_delta_y_global[0]);
+        printf("OBS_delta_xd_local[%d]=%.4f\n", 0, OBS_delta_xd_local[0]);
+    }
+#endif
+
+#ifdef OBS_SYNC_EVERY_STEP
+    CACHE_wbL1d((void *) (&(OBS_delta_x8_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) (&(OBS_delta_xd_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
+    _mfence();
+    _mfence();
+
+    ipc_slave_set_ack(1);
+
+    ipc_slave_wait_req();      // ML 3
+#endif
+
+    OBS_update_x8_or_xd((const obs_float *)OBS_delta_x8_local, (obs_float *)OBS_x8_local);
+    OBS_update_x8_or_xd((const obs_float *)OBS_delta_xd_local, (obs_float *)OBS_xd_local);
+    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax, (obs_float *)OBS_x7_local);
+    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_2, (obs_float *)OBS_x6_local);
+    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_3, (obs_float *)OBS_x5_local);
+    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_4, (obs_float *)OBS_x4_local);
+    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_5, (obs_float *)OBS_x3_local);
+    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_6, (obs_float *)OBS_x2_local);
+    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_7, (obs_float *)OBS_x1_local);
+    OBS_update_xi((const obs_float *)OBS_delta_x8_local, OBS_Ax_pow_8, (obs_float *)OBS_x0_new_local);
+
+    CACHE_wbL1d((void *) (&(OBS_x0_new_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) (&(OBS_xd_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
+
+    ipc_slave_set_ack(1);
+    ipc_slave_wait_req();      // ML 4
+
+    CACHE_invL1d((void *) (&(OBS_x0_new_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) (&(OBS_xd_global[0])), OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+
+    ipc_slave_set_ack(1);
 }

@@ -89,14 +89,7 @@ typedef float fgm_float;
  * Copies problem data and assigns the projection function: void proj_func(const float * restrict in, float * restrict out).
  * Needs to be called before FGM_MPC_solve.
  */
-void FGM_MPC_initialize(const fgm_float * obj_func_matrix,
-                        const fgm_float * obj_func_vector_matrix,
-                        const fgm_float * ampl_max_vector,
-                        const fgm_float * rate_max_vector,
-                        const fgm_float obj_func_grad_max_eigval,
-                        const fgm_float obj_func_grad_min_eigval,
-                        const int fgm_dim,
-                        const int fgm_horizon);
+void FGM_MPC_initialize(void);
 void FGM_MPC_initialize_worker(volatile int selfId);
 void FGM_MPC_finalize(void);
 void FGM_MPC_print_settings(void);
