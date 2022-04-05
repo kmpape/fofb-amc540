@@ -772,85 +772,17 @@ void FGM_MPC_project(const fgm_float * restrict in, fgm_float * restrict out)
 #endif // (FGM_MPC_HORIZON == 1)
 
 #pragma FUNCTION_OPTIONS(FGM_MPC_initialize, "--opt_level=off --opt_for_speed=0")
-void FGM_MPC_initialize(
-        const fgm_float * obj_func_matrix,
-        const fgm_float * obj_func_vector_matrix,
-        const fgm_float * ampl_max_vector,
-        const fgm_float * rate_max_vector,
-        const fgm_float obj_func_grad_max_eigval,
-        const fgm_float obj_func_grad_min_eigval,
-        const int fgm_dim,
-        const int fgm_horizon)
+void FGM_MPC_initialize(void)
 {
     int i, j;
-    const double sqrt_max_eigval = sqrt(obj_func_grad_max_eigval);
-    const double sqrt_min_eigval = sqrt(obj_func_grad_min_eigval);
-    assert(fgm_dim == FGM_MPC_DIM);
-    assert(obj_func_grad_max_eigval > obj_func_grad_min_eigval);
-    assert(fgm_horizon == FGM_MPC_HORIZON);
     assert(FGM_MPC_BYTES_IN_VEC_TOTAL <= 4*65408); // TODO: is this number correct?
-
-    /* Objective function curvatures */
-    FGM_MPC_beta = (fgm_float) (sqrt_max_eigval - sqrt_min_eigval)
-                    / (sqrt_max_eigval + sqrt_min_eigval);
-    FGM_MPC_beta_p1 = (fgm_float) ((sqrt_max_eigval - sqrt_min_eigval)
-            / (sqrt_max_eigval + sqrt_min_eigval) + 1.0);
-
-    CACHE_wbL1d((void *) &FGM_MPC_beta, FGM_MPC_FLOAT_SIZE, CACHE_WAIT);
-
-    /* Objective function vector */
-    // Objective function vector computed by workers. Compute q_mat / max_eigval here
-    for (i = 0; i < FGM_MPC_DIM; i++)
-    {
-        for (j = 0; j < 2 * FGM_MPC_N_X0_OR_XD; j++)
-        {
-            FGM_MPC_in_mat_vec_static[i * 2 * FGM_MPC_N_X0_OR_XD + j] =
-                    (fgm_float) (((double) obj_func_vector_matrix[i * 2 * FGM_MPC_N_X0_OR_XD + j])
-                                    / (double) obj_func_grad_max_eigval);
-        }
-    }
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_wbL1d((void *) &FGM_MPC_in_mat_vec_static[FGM_MPC_SIZE_Q_MAT/4*i],
-                    FGM_MPC_BYTES_Q_MAT_TOTAL/4,
-                    CACHE_WAIT);
-    }
-
-    /* Objective function matrix: eye(FGM_MPC_DIM,FGM_MPC_DIM) - J / max_eigval */
-    for (i = 0; i < FGM_MPC_DIM; i++)
-    {
-        for (j = 0; j < FGM_MPC_DIM; j++)
-        {
-            if (i == j)
-            {
-                FGM_MPC_in_mat_static[i * FGM_MPC_DIM + j] = (fgm_float) (1.0
-                        - (double) obj_func_matrix[i * FGM_MPC_DIM + j]
-                                                   / (double) obj_func_grad_max_eigval);
-            }
-            else
-            {
-                FGM_MPC_in_mat_static[i * FGM_MPC_DIM + j] =
-                        (fgm_float) (-(double) obj_func_matrix[i * FGM_MPC_DIM + j]
-                                                               / (double) obj_func_grad_max_eigval);
-            }
-        }
-    }
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_wbL1d((void *) &FGM_MPC_in_mat_static[(FGM_MPC_DIM*FGM_MPC_DIM)/4*i],
-                     FGM_MPC_BYTES_IN_MAT_TOTAL/4,
-                     CACHE_WAIT);
-    }
 
     /* Store projection limits, projection initialized by slaves */
     for (i = 0; i < FGM_MPC_DIM; i++)
     {
-        FGM_MPC_ampl_max_static[i] = ampl_max_vector[i];
-        FGM_MPC_rate_max_static[i] = rate_max_vector[i];
+        FGM_MPC_ampl_max_static[i] = ampl_max_vec[i];
+        FGM_MPC_rate_max_static[i] = rate_max_vec[i];
     }
-
     CACHE_wbL1d((void *) &FGM_MPC_ampl_max_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
                 CACHE_WAIT);
     CACHE_wbL1d((void *) &FGM_MPC_rate_max_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
@@ -869,7 +801,6 @@ void FGM_MPC_initialize(
                 CACHE_WAIT);
     CACHE_wbL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
                 CACHE_WAIT);
-    _mfence();
 
     /* Assign these pointer for printing of debug info */
     FGM_MPC_vec_t = &(FGM_MPC_vec_t_static[0]);
@@ -889,15 +820,6 @@ void FGM_MPC_initialize_worker(volatile int selfId)
     FGM_MPC_selfId = selfId;
 
     /* Invalidate cache - matrices formed by master core */
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_invL1d((void *) &FGM_MPC_in_mat_static[(FGM_MPC_DIM*FGM_MPC_DIM)/4*i],
-                     FGM_MPC_BYTES_IN_MAT_TOTAL/4,
-                    CACHE_WAIT);
-        _mfence();
-        _mfence();
-    }
     CACHE_invL1d((void *) &FGM_MPC_in_vec_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
                  CACHE_WAIT);
     CACHE_invL1d((void *) &FGM_MPC_out_vec_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
@@ -912,20 +834,9 @@ void FGM_MPC_initialize_worker(volatile int selfId)
                  CACHE_WAIT);
     CACHE_invL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
                  CACHE_WAIT);
-    CACHE_invL1d((void *) &FGM_MPC_beta, FGM_MPC_FLOAT_SIZE, CACHE_WAIT);
-    //CACHE_invL1d ((void *) &FGM_MPC_beta_p1, FGM_MPC_FLOAT_SIZE, CACHE_WAIT); // written back during the previous WB
-#pragma UNROLL(1)
-    for (i = 0; i < 4; i++)
-    {
-        CACHE_invL1d((void *) &FGM_MPC_in_mat_vec_static[FGM_MPC_SIZE_Q_MAT/4*i],
-                    FGM_MPC_BYTES_Q_MAT_TOTAL/4,
-                    CACHE_WAIT);
-    }
-    _mfence();
-    _mfence();
 
-    fgm_beta_local = FGM_MPC_beta;
-    fgm_beta_p1_local = FGM_MPC_beta_p1;
+    fgm_beta_local = beta_fgm;
+    fgm_beta_p1_local = beta_fgm+1;
 
     /* Copy worker's matrix */
     ind_shift = (selfId - 1) * FGM_MPC_W_NROWS * FGM_MPC_W_NCOLS;
@@ -934,18 +845,18 @@ void FGM_MPC_initialize_worker(volatile int selfId)
 #ifdef FGM_MPC_UNROLL
 #ifdef FGM_MPC_QMPY
     // for QMPY following unrolling is optimal
-    permXN_4waySIMD(&FGM_MPC_in_mat_static[ind_shift], FGM_MPC_in_mat_local, 8,
+    permXN_4waySIMD(&obj_func_matrix[ind_shift], FGM_MPC_in_mat_local, 8,
                     FGM_MPC_W_NROWS, FGM_MPC_W_NCOLS);
 #else
     // for DMPY following unrolling is optimal
-    permXN_2waySIMD(&FGM_MPC_in_mat_static[ind_shift], FGM_MPC_in_mat_local, 8,
+    permXN_2waySIMD(&obj_func_matrix[ind_shift], FGM_MPC_in_mat_local, 8,
                     FGM_MPC_W_NROWS, FGM_MPC_W_NCOLS);
 #endif // FGM_MPC_QMPY
 #else
     // no unrolling, just copy the matrix
     for (i = 0; i < FGM_MPC_W_NROWS * FGM_MPC_W_NCOLS; i++)
     {
-        FGM_MPC_in_mat_local[i] = FGM_MPC_in_mat_static[ind_shift + i];
+        FGM_MPC_in_mat_local[i] = obj_func_matrix[ind_shift + i];
     }
 #endif // FGM_MPC_UNROLL
     FGM_MPC_in_mat = &FGM_MPC_in_mat_local[0];
@@ -958,9 +869,9 @@ void FGM_MPC_initialize_worker(volatile int selfId)
         {
             // q = in_mat_vec*[x0_obs; xd_obs]
             FGM_MPC_x0_mat_local[i * FGM_MPC_N_X0_OR_XD + j] =
-                    FGM_MPC_in_mat_vec_static[2*i * FGM_MPC_N_X0_OR_XD + j + ind_shift];
+                    obj_func_vector_matrix[2*i * FGM_MPC_N_X0_OR_XD + j + ind_shift];
             FGM_MPC_xd_mat_local[i * FGM_MPC_N_X0_OR_XD + j] =
-                    FGM_MPC_in_mat_vec_static[(2*i+1) * FGM_MPC_N_X0_OR_XD + j + ind_shift];
+                    obj_func_vector_matrix[(2*i+1) * FGM_MPC_N_X0_OR_XD + j + ind_shift];
         }
     }
 
