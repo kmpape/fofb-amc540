@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #ifdef SOC_C6678
 #include <c6x.h>
 #include <ti/csl/csl_chip.h>
@@ -206,6 +207,7 @@ void GSVD_ctr_worker(Uint32 selfId)
 gsvd_float * GSVD_ctr(int restart)
 {
 #if (defined(SOC_C6678) && (USE_IPC==1))
+
     CACHE_invL1d ((void *) &out_Ps[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
     CACHE_invL1d ((void *) &out_Pf[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
     GSVD_add_fb_signal((const gsvd_float *)out_Ps, (const gsvd_float *)out_Pf, (const gsvd_float *)GSVD_measurements,
@@ -213,8 +215,17 @@ gsvd_float * GSVD_ctr(int restart)
     CACHE_wbL1d ((void *) &out_sum[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
 
     if (restart == 1) {
+        memset((LIBQDMA_ARR_TYPE *)out_Ps, 0, GSVD_NY_PAD*GSVD_FLOAT_SIZE);
+        memset((LIBQDMA_ARR_TYPE *)out_Pf, 0, GSVD_NY_PAD*GSVD_FLOAT_SIZE);
+        memset((LIBQDMA_ARR_TYPE *)out_sum, 0, GSVD_NY_PAD*GSVD_FLOAT_SIZE);
+        CACHE_wbL1d ((void *) &out_sum[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
         ipc_master_set_req(2); // Restart
     } else {
+        CACHE_invL1d ((void *) &out_Ps[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
+        CACHE_invL1d ((void *) &out_Pf[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
+        GSVD_add_fb_signal((const gsvd_float *)out_Ps, (const gsvd_float *)out_Pf, (const gsvd_float *)GSVD_measurements,
+                           (gsvd_float *)out_sum, GSVD_NY_PAD);
+        CACHE_wbL1d ((void *) &out_sum[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
         ipc_master_set_req(1); // ML 0: Compute slow and fast inputs
     }
     ipc_master_wait_ack();
