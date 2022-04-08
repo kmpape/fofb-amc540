@@ -9,13 +9,7 @@ typedef float obs_float;
 #define OBS_W_NCOLS         (OBS_NUM_WORKERS*OBS_W_NROWS)
 #define OBS_DIM             (OBS_NUM_WORKERS*OBS_W_NROWS)
 
-#undef OBS_SYNC_EVERY_STEP
-#define OBS_DEBUG_LEVEL     (0) // 0,1,2
-#if (OBS_DEBUG_LEVEL > 0)
-#ifndef OBS_SYNC_EVERY_STEP
 #define OBS_SYNC_EVERY_STEP
-#endif
-#endif
 
 #define OBS_UNROLL
 
@@ -25,14 +19,14 @@ typedef float obs_float;
 #define OBS_BYTES_LOCAL_ARRAYS  (OBS_W_NROWS * OBS_FLOAT_SIZE)
 #define OBS_BYTES_GLOBAL_ARRAYS (OBS_DIM * OBS_FLOAT_SIZE)
 
-
 void OBS_initialize_master(void);
 void OBS_initialize_worker(volatile int selfId);
 
-void OBS_update_observer_master(const obs_float * y_meas,
-                                const obs_float * u_old);
-void OBS_update_observer_worker(const obs_float * y_meas,
-                                const obs_float * u_old);
+void OBS_reset_master(void);
+void OBS_reset_worker(void);
+
+void OBS_update_observer_master(const obs_float * u_old);
+void OBS_update_observer_worker(const obs_float * y_meas);
 obs_float volatile * OBS_get_xd(void); // to be queried every time after OBS_update_observer
 obs_float volatile * OBS_get_x0_new(void); // to be queried every time after OBS_update_observer
 

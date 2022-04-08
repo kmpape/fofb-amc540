@@ -44,8 +44,7 @@ typedef float fgm_float;
 #define FGM_MPC_CACHE_LINESIZE      (64) // bytes
 #define FGM_MPC_ARRAY_ALIGN         (FGM_MPC_CACHE_LINESIZE)
 #define FGM_MPC_BYTES_IN_MAT_TOTAL  (FGM_MPC_DIM * FGM_MPC_DIM * FGM_MPC_FLOAT_SIZE)
-#define FGM_MPC_BYTES_IN_VEC_TOTAL  (FGM_MPC_DIM * FGM_MPC_FLOAT_SIZE)
-#define FGM_MPC_BYTES_WORKER_ARRAYS (FGM_MPC_W_NROWS * FGM_MPC_FLOAT_SIZE)
+#define FGM_MPC_BYTES_LOCAL_ARRAYS  (FGM_MPC_W_NROWS * FGM_MPC_FLOAT_SIZE)
 #define FGM_MPC_BYTES_GLOBAL_ARRAYS (FGM_MPC_DIM * FGM_MPC_FLOAT_SIZE)
 
 /* FGM settings */
@@ -54,7 +53,6 @@ typedef float fgm_float;
 #undef FGM_MPC_SYNC_EVERY_STEP          // sync cores after every FGM operation
 #define FGM_MPC_UNROLL                  // unroll the mat-mpy in gradient step
 #define FGM_MPC_QMPY                    // use quad-multiply, if undefined uses dual multiply instead
-#undef FGM_MPC_COMBINE_GRAD_PROJ
 
 /* FGM - observer interface */
 #define FGM_MPC_N_X0_OR_XD          (192) // defines the length of padded x0 or xd from observer
@@ -64,14 +62,6 @@ typedef float fgm_float;
 
 /* DEBUG FLAGS */
 #define FGM_MPC_DEBUG_LEVEL     (0)     // prints the different steps 0,1,2
-#define FGM_MPC_DEBUG_ITERMAX   (41)    // prints until itermax
-#define FGM_MPC_DEBUG_SLAVE_I   (0)     // print slave data 0,1
-#define FGM_MPC_DEBUG_SLAVE_IP  (1)     // number of iterations until printing disabled 1...MAX_ITER
-#if (FGM_MPC_DEBUG_LEVEL == 2)
-#ifndef FGM_MPC_SYNC_EVERY_STEP
-#define FGM_MPC_SYNC_EVERY_STEP
-#endif
-#endif
 
 /* Profiling */
 #define FGM_MPC_PROFILING // enable profiling
@@ -82,45 +72,16 @@ typedef float fgm_float;
 #endif
 #endif
 
-/* Functions */
-
-/*
- * FGM_MPC_initialize:
- * Copies problem data and assigns the projection function: void proj_func(const float * restrict in, float * restrict out).
- * Needs to be called before FGM_MPC_solve.
- */
 void FGM_MPC_initialize(void);
 void FGM_MPC_initialize_worker(volatile int selfId);
-void FGM_MPC_finalize(void);
-void FGM_MPC_print_settings(void);
 
-/*
- * FGM_MPC_solve:
- * Solves the QP. Warm-start using out-array if warm_start == 1. Solution in out. Returns 0
- * if problem has been solved. Returns 1 if maximum iterations reached.
- */
-fgm_float * FGM_MPC_get_input(void);
-fgm_float * FGM_MPC_get_output(void);
+fgm_float * FGM_MPC_get_input(void); // placeholder for measurements
+fgm_float * FGM_MPC_get_output(void); // solution of MPC problem
+
 int FGM_MPC_solve(void);
-#pragma FUNC_NEVER_RETURNS(FGM_MPC_solve_worker)
-void FGM_MPC_solve_worker(void);
-//int FGM_MPC_solve_aircraft_example(fgm_float * out, const int warm_start, const int horiz_len); // calls projection three times
-int FGM_MPC_get_num_iter(void);
-fgm_float FGM_MPC_compute_obj_val(fgm_float * solution, fgm_float * obj_fun_matrix, fgm_float * obj_fun_vec);
+void FGM_MPC_solve_worker(const fgm_float * x0, const fgm_float * xd); // takes observer variables as input
 
-/* Only here for tests */
-void FGM_MPC_gradient_step(const fgm_float *restrict in_mat, const fgm_float *restrict in_vec,
-                           const fgm_float *restrict in_vec_sub, fgm_float *restrict out_vec);
-//void FGM_MPC_initialize_box_projection(const fgm_float box_min, const fgm_float box_max);
-//void FGM_MPC_box_projection(const fgm_float * restrict in, fgm_float * restrict out);
-fgm_float * FGM_MPC_get_in_mat(void);
-fgm_float * FGM_MPC_get_in_vec(void);
-fgm_float volatile * FGM_MPC_get_out_vec(void);
-fgm_float FGM_MPC_get_beta(void);
-fgm_float FGM_MPC_get_beta_p1(void);
-fgm_float volatile * FGM_MPC_get_out_local(void);
-fgm_float volatile * FGM_MPC_get_FGM_MPC_vec_t(void);
-fgm_float FGM_MPC_check_solution(const fgm_float *restrict sol);
+void FGM_MPC_reset(void); // zeros previous solutions, workers must invalidate
 
 #ifdef FGM_MPC_PROFILING
 typedef struct FGMTimer {

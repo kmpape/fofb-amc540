@@ -1,11 +1,9 @@
-#include <stdlib.h>
+#include <string.h>
 #ifdef SOC_C6678
 #include <c6x.h>
 #include <ti/csl/csl_chip.h>
 #include <csl_cache.h>
 #include <csl_cacheAux.h>
-#else
-#include <stdio.h>
 #endif
 
 #if (defined(SOC_C6678) && (USE_IPC==1))
@@ -215,9 +213,9 @@ gsvd_float * GSVD_ctr(int restart)
     CACHE_wbL1d ((void *) &out_sum[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
 
     if (restart == 1) {
-        memset((LIBQDMA_ARR_TYPE *)out_Ps, 0, GSVD_NY_PAD*GSVD_FLOAT_SIZE);
-        memset((LIBQDMA_ARR_TYPE *)out_Pf, 0, GSVD_NY_PAD*GSVD_FLOAT_SIZE);
-        memset((LIBQDMA_ARR_TYPE *)out_sum, 0, GSVD_NY_PAD*GSVD_FLOAT_SIZE);
+        memset((gsvd_float *)out_Ps, 0, GSVD_NY_PAD*GSVD_FLOAT_SIZE);
+        memset((gsvd_float *)out_Pf, 0, GSVD_NY_PAD*GSVD_FLOAT_SIZE);
+        memset((gsvd_float *)out_sum, 0, GSVD_NY_PAD*GSVD_FLOAT_SIZE);
         CACHE_wbL1d ((void *) &out_sum[0], GSVD_NY_PAD*GSVD_FLOAT_SIZE, CACHE_FENCE_WAIT);
         ipc_master_set_req(2); // Restart
     } else {

@@ -243,9 +243,9 @@ void gradient_step_master(void)
 
 /* Prototypes */
 void FGM_MPC_gradient_step(const fgm_float *restrict in_mat,
-                            const fgm_float *restrict in_vec,
-                            const fgm_float *restrict in_vec_sub,
-                            fgm_float *restrict out_vec);
+                           const fgm_float *restrict in_vec,
+                           const fgm_float *restrict in_vec_sub,
+                           fgm_float *restrict out_vec);
 void FGM_MPC_initialize_obj_func_vec(const fgm_float * restrict in_x0_mat,
                                      const fgm_float * restrict in_x0_vec,
                                      const fgm_float * restrict in_xd_mat,
@@ -271,9 +271,7 @@ void FGM_MPC_vec_copy(const fgm_float * restrict in, fgm_float * restrict out,
 void FGM_MPC_vec_swap(fgm_float **in_out1, fgm_float **in_out2);
 void FGM_MPC_vec_swap_volatile(volatile fgm_float * volatile * in_out1,
                                volatile fgm_float * volatile * in_out2);
-void FGM_MPC_vec_init(fgm_float volatile * out, const fgm_float in);
-fgm_float FGM_MPC_inf_norm(const fgm_float * in);
-fgm_float FGM_MPC_inf_norm_error(const fgm_float * in1, const fgm_float * in2);
+void FGM_MPC_vec_init(fgm_float * restrict out, const fgm_float in);
 
 /* Permutations for efficient matrix-vector multiplication */
 int arr_ind(const int ncols, const int i_row, const int i_col);
@@ -411,24 +409,6 @@ void FGM_MPC_gradient_step(const fgm_float *restrict in_mat,
                 _ftof2(_lof2(row_res_7) + _hif2(row_res_7),
                        _lof2(row_res_6) + _hif2(row_res_6)),
                        _amem8_f2_const(&in_vec_sub[i + 6]));
-#ifdef FGM_MPC_COMBINE_GRAD_PROJ
-        out_vec[i] = FGM_MPC_max(FGM_MPC_box_min_local[i],
-                                 FGM_MPC_min(out_vec[i], FGM_MPC_box_max_local[i]));
-        out_vec[i+1] = FGM_MPC_max(FGM_MPC_box_min_local[i+1],
-                                 FGM_MPC_min(out_vec[i+1], FGM_MPC_box_max_local[i+1]));
-        out_vec[i+2] = FGM_MPC_max(FGM_MPC_box_min_local[i+2],
-                                 FGM_MPC_min(out_vec[i+2], FGM_MPC_box_max_local[i+2]));
-        out_vec[i+3] = FGM_MPC_max(FGM_MPC_box_min_local[i+3],
-                                 FGM_MPC_min(out_vec[i+3], FGM_MPC_box_max_local[i+3]));
-        out_vec[i+4] = FGM_MPC_max(FGM_MPC_box_min_local[i+4],
-                                 FGM_MPC_min(out_vec[i+4], FGM_MPC_box_max_local[i+4]));
-        out_vec[i+5] = FGM_MPC_max(FGM_MPC_box_min_local[i+5],
-                                 FGM_MPC_min(out_vec[i+5], FGM_MPC_box_max_local[i+5]));
-        out_vec[i+6] = FGM_MPC_max(FGM_MPC_box_min_local[i+6],
-                                 FGM_MPC_min(out_vec[i+6], FGM_MPC_box_max_local[i+6]));
-        out_vec[i+7] = FGM_MPC_max(FGM_MPC_box_min_local[i+7],
-                                 FGM_MPC_min(out_vec[i+7], FGM_MPC_box_max_local[i+7]));
-#endif
     }
 #else // not FGM_MPC_QMPY: uses dual mpy function
 
@@ -482,25 +462,6 @@ void FGM_MPC_gradient_step(const fgm_float *restrict in_mat,
         _amem8_f2(&out_vec[i + 6]) = _dsubsp(_ftof2(_lof2(f2_res_row8) + _hif2(f2_res_row8),
                                                     _lof2(f2_res_row7) + _hif2(f2_res_row7)),
                                              _amem8_f2_const(&in_vec_sub[i+6]));
-
-#ifdef FGM_MPC_COMBINE_GRAD_PROJ
-        out_vec[i] = FGM_MPC_max(FGM_MPC_box_min_local[i],
-                                 FGM_MPC_min(out_vec[i], FGM_MPC_box_max_local[i]));
-        out_vec[i+1] = FGM_MPC_max(FGM_MPC_box_min_local[i+1],
-                                 FGM_MPC_min(out_vec[i+1], FGM_MPC_box_max_local[i+1]));
-        out_vec[i+2] = FGM_MPC_max(FGM_MPC_box_min_local[i+2],
-                                 FGM_MPC_min(out_vec[i+2], FGM_MPC_box_max_local[i+2]));
-        out_vec[i+3] = FGM_MPC_max(FGM_MPC_box_min_local[i+3],
-                                 FGM_MPC_min(out_vec[i+3], FGM_MPC_box_max_local[i+3]));
-        out_vec[i+4] = FGM_MPC_max(FGM_MPC_box_min_local[i+4],
-                                 FGM_MPC_min(out_vec[i+4], FGM_MPC_box_max_local[i+4]));
-        out_vec[i+5] = FGM_MPC_max(FGM_MPC_box_min_local[i+5],
-                                 FGM_MPC_min(out_vec[i+5], FGM_MPC_box_max_local[i+5]));
-        out_vec[i+6] = FGM_MPC_max(FGM_MPC_box_min_local[i+6],
-                                 FGM_MPC_min(out_vec[i+6], FGM_MPC_box_max_local[i+6]));
-        out_vec[i+7] = FGM_MPC_max(FGM_MPC_box_min_local[i+7],
-                                 FGM_MPC_min(out_vec[i+7], FGM_MPC_box_max_local[i+7]));
-#endif
     }
 #endif // FGM_MPC_QMPY
 #else
@@ -534,7 +495,7 @@ void FGM_MPC_beta_step(const fgm_float * restrict in1,
 #pragma MUST_ITERATE(FGM_MPC_W_NROWS, FGM_MPC_W_NROWS)
     for (i_row = 0; i_row < FGM_MPC_W_NROWS; i_row++)
     {
-        out[i_row] = beta_p1_local * in1[i_row] + beta_local_neg * in2[i_row]; // TODO: but beta-factors into L2SRAM
+        out[i_row] = beta_p1_local * in1[i_row] + beta_local_neg * in2[i_row];
     }
 #else
     //__float2_t b_p1 = _ftof2(beta_p1_local, beta_p1_local);
@@ -775,7 +736,7 @@ void FGM_MPC_project(const fgm_float * restrict in, fgm_float * restrict out)
 void FGM_MPC_initialize(void)
 {
     int i, j;
-    assert(FGM_MPC_BYTES_IN_VEC_TOTAL <= 4*65408); // TODO: is this number correct?
+    assert(FGM_MPC_BYTES_GLOBAL_ARRAYS <= 4*65408); // TODO: is this number correct?
 
     /* Store projection limits, projection initialized by slaves */
     for (i = 0; i < FGM_MPC_DIM; i++)
@@ -783,23 +744,23 @@ void FGM_MPC_initialize(void)
         FGM_MPC_ampl_max_static[i] = ampl_max_vec[i];
         FGM_MPC_rate_max_static[i] = rate_max_vec[i];
     }
-    CACHE_wbL1d((void *) &FGM_MPC_ampl_max_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_wbL1d((void *) &FGM_MPC_ampl_max_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
-    CACHE_wbL1d((void *) &FGM_MPC_rate_max_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_wbL1d((void *) &FGM_MPC_rate_max_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
 
     /* Zero all other vectors */
-    FGM_MPC_vec_init(FGM_MPC_out_vec_static, 0.0);
-    FGM_MPC_vec_init(FGM_MPC_vec_t_static, 0.0);
-    FGM_MPC_vec_init(FGM_MPC_vec_z_new_static, 0.0);
-    FGM_MPC_vec_init(FGM_MPC_vec_z_old_static, 0.0);
-    CACHE_wbL1d((void *) &(FGM_MPC_out_vec_static[0]), FGM_MPC_BYTES_IN_VEC_TOTAL,
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_out_vec_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_t_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_new_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_old_static, 0.0);
+    CACHE_wbL1d((void *) &(FGM_MPC_out_vec_static[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
-    CACHE_wbL1d((void *) &FGM_MPC_vec_t_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_wbL1d((void *) &FGM_MPC_vec_t_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
-    CACHE_wbL1d((void *) &FGM_MPC_vec_z_new_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_wbL1d((void *) &FGM_MPC_vec_z_new_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
-    CACHE_wbL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_wbL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
 
     /* Assign these pointer for printing of debug info */
@@ -811,6 +772,11 @@ void FGM_MPC_initialize(void)
     FGM_MPC_is_initialized = 1;
 }
 
+void FGM_MPC_reset(void)
+{
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_out_vec_static, 0.0);
+}
+
 #pragma FUNCTION_OPTIONS(FGM_MPC_initialize_worker, "--opt_level=off --opt_for_speed=0")
 void FGM_MPC_initialize_worker(volatile int selfId)
 {
@@ -819,20 +785,20 @@ void FGM_MPC_initialize_worker(volatile int selfId)
 
     FGM_MPC_selfId = selfId;
 
-    /* Invalidate cache - matrices formed by master core */
-    CACHE_invL1d((void *) &FGM_MPC_in_vec_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    /* Invalidate cache - arrays initialized by master core */
+    CACHE_invL1d((void *) &FGM_MPC_in_vec_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
-    CACHE_invL1d((void *) &FGM_MPC_out_vec_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_invL1d((void *) &FGM_MPC_out_vec_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
-    CACHE_invL1d((void *) &FGM_MPC_ampl_max_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_invL1d((void *) &FGM_MPC_ampl_max_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
-    CACHE_invL1d((void *) &FGM_MPC_rate_max_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_invL1d((void *) &FGM_MPC_rate_max_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
-    CACHE_invL1d((void *) &FGM_MPC_vec_t_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_invL1d((void *) &FGM_MPC_vec_t_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
-    CACHE_invL1d((void *) &FGM_MPC_vec_z_new_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_invL1d((void *) &FGM_MPC_vec_z_new_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
-    CACHE_invL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_IN_VEC_TOTAL,
+    CACHE_invL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
 
     fgm_beta_local = beta_fgm;
@@ -1003,94 +969,11 @@ fgm_float volatile * FGM_MPC_get_FGM_MPC_vec_t(void)
     return FGM_MPC_vec_t;
 }
 
-
-fgm_float FGM_MPC_check_solution(const fgm_float *restrict sol)
-{
-    fgm_float error, max_error=0.0, tmp_error;
-    int i, i_max=0;
-    for (i = 0; i < FGM_MPC_DIM; i++) {
-        tmp_error = (out_global[i] - sol[i]) * (out_global[i] - sol[i]);
-        if (tmp_error > max_error) {
-            max_error = tmp_error;
-            i_max = i;
-        }
-        error += tmp_error;
-    }
-
-    printf("squared error = %f\n", error);
-    printf("max error=%f at index %d\n", max_error, i_max);
-    printf("out_global[%d]=%f, solution[%d]=%f\n",i_max, out_global[i_max], i_max, sol[i_max]);
-    return error;
-}
-
-void FGM_MPC_print_settings(void)
-{
-    printf("FGM Settings\n");
-#ifdef FGM_MPC_UNROLL
-    printf("UNROLL\t\t\tTRUE\n");
-#else
-    printf("UNROLL\t\tFALSE\n");
-#endif
-#ifdef FGM_MPC_QMPY
-    printf("QMPY\t\t\tTRUE\n");
-#else
-    printf("QMPY\t\tFALSE\n");
-#endif
-#ifdef FGM_MPC_SYNC_EVERY_STEP
-    printf("SYNC_EVERY_STEP\t\tTRUE\n");
-#else
-    printf("SYNC_EVERY_STEP\t\tFALSE\n");
-#endif
-#if (FGM_MPC_CHECK_TERMINATION > 0)
-    printf("CHECK_TERMINATION\t\t%d\n", FGM_MPC_CHECK_TERMINATION);
-#else
-    printf("CHECK_TERMINATION\tFALSE\n");
-#endif
-    printf("MAX_ITER\t\t%d\n", FGM_MPC_MAX_ITER);
-#ifdef DOUBLE_PRECISION
-    printf("PRECISION\t\tDOUBLE\n");
-#else
-    printf("PRECISION\t\tSINGLE\n");
-#endif
-}
-
-void FGM_MPC_finalize(void)
-{
-#ifndef FGM_MPC_EMBEDDED
-    free(FGM_MPC_in_mat);
-    free(FGM_MPC_in_vec);
-    free(FGM_MPC_vec_t);
-    free(FGM_MPC_vec_z_new);
-    free(FGM_MPC_vec_z_old);
-#endif
-}
-
-void FGM_MPC_vec_init(fgm_float volatile * out, const fgm_float in)
+void FGM_MPC_vec_init(fgm_float * restrict out, const fgm_float in)
 {
     int i;
     for (i = 0; i < FGM_MPC_DIM; i++)
         out[i] = in;
-}
-
-fgm_float FGM_MPC_compute_obj_val(fgm_float * solution, fgm_float * obj_fun_matrix,
-                              fgm_float * obj_fun_vec)
-{
-    int i_row, i_col;
-    fgm_float matrix_part = 0.0, vector_part = 0.0, tmp_res;
-
-    for (i_row = 0; i_row < FGM_MPC_DIM; i_row++)
-    {
-        tmp_res = 0.0;
-        for (i_col = 0; i_col < FGM_MPC_DIM; i_col++)
-        {
-            tmp_res += obj_fun_matrix[i_row * FGM_MPC_DIM + i_col]
-                                      * solution[i_col];
-        }
-        matrix_part += solution[i_row] * tmp_res;
-        vector_part += solution[i_row] * obj_fun_vec[i_row];
-    }
-
-    return (0.5 * matrix_part + vector_part);
 }
 
 /*
@@ -1129,29 +1012,6 @@ void FGM_MPC_vec_copy(const fgm_float * restrict in, fgm_float * restrict out,
     }
 }
 
-fgm_float FGM_MPC_inf_norm(const fgm_float * in)
-{
-    int i;
-    fgm_float max_val = FGM_MPC_abs_float(in[0]);
-    for (i = 1; i < FGM_MPC_DIM; i++)
-        max_val = FGM_MPC_max(FGM_MPC_abs_float(in[i]), max_val);
-    return max_val;
-}
-
-fgm_float FGM_MPC_inf_norm_error(const fgm_float * in1, const fgm_float * in2)
-{
-    int i;
-    fgm_float max_val = FGM_MPC_abs_float(in1[0] - in2[0]);
-    for (i = 1; i < FGM_MPC_DIM; i++)
-        max_val = FGM_MPC_max(FGM_MPC_abs_float(in1[i] - in2[i]), max_val);
-    return max_val;
-}
-
-int FGM_MPC_get_num_iter(void)
-{
-    return FGM_MPC_last_num_iter;
-}
-
 fgm_float * FGM_MPC_get_input(void)
 {
     return (fgm_float *)FGM_MPC_y_meas_in;
@@ -1164,6 +1024,7 @@ fgm_float * FGM_MPC_get_output(void)
 
 
 //#if (defined(SOC_C6678) && (USE_IPC == 1))
+extern void print_vec(const obs_float *in, const int len, const char *name);
 #pragma FUNCTION_OPTIONS(FGM_MPC_solve, "--opt_level=off --opt_for_speed=0")
 int FGM_MPC_solve(void)
 {
@@ -1184,31 +1045,10 @@ int FGM_MPC_solve(void)
      *
      */
     volatile int i_iter;
-#if (FGM_MPC_DEBUG_LEVEL > 0)
-    int i;
-#endif
-#if (FGM_MPC_CHECK_TERMINATION > 0)
-    fgm_float abs_error, last_iter_inf_norm;
-    assert(FGM_MPC_is_initialized == 1);
-#endif
-
 #ifdef FGM_MPC_PROFILING
     FGM_MPC_init_timers();
     FGM_MPC_tic(0);
 #endif
-    /*
-     * Update observer
-     */
-#if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
-    FGM_MPC_tic(5);
-#endif
-    //CACHE_invL1d((void *) &(FGM_MPC_y_meas_in[0]), FGM_MPC_BYTES_X0_OR_XD, CACHE_WAIT);
-    OBS_update_observer_master((const obs_float *)&(FGM_MPC_y_meas_in[0]),
-                               (const obs_float *)&(out_global[0]));
-#if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
-    FGM_MPC_toc(5);
-#endif
-
     /*
      * Update fast gradient method objective vector
      */
@@ -1216,9 +1056,6 @@ int FGM_MPC_solve(void)
     FGM_MPC_tic(6);
 #endif
 #if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
-#if (FGM_MPC_DEBUG_LEVEL > 0)
-    printf("Updating objective function vector\n");
-#endif
     ipc_master_set_req(1); // ML 0
     /* initialize_obj_func_vec(...); */
     ipc_master_wait_ack();
@@ -1227,34 +1064,10 @@ int FGM_MPC_solve(void)
     FGM_MPC_toc(6);
 #endif
 
-#if (FGM_MPC_DEBUG_LEVEL > 0)
-    printf("Pre iteration\n");
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("out_global[%d]=%.4f,", i * FGM_MPC_W_NROWS, out_global[i * FGM_MPC_W_NROWS]);
-        printf("out_global[%d]=%.4f\n", (i+1) * FGM_MPC_W_NROWS - 1, out_global[(i+1) * FGM_MPC_W_NROWS - 1]);
-    }
-    CACHE_invL1d((void *) &(FGM_MPC_in_vec_global[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
-                             CACHE_WAIT);
-    _mfence();
-    _mfence();
-    for (i = 0; i < NUMSLAVES; i++)
-    {
-        printf("FGM_MPC_in_vec_global[%d]=%.4f,", i * FGM_MPC_W_NROWS, FGM_MPC_in_vec_global[i * FGM_MPC_W_NROWS]);
-        printf("FGM_MPC_in_vec_global[%d]=%.4f\n", (i+1) * FGM_MPC_W_NROWS - 1, FGM_MPC_in_vec_global[(i+1) * FGM_MPC_W_NROWS - 1]);
-    }
-#endif
-
     /* Fast gradient method  loop */
 #pragma UNROLL(1)
     for (i_iter = 0; i_iter < FGM_MPC_MAX_ITER; i_iter++)
     {
-#if (FGM_MPC_DEBUG_LEVEL > 0)
-        if (i_iter <= FGM_MPC_DEBUG_ITERMAX)
-        {
-            printf("i_iter=%d +++++++\n", i_iter);
-        }
-#endif /* FGM_MPC_DEBUG */
         /*
          * FGM_MPC_vec_t = (I - J / L) out - FGM_MPC_in_vec
          */
@@ -1269,25 +1082,6 @@ int FGM_MPC_solve(void)
 #if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
         FGM_MPC_toc(1);
 #endif
-#if (FGM_MPC_DEBUG_LEVEL > 0)
-        if (i_iter <= FGM_MPC_DEBUG_ITERMAX)
-        {
-            printf("Gradient Step:\n");
-#if defined(NUMSLAVES)
-            CACHE_invL1d ((void *) &FGM_MPC_vec_t_static[0], NUMSLAVES * FGM_MPC_BYTES_WORKER_ARRAYS, CACHE_WAIT);
-            for (i = 0; i < NUMSLAVES; i++)
-            {
-                printf("FGM_MPC_vec_t[%d]=%.4f\n", i * FGM_MPC_W_NROWS, FGM_MPC_vec_t_static[i * FGM_MPC_W_NROWS]);
-                printf("FGM_MPC_vec_t[%d]=%.4f\n", (i+1) * FGM_MPC_W_NROWS - 1, FGM_MPC_vec_t_static[(i+1) * FGM_MPC_W_NROWS - 1]);
-            }
-
-#else
-            for (i = 0; i < 10; i++)
-                printf("FGM_MPC_vec_t[%d]=%.4f\n", i, FGM_MPC_vec_t_static[i]);
-#endif
-        }
-#endif /* FGM_MPC_DEBUG */
-
         /*
          * z(i+1) = P(t(i))
          */
@@ -1303,29 +1097,6 @@ int FGM_MPC_solve(void)
 #if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
         FGM_MPC_toc(2);
 #endif
-#if (FGM_MPC_DEBUG_LEVEL > 1)
-        if (i_iter <= FGM_MPC_DEBUG_ITERMAX)
-        {
-            printf("Projection Step (&FGM_MPC_vec_z_new_static[0]=%x, &FGM_MPC_vec_z_old_static[0]=%x):\n", &FGM_MPC_vec_z_new_static[0], &FGM_MPC_vec_z_old_static[0]);
-#if defined(NUMSLAVES)
-            CACHE_invL1d ((void *) &FGM_MPC_vec_z_new_static[0], NUMSLAVES * FGM_MPC_BYTES_WORKER_ARRAYS, CACHE_WAIT);
-            CACHE_invL1d ((void *) &FGM_MPC_vec_z_old_static[0], NUMSLAVES * FGM_MPC_BYTES_WORKER_ARRAYS, CACHE_WAIT);
-            for (i = 0; i < NUMSLAVES; i++)
-            {
-                printf("FGM_MPC_vec_z_new[%d]=%.4f, FGM_MPC_vec_z_old[%d]=%.4f\n",
-                       i * FGM_MPC_W_NROWS, FGM_MPC_vec_z_new_static[i * FGM_MPC_W_NROWS],
-                       i * FGM_MPC_W_NROWS, FGM_MPC_vec_z_old_static[i * FGM_MPC_W_NROWS]);
-                printf("FGM_MPC_vec_z_new[%d]=%.4f, FGM_MPC_vec_z_old[%d]=%.4f\n",
-                       (i+1) * FGM_MPC_W_NROWS - 1, FGM_MPC_vec_z_new_static[(i+1) * FGM_MPC_W_NROWS - 1],
-                       (i+1) * FGM_MPC_W_NROWS - 1, FGM_MPC_vec_z_old_static[(i+1) * FGM_MPC_W_NROWS - 1]);
-            }
-#else
-            for (i = 0; i < 10; i++)
-                printf("FGM_MPC_vec_z_new[%d]=%.4f\n", i, FGM_MPC_vec_z_new_static[i]);
-#endif
-        }
-#endif /* FGM_MPC_DEBUG */
-
         /*
          * y(i+1) = (1 + beta) z(i+1) - beta z(i)
          */
@@ -1340,63 +1111,24 @@ int FGM_MPC_solve(void)
 #if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
         FGM_MPC_toc(3);
 #endif
-#if (FGM_MPC_DEBUG_LEVEL > 1)
-        if (i_iter <= FGM_MPC_DEBUG_ITERMAX)
-        {
-            printf("Beta Step (beta=%.6f, beta_p1=%.6f):\n", FGM_MPC_beta, FGM_MPC_beta_p1);
-            CACHE_invL1d ((void *) &out_global[0], NUMSLAVES * FGM_MPC_BYTES_WORKER_ARRAYS, CACHE_WAIT);
-#if defined(NUMSLAVES)
-            for (i = 0; i < NUMSLAVES; i++)
-            {
-                printf("out_global[%d]=%.4f\n", i * FGM_MPC_W_NROWS, out_global[i * FGM_MPC_W_NROWS]);
-                printf("out_global[%d]=%.4f\n", (i+1) * FGM_MPC_W_NROWS - 1, out_global[(i+1) * FGM_MPC_W_NROWS - 1]);
-            }
-#else
-            for (i = 0; i < 10; i++)
-                printf("out[%d]=%.4f\n", i, out[i]);
-#endif
-        }
-#endif /* FGM_MPC_DEBUG */
 
 #if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
         ipc_master_set_req(1); // ML 4
         ipc_master_wait_ack();
 #endif
-
-        /*
-         * Check for termination.
-         */
-#if (FGM_MPC_CHECK_TERMINATION > 0)
-#if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
-        FGM_MPC_tic(4);
-#endif
-        if ((FGM_MPC_CHECK_TERMINATION) && (i_iter > 0) && (i_iter % FGM_MPC_CHECK_TERMINATION == 0))
+#if (FGM_MPC_DEBUG_LEVEL > 0)
+        if (i_iter <= FGM_MPC_DEBUG_ITERMAX)
         {
-            abs_error = FGM_MPC_inf_norm_error(FGM_MPC_vec_z_new, FGM_MPC_vec_z_old);
-            if (abs_error == 0)
+            printf("Iter %d\n", i_iter);
+            CACHE_invL1d ((void *) &out_global[0], NUMSLAVES * FGM_MPC_BYTES_WORKER_ARRAYS, CACHE_WAIT);
+            for (i = 0; i < NUMSLAVES; i++)
             {
-                break;
-            }
-            else
-            {
-                last_iter_inf_norm = FGM_MPC_inf_norm(FGM_MPC_vec_z_old);
-                if (last_iter_inf_norm == 0)
-                {
-                    break;
-                }
-                else
-                {
-                    if ((abs_error < FGM_MPC_EPS_ABS) && (abs_error < FGM_MPC_EPS_REL * last_iter_inf_norm))
-                    {
-                        break;
-                    }
-                }
+                print_vec(&out_global[i * FGM_MPC_W_NROWS],FGM_MPC_W_NROWS,"out_global");
+                //printf("out_global[%d]=%.4f, ", i * FGM_MPC_W_NROWS, out_global[i * FGM_MPC_W_NROWS]);
+                //printf("out_global[%d]=%.4f\n", (i+1) * FGM_MPC_W_NROWS - 1, out_global[(i+1) * FGM_MPC_W_NROWS - 1]);
             }
         }
-#if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
-        FGM_MPC_toc(4);
-#endif
-#endif // (FGM_MPC_CHECK_TERMINATION > 0)
+#endif /* FGM_MPC_DEBUG */
     }
     /*
      * Update projection limits
@@ -1412,223 +1144,77 @@ int FGM_MPC_solve(void)
 #if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
         FGM_MPC_toc(7);
 #endif
-#if (FGM_MPC_DEBUG_LEVEL > 0)
-        if (i_iter <= FGM_MPC_DEBUG_ITERMAX)
-        {
-            printf("The end:\n");
-            CACHE_invL1d ((void *) &out_global[0], NUMSLAVES * FGM_MPC_BYTES_WORKER_ARRAYS, CACHE_WAIT);
-            for (i = 0; i < NUMSLAVES; i++)
-            {
-                printf("out_global[%d]=%.4f\n", i * FGM_MPC_W_NROWS, out_global[i * FGM_MPC_W_NROWS]);
-                printf("out_global[%d]=%.4f\n", (i+1) * FGM_MPC_W_NROWS - 1, out_global[(i+1) * FGM_MPC_W_NROWS - 1]);
-            }
-        }
-#endif
 
 #if defined(FGM_MPC_PROFILING)
     FGM_MPC_toc(0);
 #endif
-    FGM_MPC_last_num_iter = i_iter;
-    if (i_iter == FGM_MPC_MAX_ITER)
-    {
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
+    return 0;
 }
 
 /* Workers end up in this loop after initialization */
 #pragma FUNCTION_OPTIONS(FGM_MPC_solve_worker, "--opt_level=off --opt_for_speed=0")
-void FGM_MPC_solve_worker(void)
+void FGM_MPC_solve_worker(const fgm_float * x0, const fgm_float * xd)
 {
     volatile int iter;
-#if (FGM_MPC_DEBUG_SLAVE_I == 1)
-    const int testId = 1;
+    /* Update objective function vector based on observer output */
+#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
+    ipc_slave_wait_req(); // ML 0
 #endif
+    FGM_MPC_initialize_obj_func_vec((const fgm_float *)FGM_MPC_x0_mat_local,
+                                    x0,
+                                    (const fgm_float *)FGM_MPC_xd_mat_local,
+                                    xd,
+                                    (fgm_float *)FGM_MPC_in_vec);
+#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
+    ipc_slave_set_ack(1);
+#endif
+
 #pragma UNROLL(1)
-    do
+    for (iter = 0; iter < FGM_MPC_MAX_ITER; iter++)
     {
-        /* Parallelized observer update */
-#if 0
-#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
-        ipc_slave_wait_req(); // ML -1
-#endif
-#endif
-        CACHE_invL1d((void *) &(FGM_MPC_y_meas_in[0]), FGM_MPC_BYTES_X0_OR_XD, CACHE_WAIT);
-        OBS_update_observer_worker((const obs_float *)&(FGM_MPC_y_meas_in[0]),
-                                   (const obs_float *)&(out_global[0]));
-        // Sync step in observer ensures that x0 and xd are written back
-#if 0
+        ipc_slave_wait_req(); // ML 1
+        CACHE_invL1d((void *) &(out_global[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                                 CACHE_WAIT);
+        FGM_MPC_gradient_step((const fgm_float *) FGM_MPC_in_mat,
+                              (const fgm_float *) out_global,
+                              (const fgm_float *) FGM_MPC_in_vec,
+                              (fgm_float *) FGM_MPC_vec_t);
 #if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
         ipc_slave_set_ack(1);
+        ipc_slave_wait_req(); // ML 2
 #endif
+        FGM_MPC_vec_swap_volatile(&(FGM_MPC_vec_z_new), &(FGM_MPC_vec_z_old));
+#if (FGM_MPC_HORIZON == 1)
+        FGM_MPC_project((const fgm_float *) FGM_MPC_vec_t,
+                        (const fgm_float *) FGM_MPC_box_min_local,
+                        (const fgm_float *) FGM_MPC_box_max_local,
+                        (fgm_float *) FGM_MPC_vec_z_new);
+#else
+        FGM_MPC_project((const fgm_float *) FGM_MPC_vec_t,
+                        (fgm_float *) FGM_MPC_vec_z_new);
 #endif
-
-        /* Update objective function vector based on observer output */
 #if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
-        ipc_slave_wait_req(); // ML 0
+        ipc_slave_set_ack(1);
+        ipc_slave_wait_req(); // ML 3
 #endif
-        FGM_MPC_initialize_obj_func_vec((const fgm_float *)FGM_MPC_x0_mat_local,
-                                        (const fgm_float *)OBS_get_x0_new(),
-                                        (const fgm_float *)FGM_MPC_xd_mat_local,
-                                        (const fgm_float *)OBS_get_xd(),
-                                        (fgm_float *)FGM_MPC_in_vec);
-#if (FGM_MPC_DEBUG_LEVEL > 0)
-        /* Let master double-check these values */
-        FGM_MPC_initialize_obj_func_vec((const fgm_float *)FGM_MPC_x0_mat_local,
-                                        (const fgm_float *)OBS_get_x0_new(),
-                                        (const fgm_float *)FGM_MPC_xd_mat_local,
-                                        (const fgm_float *)OBS_get_xd(),
-                                        (fgm_float *)(&(FGM_MPC_in_vec_global[(FGM_MPC_selfId - 1) * FGM_MPC_W_NROWS])));
-        CACHE_wbL1d((void *) (&(FGM_MPC_in_vec_global[(FGM_MPC_selfId - 1) * FGM_MPC_W_NROWS])), FGM_MPC_BYTES_WORKER_ARRAYS,
+        FGM_MPC_beta_step((const fgm_float *) FGM_MPC_vec_z_new,
+                          (const fgm_float *) FGM_MPC_vec_z_old,
+                          (fgm_float *) out_local);
+        CACHE_wbL1d((void *) &(out_local[0]), FGM_MPC_BYTES_LOCAL_ARRAYS,
                     CACHE_WAIT);
-        _mfence();
-        _mfence();
-#endif
 #if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
         ipc_slave_set_ack(1);
+        ipc_slave_wait_req(); // ML 4
 #endif
-
-#if (FGM_MPC_DEBUG_SLAVE_I == 1)
-        if (FGM_MPC_selfId == testId)
-        {
-            printf("---------->PRE ITER SLAVE %d\n", testId);
-            printf("in_vec[0] = %.4f, in_vec[31] = %.4f\n", FGM_MPC_in_vec[0], FGM_MPC_in_vec[31]);
-            printf("in_mat[0] = %.4f, in_mat[31] = %.4f\n\n", FGM_MPC_in_mat[0], FGM_MPC_in_mat[31]);
-            printf("out_global[0]   = %.4f, out_global[31]  = %.4f\n", out_global[0], out_global[31]);
-            printf("out_global[32]  = %.4f, out_global[63]  = %.4f\n", out_global[32], out_global[63]);
-            printf("out_global[64]  = %.4f, out_global[95]  = %.4f\n", out_global[64], out_global[95]);
-            printf("out_global[96]  = %.4f, out_global[127] = %.4f\n", out_global[96], out_global[127]);
-            printf("out_global[128] = %.4f, out_global[159] = %.4f\n", out_global[128], out_global[159]);
-            printf("out_global[160] = %.4f, out_global[191] = %.4f\n\n", out_global[160], out_global[191]);
-            printf("FGM_MPC_x0_mat_local[0] = %.4f, FGM_MPC_xd_mat_local[0] = %.4f\n\n",
-                   FGM_MPC_x0_mat_local[0], FGM_MPC_xd_mat_local[0]);
-            printf("FGM_MPC_x0_obs_local[0] = %.4f, FGM_MPC_xd_obs_local[0] = %.4f\n\n",
-                   FGM_MPC_x0_obs_local[0], FGM_MPC_xd_obs_local[0]);
-            printf("FGM_MPC_in_vec[0] = %.4f, FGM_MPC_in_vec[31] = %.4f\n\n",
-                   FGM_MPC_in_vec[0], FGM_MPC_in_vec[31]);
-        }
-#endif
-#pragma UNROLL(1)
-        for (iter = 0; iter < FGM_MPC_MAX_ITER; iter++)
-        {
-            ipc_slave_wait_req(); // ML 1
-            //CACHE_invL1d((void *) &(out_global[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
-            //             CACHE_WAIT);
-#if (FGM_MPC_DEBUG_SLAVE_I == 1)
-            if ((FGM_MPC_selfId == testId) && (iter < FGM_MPC_DEBUG_SLAVE_IP))
-            {
-                printf("---------->ITER START #%d: cache inv out_global\n", iter);
-                printf("out_global[0]   = %.4f, out_global[31]  = %.4f\n", out_global[0], out_global[31]);
-                printf("out_global[32]  = %.4f, out_global[63]  = %.4f\n", out_global[32], out_global[63]);
-                printf("out_global[64]  = %.4f, out_global[95]  = %.4f\n", out_global[64], out_global[95]);
-                printf("out_global[96]  = %.4f, out_global[127] = %.4f\n", out_global[96], out_global[127]);
-                printf("out_global[128] = %.4f, out_global[159] = %.4f\n", out_global[128], out_global[159]);
-                printf("out_global[160] = %.4f, out_global[191] = %.4f\n\n", out_global[160], out_global[191]);
-                printf("FGM_MPC_out_vec_static[128] = %.4f, FGM_MPC_out_vec_static[159] = %.4f\n",
-                       FGM_MPC_out_vec_static[128], FGM_MPC_out_vec_static[159]);
-                printf("FGM_MPC_out_vec_static[160] = %.4f, FGM_MPC_out_vec_static[191] = %.4f\n\n",
-                       FGM_MPC_out_vec_static[160], FGM_MPC_out_vec_static[191]);
-            }
-#endif
-#ifdef FGM_MPC_COMBINE_GRAD_PROJ
-            FGM_MPC_vec_swap_volatile(&(FGM_MPC_vec_z_new), &(FGM_MPC_vec_z_old));
-            FGM_MPC_gradient_step((const fgm_float *) FGM_MPC_in_mat,
-                                  (const fgm_float *) out_global,
-                                  (const fgm_float *) FGM_MPC_in_vec,
-                                  (fgm_float *) FGM_MPC_vec_z_new);
-
-#else
-            FGM_MPC_gradient_step((const fgm_float *) FGM_MPC_in_mat,
-                                  (const fgm_float *) out_global,
-                                  (const fgm_float *) FGM_MPC_in_vec,
-                                  (fgm_float *) FGM_MPC_vec_t);
-#endif
-#if (FGM_MPC_DEBUG_SLAVE_I == 1)
-            if ((FGM_MPC_selfId == testId) && (iter < FGM_MPC_DEBUG_SLAVE_IP))
-            {
-                printf("---------->FGM_MPC_gradient_step: vec_t = in_mat*out_global-in_vec\n");
-                printf("vec_t[0]=%.4f, vec_t[31]=%.4f\n\n", FGM_MPC_vec_t[0], FGM_MPC_vec_t[31]);
-            }
-#endif
-#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
-#if (FGM_MPC_DEBUG_LEVEL > 0)
-            CACHE_wbL1d((void *) &(FGM_MPC_vec_t[0]), FGM_MPC_BYTES_WORKER_ARRAYS,
-                        CACHE_WAIT);
-#endif
-            ipc_slave_set_ack(1);
-            ipc_slave_wait_req(); // ML 2
-#endif
-#ifndef FGM_MPC_COMBINE_GRAD_PROJ
-            FGM_MPC_vec_swap_volatile(&(FGM_MPC_vec_z_new), &(FGM_MPC_vec_z_old));
-#if (FGM_MPC_HORIZON == 1)
-            FGM_MPC_project((const fgm_float *) FGM_MPC_vec_t,
-                            (const fgm_float *) FGM_MPC_box_min_local,
-                            (const fgm_float *) FGM_MPC_box_max_local,
-                            (fgm_float *) FGM_MPC_vec_z_new);
-#else
-            FGM_MPC_project((const fgm_float *) FGM_MPC_vec_t,
-                            (fgm_float *) FGM_MPC_vec_z_new);
-#endif
-#endif
-#if (FGM_MPC_DEBUG_SLAVE_I == 1)
-            if ((FGM_MPC_selfId == testId) && (iter < FGM_MPC_DEBUG_SLAVE_IP))
-            {
-                printf("---------->FGM_MPC_project: vec_z_new = P(vec_t)\n");
-#if (FGM_MPC_HORIZON == 1)
-                printf("box_min,max_local[0]=(%.4f,%.4f), box_min,max_local[31]=(%.4f,%.4f)\n",
-                       FGM_MPC_box_min_local[0], FGM_MPC_box_max_local[0], FGM_MPC_box_min_local[31], FGM_MPC_box_max_local[31]);
-#endif
-                printf("vec_z_new[0]=%.4f, vec_z_new[31]=%.4f\n\n", FGM_MPC_vec_z_new[0], FGM_MPC_vec_z_new[31]);
-            }
-#endif
-#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
-#if (FGM_MPC_DEBUG_LEVEL > 0)
-            CACHE_wbL1d((void *) &(FGM_MPC_vec_z_new[0]), FGM_MPC_BYTES_WORKER_ARRAYS,
-                        CACHE_WAIT);
-            CACHE_wbL1d((void *) &(FGM_MPC_vec_z_old[0]), FGM_MPC_BYTES_WORKER_ARRAYS,
-                        CACHE_WAIT);
-#endif
-            ipc_slave_set_ack(1);
-            ipc_slave_wait_req(); // ML 3
-#endif
-            FGM_MPC_beta_step((const fgm_float *) FGM_MPC_vec_z_new,
-                              (const fgm_float *) FGM_MPC_vec_z_old,
-                              (fgm_float *) out_local);
-#if (FGM_MPC_DEBUG_SLAVE_I == 1)
-            if ((FGM_MPC_selfId == testId) && (iter < FGM_MPC_DEBUG_SLAVE_IP))
-            {
-                printf("---------->FGM_MPC_beta_step: out_local = (1+b)*vec_z_new - b*vec_z_old\n");
-                printf("vec_z_old[0]=%.4f, vec_z_old[31]=%.4f\n", FGM_MPC_vec_z_old[0], FGM_MPC_vec_z_old[31]);
-                printf("out_local[0]=%.4f, out_local[31]=%.4f\n\n", out_local[0], out_local[31]);
-            }
-#endif
-            CACHE_wbL1d((void *) &(out_local[0]), FGM_MPC_BYTES_WORKER_ARRAYS,
-                        CACHE_WAIT);
-            _mfence();
-            _mfence();
-#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
-            ipc_slave_set_ack(1);
-            ipc_slave_wait_req(); // ML 4
-#endif
-            ipc_slave_set_ack(1);
-
-            CACHE_invL1d((void *) &(out_global[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
-                         CACHE_WAIT);
-            _mfence();
-            _mfence();
-        }
-
-        /* Re-initialize projection using computed solution */
-
-#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
-        ipc_slave_wait_req(); // ML 5
-#endif
-        FGM_MPC_initialize_projection();
-#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
         ipc_slave_set_ack(1);
+
+    }
+    /* Re-initialize projection using computed solution */
+#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
+    ipc_slave_wait_req(); // ML 5
 #endif
-    } while (1);
+    FGM_MPC_initialize_projection();
+#if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
+    ipc_slave_set_ack(1);
+#endif
 }
