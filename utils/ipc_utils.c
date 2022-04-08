@@ -134,6 +134,12 @@ const int volatile * volatile ipc_selfId = NULL;
 #pragma DATA_SECTION(local_selfId, ".ipc_local_data")
 Uint32 volatile local_selfId;
 
+#pragma DATA_SECTION(n_req,     ".ipc_local_data")
+volatile int n_req = 0;
+
+#pragma DATA_SECTION(n_ack,     ".ipc_local_data")
+volatile int n_ack = 0;
+
 /* Prototypes */
 int volatile * _get_ncalls_var(Uint32 volatile selfId);
 int volatile * _get_req_flag(Uint32 volatile selfId);
@@ -231,7 +237,8 @@ void ipc_slave_init2(void) {
     assert(ipc_selfId);
     assert(*ipc_selfId == this_selfId);
 #endif
-    /* Reset ncalls in case the DSP was restarted */
+    /* Reset in case the DSP was restarted */
+    ipc_slave_reset_req();
     ipc_slave_reset_num_requests();
     _set_slave_i_is_alive(this_selfId);
 #ifdef IPC_ASSERTS
@@ -243,6 +250,8 @@ void ipc_slave_init2(void) {
     assert(ipc_selfId != NULL);
     assert(*ipc_selfId == local_selfId);
 #endif
+    n_ack = 0;
+    n_req = 0;
 }
 
 
@@ -264,7 +273,8 @@ int ipc_slave_wait_req(void) {
     printf("s: waiting for req %d\n", *ncalls);
 #endif
     restore_val = _disable_interrupts();
-    while (*req_flag == 0);
+    //while (*req_flag == 0);
+    while ((*req_flag != 1) && (*req_flag != 2));
     req_val = *req_flag;
     _restore_interrupts(restore_val);
     *ncalls = *ncalls + 1;
@@ -274,7 +284,7 @@ int ipc_slave_wait_req(void) {
     restore_val = _disable_interrupts();
     ipc_slave_reset_req();
     _restore_interrupts(restore_val);
-
+    n_req++;
     return req_val;
 }
 
@@ -304,6 +314,7 @@ void ipc_slave_set_ack(int ack_val) {
     restore_val = _disable_interrupts();
     *ack_flag = ack_val;
     _restore_interrupts(restore_val);
+    n_ack++;
 }
 
 
@@ -319,7 +330,9 @@ void ipc_slave_reset_num_requests(void) {
 
 void ipc_master_init(void) {
     ipc_master_reset_ack();
-    ipc_master_set_req(0);
+    //ipc_master_set_req(0); now in slave init
+    n_ack = 0;
+    n_req = 0;
 }
 
 
@@ -351,6 +364,8 @@ void ipc_master_set_req(int req_val) {
     request_7 = req_val;
 #endif
     _restore_interrupts(restore_val);
+
+    n_req++;
 }
 
 
@@ -363,6 +378,7 @@ void ipc_master_set_req_slave_i(int req_val, Uint32 slaveId) {
     restore_val = _disable_interrupts();
     if (slaveId == 1) {
         request_1 = req_val;
+        n_req++;
 #if NUMSLAVES >= 2
     } else if (slaveId == 2) {
         request_2 = req_val;
@@ -449,45 +465,47 @@ void ipc_master_wait_ack(void) {
 #if IPC_DEBUGLEVEL >= 4
     printf("m: waiting for slave 1\n");
 #endif
-    while (acknowledge_1 == 0);
+    while (acknowledge_1 != 1);
 #if NUMSLAVES >= 2
 #if IPC_DEBUGLEVEL >= 4
     printf("m: waiting for slave 2\n");
 #endif
-    while (acknowledge_2 == 0);
+    while (acknowledge_2 != 1);
 #endif
 #if NUMSLAVES >= 3
 #if IPC_DEBUGLEVEL >= 4
     printf("m: waiting for slave 3\n");
 #endif
-    while (acknowledge_3 == 0);
+    while (acknowledge_3 != 1);
 #endif
 #if NUMSLAVES >= 4
 #if IPC_DEBUGLEVEL >= 4
     printf("m: waiting for slave 4\n");
 #endif
-    while (acknowledge_4 == 0);
+    while (acknowledge_4 != 1);
 #endif
 #if NUMSLAVES >= 5
 #if IPC_DEBUGLEVEL >= 4
     printf("m: waiting for slave 5\n");
 #endif
-    while (acknowledge_5 == 0);
+    while (acknowledge_5 != 1);
 #endif
 #if NUMSLAVES >= 6
 #if IPC_DEBUGLEVEL >= 4
     printf("m: waiting for slave 6\n");
 #endif
-    while (acknowledge_6 == 0);
+    while (acknowledge_6 != 1);
 #endif
 #if NUMSLAVES >= 7
 #if IPC_DEBUGLEVEL >= 4
     printf("m: waiting for slave 7\n");
 #endif
-    while (acknowledge_7 == 0);
+    while (acknowledge_7 != 1);
 #endif
     _restore_interrupts(restore_val);
     ipc_master_reset_ack();
+
+    n_ack++;
 }
 
 
@@ -499,30 +517,31 @@ void ipc_master_wait_ack_slave_i(Uint32 slaveId) {
     assert(slaveId > 0);
 #endif
     if (slaveId == 1) {
-        while (acknowledge_1 == 0);
+        while (acknowledge_1 != 1);
+        n_ack++;
 #if NUMSLAVES >= 2
     } else if (slaveId == 2) {
-        while (acknowledge_2 == 0);
+        while (acknowledge_2 != 1);
 #endif
 #if NUMSLAVES >= 3
     } else if (slaveId == 3) {
-        while (acknowledge_3 == 0);
+        while (acknowledge_3 != 1);
 #endif
 #if NUMSLAVES >= 4
     } else if (slaveId == 4) {
-        while (acknowledge_4 == 0);
+        while (acknowledge_4 != 1);
 #endif
 #if NUMSLAVES >= 5
     } else if (slaveId == 5) {
-        while (acknowledge_5 == 0);
+        while (acknowledge_5 != 1);
 #endif
 #if NUMSLAVES >= 6
     } else if (slaveId == 6) {
-        while (acknowledge_6 == 0);
+        while (acknowledge_6 != 1);
 #endif
 #if NUMSLAVES >= 7
     } else if (slaveId == 7) {
-        while (acknowledge_7 == 0);
+        while (acknowledge_7 != 1);
 #endif
     } else {
 #ifdef IPC_ASSERTS
