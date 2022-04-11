@@ -1,6 +1,7 @@
 #include "fofb_config.h"
 #include "utils/libQDMA.h"
 #include "imc/IMC_DI_ctr.h"
+#include "imc/IMC_transfer.h"
 #if (XDIR == 1)
 #include "storage_ring_config_x.h"
 #else
@@ -14,15 +15,11 @@
 
 int BPM_to_float(const LIBQDMA_ARR_TYPE * in_vec, imc_float * out_vec)
 {
-    int i, errors = 0;
+    int i;
     for (i = 0; i < TOT_NUM_BPM; i++) {
-        LIBQDMA_ARR_TYPE tmp = T_sat(in_vec[i], ORBIT_LIMIT);
+        LIBQDMA_ARR_TYPE tmp = T_sat(in_vec[i], IMC_LIMIT_READ);
         out_vec[i] = (imc_float)tmp;
-        if (tmp != in_vec[i])
-            errors += IMC_DI_BPM_ENABLED[i];
     }
-
-    // return errors; // THIS YIELDS A BUG DISABLED UNTIL FURTHER NOTICE
     return 0;
 }
 
@@ -30,12 +27,8 @@ int CM_to_int(const imc_float * in_vec, LIBQDMA_ARR_TYPE * out_vec)
 {
     int i, errors = 0;
     for (i = 0; i < TOT_NUM_CM; i++) {
-        LIBQDMA_ARR_TYPE tmp = (LIBQDMA_ARR_TYPE)(in_vec[i]*SCALING_FACTOR_WRITE);
-        out_vec[i] = T_sat(tmp, ORBIT_LIMIT);
-        if (tmp != out_vec[i])
-            errors += IMC_DI_CM_ENABLED[i];
+        LIBQDMA_ARR_TYPE tmp = (LIBQDMA_ARR_TYPE)(in_vec[i]*IMC_SCALING_FACTOR_WRITE);
+        out_vec[i] = T_sat(tmp, IMC_LIMIT_WRITE);
     }
-
-    // return errors; // THIS YIELDS A BUG DISABLED UNTIL FURTHER NOTICE
     return 0;
 }
