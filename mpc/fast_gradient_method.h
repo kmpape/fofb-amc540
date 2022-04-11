@@ -82,6 +82,7 @@ int FGM_MPC_solve(void);
 void FGM_MPC_solve_worker(const fgm_float * x0, const fgm_float * xd); // takes observer variables as input
 
 void FGM_MPC_reset(void); // zeros previous solutions, workers must invalidate
+void FGM_MPC_reset_worker(void); // zeros previous solutions, workers must invalidate
 
 #ifdef FGM_MPC_PROFILING
 typedef struct FGMTimer {

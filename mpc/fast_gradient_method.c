@@ -775,6 +775,30 @@ void FGM_MPC_initialize(void)
 void FGM_MPC_reset(void)
 {
     FGM_MPC_vec_init((fgm_float *)FGM_MPC_out_vec_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_new_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_old_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_t_static, 0.0);
+    CACHE_wbL1d((void *) &(FGM_MPC_out_vec_static[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                CACHE_WAIT);
+    CACHE_wbL1d((void *) &FGM_MPC_vec_t_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                CACHE_WAIT);
+    CACHE_wbL1d((void *) &FGM_MPC_vec_z_new_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                CACHE_WAIT);
+    CACHE_wbL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                CACHE_WAIT);
+}
+
+void FGM_MPC_reset_worker(void)
+{
+    CACHE_invL1d((void *) &FGM_MPC_out_vec_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                 CACHE_WAIT);
+    CACHE_invL1d((void *) &FGM_MPC_vec_t_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                 CACHE_WAIT);
+    CACHE_invL1d((void *) &FGM_MPC_vec_z_new_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                 CACHE_WAIT);
+    CACHE_invL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                 CACHE_WAIT);
+    FGM_MPC_initialize_projection();
 }
 
 #pragma FUNCTION_OPTIONS(FGM_MPC_initialize_worker, "--opt_level=off --opt_for_speed=0")
