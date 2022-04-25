@@ -9,7 +9,7 @@ typedef float obs_float;
 #define OBS_W_NCOLS         (OBS_NUM_WORKERS*OBS_W_NROWS)
 #define OBS_DIM             (OBS_NUM_WORKERS*OBS_W_NROWS)
 
-#define OBS_SYNC_EVERY_STEP
+#undef OBS_SYNC_EVERY_STEP
 
 #define OBS_UNROLL
 

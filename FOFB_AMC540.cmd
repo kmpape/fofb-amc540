@@ -25,7 +25,7 @@ SECTIONS
 		.rodata
 		.bss
 		.neardata
-	}			> MSMCSRAM
+	}			> L2SRAM //MSMCSRAM
 	.cppi 		> MSMCSRAM
 	.init_array > DDR3 // changed for MPC was MSMCSRAM before
 	.qmss 		> MSMCSRAM

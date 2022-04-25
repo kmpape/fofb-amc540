@@ -2,7 +2,7 @@
 #define DTF_IMC_DI_H_
 
 #include "fofb_config.h"
-#define DTF_IMC_DI_UNIT_TEST    (1)
+#define DTF_IMC_DI_UNIT_TEST    (0)
 /*
  * Hard-coded vector-wise (length K=172) filter with * N+1 (N=1) output and M+1 (M=8) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,

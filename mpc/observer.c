@@ -713,7 +713,7 @@ void OBS_initialize_worker(volatile int selfId)
 
 
 // Observer update
-#pragma FUNCTION_OPTIONS(OBS_update_observer_master, "--opt_level=off --opt_for_speed=0")
+//#pragma FUNCTION_OPTIONS(OBS_update_observer_master, "--opt_level=off --opt_for_speed=0")
 void OBS_update_observer_master(const obs_float * u_old)
 {
     ipc_master_set_req(1);      // ML 0
@@ -766,7 +766,7 @@ void OBS_update_observer_master(const obs_float * u_old)
 }
 
 
-#pragma FUNCTION_OPTIONS(OBS_update_observer_worker, "--opt_level=off --opt_for_speed=0")
+//#pragma FUNCTION_OPTIONS(OBS_update_observer_worker, "--opt_level=off --opt_for_speed=0")
 void OBS_update_observer_worker(const obs_float * y_meas)
 {
     const int ind_shift = (OBS_selfId - 1) * OBS_W_NROWS;
