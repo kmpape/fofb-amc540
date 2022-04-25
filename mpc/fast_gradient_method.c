@@ -8,6 +8,8 @@
 #include "mpc/fgm_utils.h"
 #include "mpc/observer.h"
 
+extern void touch(const void *array,  int length);
+
 #if defined(FGM_MPC_DEBUG) || defined(FGM_MPC_PROFILING)
 #include <stdio.h>
 #endif // defined(FGM_MPC_DEBUG) || defined(FGM_MPC_PROFILING)
@@ -1049,7 +1051,7 @@ fgm_float * FGM_MPC_get_output(void)
 
 //#if (defined(SOC_C6678) && (USE_IPC == 1))
 extern void print_vec(const obs_float *in, const int len, const char *name);
-#pragma FUNCTION_OPTIONS(FGM_MPC_solve, "--opt_level=off --opt_for_speed=0")
+//#pragma FUNCTION_OPTIONS(FGM_MPC_solve, "--opt_level=off --opt_for_speed=0")
 int FGM_MPC_solve(void)
 {
     /* Algorithm:
@@ -1176,7 +1178,7 @@ int FGM_MPC_solve(void)
 }
 
 /* Workers end up in this loop after initialization */
-#pragma FUNCTION_OPTIONS(FGM_MPC_solve_worker, "--opt_level=off --opt_for_speed=0")
+//#pragma FUNCTION_OPTIONS(FGM_MPC_solve_worker, "--opt_level=off --opt_for_speed=0")
 void FGM_MPC_solve_worker(const fgm_float * x0, const fgm_float * xd)
 {
     volatile int iter;

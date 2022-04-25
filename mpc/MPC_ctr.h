@@ -11,6 +11,6 @@ void MPC_initialize_worker(volatile int selfId);
 fgm_float * MPC_get_input(void);
 fgm_float * MPC_ctr(int restart);
 #pragma FUNC_NEVER_RETURNS(MPC_ctr_worker)
-fgm_float * MPC_ctr_worker(void);
+void MPC_ctr_worker(void);
 
 #endif /* MPC_MPC_CTR_H_ */

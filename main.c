@@ -257,7 +257,7 @@ int main() {
             GSVD_ctr_worker(ipc_slave_get_selfId());
 #elif (MPC_CONTROL == 1)
             MPC_initialize_worker(ipc_slave_get_selfId());
-            FGM_MPC_solve_worker();
+            MPC_ctr_worker();
 #endif
 #endif /* (USE_IPC == 1) */
 

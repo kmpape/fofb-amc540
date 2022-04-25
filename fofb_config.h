@@ -6,8 +6,8 @@
  * Internal model control
  */
 #define IMC_CONTROL         (0) // enable=1, set to 0 if loopback only
-#define GSVD_CONTROL        (1) // enable=1, set to 0 if loopback only
-#define MPC_CONTROL         (0) // enable=1, set to 0 if loopback only
+#define GSVD_CONTROL        (0) // enable=1, set to 0 if loopback only
+#define MPC_CONTROL         (1) // enable=1, set to 0 if loopback only
 #define INTEGRATOR_LIMIT    (4.99) // in Amperes
 #define XDIR                (0) // 1=horizontal plane, 0=vertical plane
 #define USE_IPC             (1) // switch multi-core (1) and single-core (0)
