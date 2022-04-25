@@ -3,9 +3,6 @@
 
 #include "mpc/fast_gradient_method.h"
 
-#define MPC_NU (172)
-#define MPC_NY (171)
-
 void MPC_initialize(void);
 void MPC_initialize_worker(volatile int selfId);
 fgm_float * MPC_get_input(void);
