@@ -7,6 +7,7 @@
 #include "mpc/fast_gradient_method.h"
 #include "mpc/fgm_utils.h"
 #include "mpc/observer.h"
+#include "mpc/DTF_awr.h"
 
 extern void touch(const void *array,  int length);
 
@@ -147,6 +148,7 @@ volatile fgm_float FGM_MPC_beta_p1;
 #pragma DATA_ALIGN(FGM_MPC_vec_t_static,     FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_vec_z_new_static, FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_vec_z_old_static, FGM_MPC_ARRAY_ALIGN)
+#pragma DATA_ALIGN(FGM_MPC_sofb_local,       FGM_MPC_ARRAY_ALIGN)
 #if (FGM_MPC_HORIZON == 1)
 #pragma DATA_ALIGN(FGM_MPC_box_min_local, FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_box_max_local, FGM_MPC_ARRAY_ALIGN)
@@ -169,6 +171,7 @@ fgm_float FGM_MPC_in_vec_local[FGM_MPC_W_NROWS];                    // vector q
 // matrix to compute q from x0_obs and xd_obs
 fgm_float FGM_MPC_x0_mat_local[FGM_MPC_W_NROWS * FGM_MPC_N_X0_OR_XD];
 fgm_float FGM_MPC_xd_mat_local[FGM_MPC_W_NROWS * FGM_MPC_N_X0_OR_XD];
+fgm_float FGM_MPC_sofb_local[FGM_MPC_W_NROWS]; // Slow orbit feedback setpoints
 #if (FGM_MPC_DEBUG_LEVEL == 0) // if master prints every step then save this in shared memory
 volatile fgm_float FGM_MPC_vec_t_static[FGM_MPC_DIM];
 volatile fgm_float FGM_MPC_vec_z_new_static[FGM_MPC_DIM];
@@ -284,8 +287,7 @@ void FGM_MPC_project(const fgm_float * restrict in,
 #endif
 
 /* Prototypes algebra */
-void FGM_MPC_vec_copy(const fgm_float * restrict in, fgm_float * restrict out,
-                      const int len, const double scaling_factor);
+void FGM_MPC_vec_copy(const fgm_float * restrict in, fgm_float * restrict out, const int len);
 void FGM_MPC_vec_swap(fgm_float **in_out1, fgm_float **in_out2);
 void FGM_MPC_vec_swap_volatile(volatile fgm_float * volatile * in_out1,
                                volatile fgm_float * volatile * in_out2);
@@ -578,28 +580,35 @@ void FGM_MPC_initialize_obj_func_vec(const fgm_float * restrict in_x0_mat,
 void FGM_MPC_initialize_projection(void)
 {
     int i_row;
+    fgm_float *awr;
+
+    // Compute AWR signal (lowpass-filtered input)
+    FGM_MPC_vec_copy(out_local, DTF_awr_get_u0_ptr(), FGM_MPC_W_NROWS);
+    DTF_awr_execute();
+    awr = DTF_awr_get_y0_ptr();
+
 #pragma MUST_ITERATE(FGM_MPC_W_NROWS/4, FGM_MPC_W_NROWS/4)
     for (i_row = 0; i_row < FGM_MPC_W_NROWS; i_row+=4)
     {
-        FGM_MPC_box_min_local[i_row] = FGM_MPC_max(-FGM_MPC_ampl_max_local[i_row],
-                                                   out_local[i_row] - FGM_MPC_rate_max_local[i_row]);
-        FGM_MPC_box_max_local[i_row] = FGM_MPC_min(FGM_MPC_ampl_max_local[i_row],
-                                                   out_local[i_row] + FGM_MPC_rate_max_local[i_row]);
+        FGM_MPC_box_min_local[i_row] = FGM_MPC_max(-FGM_MPC_sofb_local[i_row]-FGM_MPC_ampl_max_local[i_row],
+                                                   awr[i_row] - FGM_MPC_rate_max_local[i_row]);
+        FGM_MPC_box_max_local[i_row] = FGM_MPC_min(-FGM_MPC_sofb_local[i_row]+FGM_MPC_ampl_max_local[i_row],
+                                                   awr[i_row] + FGM_MPC_rate_max_local[i_row]);
 
-        FGM_MPC_box_min_local[i_row+1] = FGM_MPC_max(-FGM_MPC_ampl_max_local[i_row+1],
-                                                   out_local[i_row+1] - FGM_MPC_rate_max_local[i_row+1]);
-        FGM_MPC_box_max_local[i_row+1] = FGM_MPC_min(FGM_MPC_ampl_max_local[i_row+1],
-                                                   out_local[i_row+1] + FGM_MPC_rate_max_local[i_row+1]);
+        FGM_MPC_box_min_local[i_row+1] = FGM_MPC_max(-FGM_MPC_sofb_local[i_row+1]-FGM_MPC_ampl_max_local[i_row+1],
+                                                     awr[i_row+1] - FGM_MPC_rate_max_local[i_row+1]);
+        FGM_MPC_box_max_local[i_row+1] = FGM_MPC_min(-FGM_MPC_sofb_local[i_row+1]+FGM_MPC_ampl_max_local[i_row+1],
+                                                     awr[i_row+1] + FGM_MPC_rate_max_local[i_row+1]);
 
-        FGM_MPC_box_min_local[i_row+2] = FGM_MPC_max(-FGM_MPC_ampl_max_local[i_row+2],
-                                                   out_local[i_row+2] - FGM_MPC_rate_max_local[i_row+2]);
-        FGM_MPC_box_max_local[i_row+2] = FGM_MPC_min(FGM_MPC_ampl_max_local[i_row+2],
-                                                   out_local[i_row+2] + FGM_MPC_rate_max_local[i_row+2]);
+        FGM_MPC_box_min_local[i_row+2] = FGM_MPC_max(-FGM_MPC_sofb_local[i_row+2]-FGM_MPC_ampl_max_local[i_row+2],
+                                                     awr[i_row+2] - FGM_MPC_rate_max_local[i_row+2]);
+        FGM_MPC_box_max_local[i_row+2] = FGM_MPC_min(-FGM_MPC_sofb_local[i_row+2]+FGM_MPC_ampl_max_local[i_row+2],
+                                                     awr[i_row+2] + FGM_MPC_rate_max_local[i_row+2]);
 
-        FGM_MPC_box_min_local[i_row+3] = FGM_MPC_max(-FGM_MPC_ampl_max_local[i_row+3],
-                                                   out_local[i_row+3] - FGM_MPC_rate_max_local[i_row+3]);
-        FGM_MPC_box_max_local[i_row+3] = FGM_MPC_min(FGM_MPC_ampl_max_local[i_row+3],
-                                                   out_local[i_row+3] + FGM_MPC_rate_max_local[i_row+3]);
+        FGM_MPC_box_min_local[i_row+3] = FGM_MPC_max(-FGM_MPC_sofb_local[i_row+3]-FGM_MPC_ampl_max_local[i_row+3],
+                                                     awr[i_row+3] - FGM_MPC_rate_max_local[i_row+3]);
+        FGM_MPC_box_max_local[i_row+3] = FGM_MPC_min(-FGM_MPC_sofb_local[i_row+3]+FGM_MPC_ampl_max_local[i_row+3],
+                                                     awr[i_row+3] + FGM_MPC_rate_max_local[i_row+3]);
     }
 }
 
@@ -816,6 +825,7 @@ void FGM_MPC_reset_worker(void)
                  CACHE_WAIT);
     CACHE_invL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
+    DTF_awr_init();
     FGM_MPC_initialize_projection();
 }
 
@@ -899,6 +909,7 @@ void FGM_MPC_initialize_worker(volatile int selfId)
     FGM_MPC_rate_max_local = &(FGM_MPC_rate_max_static[(selfId - 1) * FGM_MPC_W_NROWS]);
 
     /* Projection is also re-initialized after every FGM_MPC_solve() */
+    FGM_MPC_vec_copy(&sofb_setp[(selfId - 1) * FGM_MPC_W_NROWS], FGM_MPC_sofb_local, FGM_MPC_W_NROWS);
     FGM_MPC_initialize_projection();
 }
 
@@ -1044,13 +1055,15 @@ void FGM_MPC_vec_swap_volatile(volatile fgm_float * volatile * in_out1,
     *in_out1 = tmp;
 }
 
-void FGM_MPC_vec_copy(const fgm_float * restrict in, fgm_float * restrict out,
-                  const int len, const double scaling_factor)
+void FGM_MPC_vec_copy(const fgm_float * restrict in, fgm_float * restrict out, const int len)
 {
+    _nassert((int) in % 16 == 0);
+    _nassert((int) out % 16 == 0);
+    _nassert(len % 32 == 0);
     int i;
     for (i = 0; i < len; i++)
     {
-        out[i] = (fgm_float) (((double) in[i]) * scaling_factor);
+        out[i] = in[i];
     }
 }
 
