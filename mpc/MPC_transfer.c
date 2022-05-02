@@ -36,3 +36,11 @@ int MPC_CM_to_int(const fgm_float * in_vec, LIBQDMA_ARR_TYPE * out_vec)
     }
     return 0;
 }
+
+int MPC_get_num_BPM(void) {
+    return MPC_NY_;
+}
+
+int MPC_get_num_CM(void) {
+    return MPC_NU_;
+}

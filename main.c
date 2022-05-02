@@ -212,7 +212,7 @@ int main() {
         PCIE_logPrintf ("GSVD_CONTROL\nNY=%d, NS=%d, NF=%d\n",
                         TOT_NUM_BPM, GSVD_NY, GSVD_NS, GSVD_NF);
 #elif (MPC_CONTROL == 1)
-        PCIE_logPrintf ("MPC_CONTROL\nNY=%d, NU=%d\n", MPC_NY, MPC_NU);
+        PCIE_logPrintf ("MPC_CONTROL\nNY=%d, NU=%d\n", MPC_get_num_BPM(), MPC_get_num_CM());
 #else
         PCIE_logPrintf ("LOOPBACK\n");
 #endif

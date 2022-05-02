@@ -12,5 +12,7 @@
 
 int MPC_BPM_to_float(const LIBQDMA_ARR_TYPE * in_vec, fgm_float * out_vec);
 int MPC_CM_to_int(const fgm_float * in_vec, LIBQDMA_ARR_TYPE * out_vec);
+int MPC_get_num_BPM(void);
+int MPC_get_num_CM(void);
 
 #endif /* MPC_TRANSFER_H_ */
