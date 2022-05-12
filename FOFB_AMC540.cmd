@@ -75,6 +75,7 @@ SECTIONS
 #if (MPC_CONTROL == 1)
 	.mpc_test				> DDR3
 	.mpc_init				> DDR3
+    .mpc_awr		  		> L2SRAM
 	.mpc_shared				> L2SRAM
     .fgm_local_data  		> L2SRAM
     .fgm_shared_data 		> MSMCSRAM

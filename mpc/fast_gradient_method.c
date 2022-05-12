@@ -583,7 +583,7 @@ void FGM_MPC_initialize_projection(void)
     fgm_float *awr;
 
     // Compute AWR signal (lowpass-filtered input)
-    FGM_MPC_vec_copy(out_local, DTF_awr_get_u0_ptr(), FGM_MPC_W_NROWS);
+    FGM_MPC_vec_copy((const fgm_float *)out_local, DTF_awr_get_u0_ptr(), FGM_MPC_W_NROWS);
     DTF_awr_execute();
     awr = DTF_awr_get_y0_ptr();
 
@@ -762,7 +762,7 @@ void FGM_MPC_project(const fgm_float * restrict in, fgm_float * restrict out)
 #pragma FUNCTION_OPTIONS(FGM_MPC_initialize, "--opt_level=off --opt_for_speed=0")
 void FGM_MPC_initialize(void)
 {
-    int i, j;
+    int i;
     assert(FGM_MPC_BYTES_GLOBAL_ARRAYS <= 4*65408); // TODO: is this number correct?
 
     /* Store projection limits, projection initialized by slaves */

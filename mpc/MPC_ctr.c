@@ -39,8 +39,10 @@ fgm_float * MPC_ctr(int restart)
         ipc_master_set_req(2);
     }
     ipc_master_wait_ack();
-    OBS_update_observer_master((const fgm_float *)FGM_MPC_get_output());
-    FGM_MPC_solve();
+    if (restart == 0) {
+        OBS_update_observer_master((const fgm_float *)FGM_MPC_get_output());
+        FGM_MPC_solve();
+    }
     result = (fgm_float *)FGM_MPC_get_output();
     CACHE_invL1d((void *) &result[0], FGM_MPC_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
     return result;
@@ -61,7 +63,9 @@ void MPC_ctr_worker(void)
         }
         ipc_slave_set_ack(1);
 
-        OBS_update_observer_worker((const fgm_float *)FGM_MPC_get_input());
-        FGM_MPC_solve_worker((const fgm_float *)OBS_get_x0_new(), (const fgm_float *)OBS_get_xd());
+        if (req_val != 2) {
+            OBS_update_observer_worker((const fgm_float *)FGM_MPC_get_input());
+            FGM_MPC_solve_worker((const fgm_float *)OBS_get_x0_new(), (const fgm_float *)OBS_get_xd());
+        }
     }
 }
