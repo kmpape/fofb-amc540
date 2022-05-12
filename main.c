@@ -73,6 +73,36 @@ volatile LIBQDMA_ARR_TYPE pcie_write_buffer[ARRAY_LEN_WRITE];
 #pragma DATA_SECTION(selfId, ".local_data")
 Uint32 volatile selfId;
 
+/*
+ * Slow Orbit Feedback Setpoints
+ */
+#define SOFB_CHUNK_NUM_READ (32u)
+#define SOFB_ARRAY_LEN      (CHUNK_LEN_READ*SOFB_CHUNK_NUM_READ) // = 512 x 32bit
+#pragma DATA_ALIGN(sofb_setpoints, CACHE_L1D_LINESIZE)
+#pragma DATA_SECTION(sofb_setpoints, ".shared_data")
+volatile LIBQDMA_ARR_TYPE sofb_setpoints[SOFB_ARRAY_LEN];
+
+void read_sofb_setpoints(volatile uint32_t *fpga_array)
+{
+    int i;
+    LIBQDMA_STATUS QDMAresult;
+    const int sofb_offset = 0xC000000/4;
+
+    QDMAresult = LIBQDMA_change_transfer_params_AB(CHUNK_LEN_READ, SOFB_CHUNK_NUM_READ,
+                            (LIBQDMA_ARR_TYPE *)(&fpga_array[sofb_offset]),
+                            (LIBQDMA_ARR_TYPE *)LIBQDMA_getGlobalAddr((LIBQDMA_ARR_TYPE *)sofb_setpoints));
+    printf("Reading from source at: 0x%08x\n", &fpga_array[sofb_offset]);
+    QDMAresult = LIBQDMA_trigger_and_wait();
+
+    for (i=0; i<SOFB_ARRAY_LEN; i++)
+        printf("0x%08x: %d\n", &fpga_array[sofb_offset+i], sofb_setpoints[i]);
+
+    QDMAresult = LIBQDMA_change_transfer_params_AB(CHUNK_LEN_READ, CHUNK_NUM_READ,
+                            (LIBQDMA_ARR_TYPE *)fpga_array,
+                            (LIBQDMA_ARR_TYPE *)LIBQDMA_getGlobalAddr((LIBQDMA_ARR_TYPE *)pcie_read_buffer));
+}
+
+
 int counter = 0;
 void pcie_loop (void)
 {
