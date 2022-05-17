@@ -47,6 +47,9 @@
 #include "utils/ipc_utils.h"
 #include "utils/cache_utils.h"
 
+
+#include <ti/ndk/inc/bsd/socketndk.h>
+
 /*
  * Pointer offset for read or write. Should match settings on AMC540.
  */
@@ -82,20 +85,45 @@ Uint32 volatile selfId;
 #pragma DATA_SECTION(sofb_setpoints, ".shared_data")
 volatile LIBQDMA_ARR_TYPE sofb_setpoints[SOFB_ARRAY_LEN];
 
-void read_sofb_setpoints(volatile uint32_t *fpga_array)
+#pragma DATA_ALIGN(sofb_setpoints_mA, CACHE_L1D_LINESIZE)
+#pragma DATA_SECTION(sofb_setpoints_mA, ".shared_data")
+volatile float sofb_setpoints_mA[SOFB_ARRAY_LEN] = {0.0};
+
+
+void read_sofb_setpoints(volatile uint32_t *fpga_array, int is_start)
 {
     int i;
     LIBQDMA_STATUS QDMAresult;
-    const int sofb_offset = 0xC000000/4;
+    const int sofb_offset = 0x1000/4;
+    float tmp;
 
     QDMAresult = LIBQDMA_change_transfer_params_AB(CHUNK_LEN_READ, SOFB_CHUNK_NUM_READ,
                             (LIBQDMA_ARR_TYPE *)(&fpga_array[sofb_offset]),
                             (LIBQDMA_ARR_TYPE *)LIBQDMA_getGlobalAddr((LIBQDMA_ARR_TYPE *)sofb_setpoints));
-    printf("Reading from source at: 0x%08x\n", &fpga_array[sofb_offset]);
+
     QDMAresult = LIBQDMA_trigger_and_wait();
 
     for (i=0; i<SOFB_ARRAY_LEN; i++)
-        printf("0x%08x: %d\n", &fpga_array[sofb_offset+i], sofb_setpoints[i]);
+    {
+        if (i <= 172) {
+            tmp = *((float *)&(sofb_setpoints[i]));
+        } else {
+            tmp = 0.0;
+        }
+        sofb_setpoints_mA[i] = tmp * 1000.0; // readbacks are saved in A, MPC uses mA
+    }
+    cache_writeback((void *)sofb_setpoints_mA, SOFB_ARRAY_LEN * sizeof(float));
+
+    if (is_start == 1) {
+        printf("Reading SOFB from source at: 0x%08x\n", &fpga_array[sofb_offset]);
+        printf("SOFB mA = [");
+        for (i=0; i<192; i+=4)
+        {
+            printf("%.2f,%.2f,%.2f,%.2f,",
+                   sofb_setpoints_mA[i],sofb_setpoints_mA[i+1],sofb_setpoints_mA[i+2],sofb_setpoints_mA[i+3]);
+        }
+        printf("]\n");
+    }
 
     QDMAresult = LIBQDMA_change_transfer_params_AB(CHUNK_LEN_READ, CHUNK_NUM_READ,
                             (LIBQDMA_ARR_TYPE *)fpga_array,
@@ -124,6 +152,8 @@ void pcie_loop (void)
                     (LIBQDMA_ARR_TYPE *)fpga_array,
                     (LIBQDMA_ARR_TYPE *)LIBQDMA_getGlobalAddr((LIBQDMA_ARR_TYPE *)pcie_read_buffer));
 
+    /* Read SOFB setpoints */
+    read_sofb_setpoints(fpga_array, 1);
 
     /* Main loop */
     set_GPIO_out_to_0(GPIO_OUT_1);
@@ -170,6 +200,8 @@ void pcie_loop (void)
         }
 #elif (MPC_CONTROL == 1)
         int restart_mpc = (read_GPIO_in(GPIO_IN_2) == 0);
+        if (restart_mpc == 1)
+            read_sofb_setpoints(fpga_array, 0);
         read_errors = MPC_BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), MPC_get_input());
         fgm_float * corr_values = MPC_ctr(restart_mpc); // calls parallel routines and invalidates cache
         if (restart_mpc == 0) {
@@ -286,8 +318,8 @@ int main() {
 #elif (GSVD_CONTROL == 1)
             GSVD_ctr_worker(ipc_slave_get_selfId());
 #elif (MPC_CONTROL == 1)
-            MPC_initialize_worker(ipc_slave_get_selfId());
-            MPC_ctr_worker();
+            MPC_initialize_worker(ipc_slave_get_selfId(), &sofb_setpoints_mA[0]);
+            MPC_ctr_worker(&sofb_setpoints_mA[0]);
 #endif
 #endif /* (USE_IPC == 1) */
 

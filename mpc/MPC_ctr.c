@@ -16,9 +16,9 @@ void MPC_initialize(void)
     OBS_initialize_master();
 }
 
-void MPC_initialize_worker(volatile int selfId)
+void MPC_initialize_worker(volatile int selfId, volatile fgm_float* sofb_setpoints)
 {
-    FGM_MPC_initialize_worker(selfId);
+    FGM_MPC_initialize_worker(selfId, sofb_setpoints);
     OBS_initialize_worker(selfId);
 }
 
@@ -50,7 +50,7 @@ fgm_float * MPC_ctr(int restart)
 
 
 #pragma FUNC_NEVER_RETURNS(MPC_ctr_worker)
-void MPC_ctr_worker(void)
+void MPC_ctr_worker(volatile fgm_float* sofb_setpoints)
 {
     int req_val;
     while (1) {
@@ -58,7 +58,7 @@ void MPC_ctr_worker(void)
         CACHE_invL1d((void *) FGM_MPC_get_input(), FGM_MPC_BYTES_X0_OR_XD, CACHE_WAIT);
         CACHE_invL1d((void *) FGM_MPC_get_output(), FGM_MPC_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
         if (req_val == 2) {
-            FGM_MPC_reset_worker();
+            FGM_MPC_reset_worker(sofb_setpoints);
             OBS_reset_worker();
         }
         ipc_slave_set_ack(1);

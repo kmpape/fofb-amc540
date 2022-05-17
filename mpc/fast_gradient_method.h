@@ -73,7 +73,7 @@ typedef float fgm_float;
 #endif
 
 void FGM_MPC_initialize(void);
-void FGM_MPC_initialize_worker(volatile int selfId);
+void FGM_MPC_initialize_worker(volatile int selfId, volatile fgm_float* sofb_setpoints);
 
 fgm_float * FGM_MPC_get_input(void); // placeholder for measurements
 fgm_float * FGM_MPC_get_output(void); // solution of MPC problem
@@ -82,7 +82,7 @@ int FGM_MPC_solve(void);
 void FGM_MPC_solve_worker(const fgm_float * x0, const fgm_float * xd); // takes observer variables as input
 
 void FGM_MPC_reset(void); // zeros previous solutions, workers must invalidate
-void FGM_MPC_reset_worker(void); // zeros previous solutions, workers must invalidate
+void FGM_MPC_reset_worker(volatile fgm_float* sofb_setpoints); // zeros previous solutions, workers must invalidate
 
 #ifdef FGM_MPC_PROFILING
 typedef struct FGMTimer {

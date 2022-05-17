@@ -32,7 +32,7 @@ int MPC_CM_to_int(const fgm_float * in_vec, LIBQDMA_ARR_TYPE * out_vec)
     memset((LIBQDMA_ARR_TYPE *)out_vec, 0, TOT_NUM_CM*sizeof(LIBQDMA_ARR_TYPE));
     for (i = 0; i < MPC_NU_; i++) {
         LIBQDMA_ARR_TYPE tmp = round(in_vec[i]*MPC_SCALING_FACTOR_WRITE);
-        out_vec[MPC_CM_TO_ID[i]] = TMPC_sat(tmp, MPC_LIMIT_WRITE);
+        out_vec[MPC_CM_TO_ID[i]] = tmp;//TMPC_sat(tmp, MPC_LIMIT_WRITE);
     }
     return 0;
 }

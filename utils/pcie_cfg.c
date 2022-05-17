@@ -688,6 +688,8 @@ volatile uint32_t* pcie_init_all(const int BRAM_offset) {
 
     volatile uint32_t *ptr = (uint32_t *)pcieBase;
 
+    cycleDelay (1000*1000*1000);
+
     /* Assign BRAM location */
     return ((volatile uint32_t *) (&ptr[BRAM_offset]));
 }

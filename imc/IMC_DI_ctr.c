@@ -162,7 +162,6 @@ int IMC_DI_unit_test(void)
     float error = 0.0;
     const float ABS_ERR_LIM = 1e-6;
 
-    printf("RUNNING IMC_DI_unit_test\n");
 
     copy_vec(IMC_DI_test_in, (imc_float *)measurements, IMC_DI_NY);
 
@@ -184,10 +183,8 @@ int IMC_DI_unit_test(void)
         for (i=0; i<10; i++)
             printf("%d: sol=%.4f, out=%.4f\n", i, IMC_DI_test_out[i], ctr_input[i]);
 #endif
-        printf("WARNING IMC_DI_unit_test FAIL: error=%.4f > ABS_ERR_LIM=%.12f\n", error, ABS_ERR_LIM);
         return 0;
     } else {
-        printf("IMC_DI_unit_test SUCCESS\n");
         return 1;
     }
 }

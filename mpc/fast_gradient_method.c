@@ -815,7 +815,7 @@ void FGM_MPC_reset(void)
                 CACHE_WAIT);
 }
 
-void FGM_MPC_reset_worker(void)
+void FGM_MPC_reset_worker(volatile fgm_float* sofb_setpoints)
 {
     CACHE_invL1d((void *) &FGM_MPC_out_vec_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
@@ -825,12 +825,15 @@ void FGM_MPC_reset_worker(void)
                  CACHE_WAIT);
     CACHE_invL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
+    CACHE_invL1d((void *) &(sofb_setpoints[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                 CACHE_WAIT);
     DTF_awr_init();
+    FGM_MPC_vec_copy((fgm_float *)&sofb_setpoints[(FGM_MPC_selfId - 1) * FGM_MPC_W_NROWS], FGM_MPC_sofb_local, FGM_MPC_W_NROWS);
     FGM_MPC_initialize_projection();
 }
 
 #pragma FUNCTION_OPTIONS(FGM_MPC_initialize_worker, "--opt_level=off --opt_for_speed=0")
-void FGM_MPC_initialize_worker(volatile int selfId)
+void FGM_MPC_initialize_worker(volatile int selfId, volatile fgm_float* sofb_setpoints)
 {
     int i, j;
     int ind_shift;
@@ -851,6 +854,8 @@ void FGM_MPC_initialize_worker(volatile int selfId)
     CACHE_invL1d((void *) &FGM_MPC_vec_z_new_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
     CACHE_invL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                 CACHE_WAIT);
+    CACHE_invL1d((void *) &(sofb_setpoints[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
 
     fgm_beta_local = beta_fgm;
@@ -909,7 +914,7 @@ void FGM_MPC_initialize_worker(volatile int selfId)
     FGM_MPC_rate_max_local = &(FGM_MPC_rate_max_static[(selfId - 1) * FGM_MPC_W_NROWS]);
 
     /* Projection is also re-initialized after every FGM_MPC_solve() */
-    FGM_MPC_vec_copy(&sofb_setp[(selfId - 1) * FGM_MPC_W_NROWS], FGM_MPC_sofb_local, FGM_MPC_W_NROWS);
+    FGM_MPC_vec_copy((fgm_float *)&sofb_setpoints[(selfId - 1) * FGM_MPC_W_NROWS], FGM_MPC_sofb_local, FGM_MPC_W_NROWS);
     FGM_MPC_initialize_projection();
 }
 
