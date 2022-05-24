@@ -9,9 +9,11 @@
 #include "utils/ipc_utils.h"
 #include "mpc/fast_gradient_method.h"
 #include "mpc/observer.h"
+#include "mpc/MPC_watchdog.h"
 
 void MPC_initialize(void)
 {
+    MPC_watchdog_initialize();
     FGM_MPC_initialize();
     OBS_initialize_master();
 }

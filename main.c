@@ -22,12 +22,18 @@
 #include "imc/DTF_IMC_DI.h"
 #include "imc/IMC_DI_ctr.h"
 #include "imc/IMC_transfer.h"
+#include "imc/IMC_watchdog.h"
+#define check_watchdog() IMC_check_watchdog()
+#define get_watchdog_msg() IMC_get_watchdog_msg()
 #endif
 
-/* IMC */
+/* GSVD */
 #if (GSVD_CONTROL == 1)
 #include "gsvd/GSVD_ctr.h"
 #include "gsvd/GSVD_transfer.h"
+#include "gsvd/GSVD_watchdog.h"
+#define check_watchdog() GSVD_check_watchdog()
+#define get_watchdog_msg() GSVD_get_watchdog_msg()
 #endif
 
 /* MPC */
@@ -35,6 +41,9 @@
 #include "mpc/MPC_ctr.h"
 #include "mpc/MPC_transfer.h"
 #include "mpc/fast_gradient_method.h"
+#include "mpc/MPC_watchdog.h"
+#define check_watchdog() MPC_check_watchdog()
+#define get_watchdog_msg() MPC_get_watchdog_msg()
 #endif
 
 /* Utilities */
@@ -89,13 +98,23 @@ volatile LIBQDMA_ARR_TYPE sofb_setpoints[SOFB_ARRAY_LEN];
 #pragma DATA_SECTION(sofb_setpoints_mA, ".shared_data")
 volatile float sofb_setpoints_mA[SOFB_ARRAY_LEN] = {0.0};
 
+void convert_sofb_setpoints(LIBQDMA_ARR_TYPE * in, float * out)
+{
+    int i;
+    float tmp;
+    for (i=0; i<192; i++) // hard-coded here: max length covered with 6 cores
+    {
+        tmp = (i <= 172) ? (*((float *)&(sofb_setpoints[i]))) : 0.0;
+        sofb_setpoints_mA[i] = tmp * 1000.0; // readbacks are saved in A, MPC uses mA
+        MPC_watch_sofb_mA(sofb_setpoints_mA[i], i);
+    }
+}
 
 void read_sofb_setpoints(volatile uint32_t *fpga_array, int is_start)
 {
     int i;
     LIBQDMA_STATUS QDMAresult;
     const int sofb_offset = 0x1000/4;
-    float tmp;
 
     QDMAresult = LIBQDMA_change_transfer_params_AB(CHUNK_LEN_READ, SOFB_CHUNK_NUM_READ,
                             (LIBQDMA_ARR_TYPE *)(&fpga_array[sofb_offset]),
@@ -103,27 +122,8 @@ void read_sofb_setpoints(volatile uint32_t *fpga_array, int is_start)
 
     QDMAresult = LIBQDMA_trigger_and_wait();
 
-    for (i=0; i<SOFB_ARRAY_LEN; i++)
-    {
-        if (i <= 172) {
-            tmp = *((float *)&(sofb_setpoints[i]));
-        } else {
-            tmp = 0.0;
-        }
-        sofb_setpoints_mA[i] = tmp * 1000.0; // readbacks are saved in A, MPC uses mA
-    }
-    cache_writeback((void *)sofb_setpoints_mA, SOFB_ARRAY_LEN * sizeof(float));
-
-    if (is_start == 1) {
-        printf("Reading SOFB from source at: 0x%08x\n", &fpga_array[sofb_offset]);
-        printf("SOFB mA = [");
-        for (i=0; i<192; i+=4)
-        {
-            printf("%.2f,%.2f,%.2f,%.2f,",
-                   sofb_setpoints_mA[i],sofb_setpoints_mA[i+1],sofb_setpoints_mA[i+2],sofb_setpoints_mA[i+3]);
-        }
-        printf("]\n");
-    }
+    convert_sofb_setpoints((LIBQDMA_ARR_TYPE *)sofb_setpoints, (float *)sofb_setpoints_mA);
+    cache_writeback((void *)sofb_setpoints_mA, 192 * sizeof(float));
 
     QDMAresult = LIBQDMA_change_transfer_params_AB(CHUNK_LEN_READ, CHUNK_NUM_READ,
                             (LIBQDMA_ARR_TYPE *)fpga_array,
@@ -135,8 +135,6 @@ int counter = 0;
 void pcie_loop (void)
 {
     int i;
-    int read_errors = 0;
-    int write_errors = 0;
     LIBQDMA_STATUS QDMAresult;
     volatile uint32_t *fpga_array;
 
@@ -159,6 +157,8 @@ void pcie_loop (void)
     set_GPIO_out_to_0(GPIO_OUT_1);
     while (1)
     {
+        int restart_fofb = 0;
+
         /* Wait for FPGA */
         while (read_GPIO_in(GPIO_IN_1) != 1) {;}
 
@@ -173,44 +173,35 @@ void pcie_loop (void)
 
         cache_invalidate((void *)pcie_read_buffer, ARRAY_BYTES_READ);
 
+        restart_fofb = read_GPIO_in(GPIO_IN_2) == 0;
+
 #if (IMC_CONTROL == 1)
         imc_float * float_meas = IMC_DI_get_input();
-        read_errors = BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), float_meas);
+        BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), float_meas);
         imc_float * corr_values = IMC_DI_ctr(); // calls parallel routines and invalidates cache
-        if (read_GPIO_in(GPIO_IN_2) == 1) {
-            write_errors = CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
+        if (restart_fofb == 0) {
+            CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
         } else {
             DTF_IMC_DI_init();
-            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
-        }
-        if ((read_errors > 0) || (write_errors > 0)) {
-            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
+            memset((void *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
 #elif (GSVD_CONTROL == 1)
-        int restart_gsvd = (read_GPIO_in(GPIO_IN_2) == 0);
-        read_errors = GSVD_BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), GSVD_get_input());
+        GSVD_BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), GSVD_get_input());
         gsvd_float * corr_values = GSVD_ctr(restart_gsvd); // calls parallel routines and invalidates cache
-        if (restart_gsvd == 0) {
-            write_errors = GSVD_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
+        if (restart_fofb == 0) {
+            GSVD_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
         } else {
-            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
-        }
-        if ((read_errors > 0) || (write_errors > 0)) {
-            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
+            memset((void *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
 #elif (MPC_CONTROL == 1)
-        int restart_mpc = (read_GPIO_in(GPIO_IN_2) == 0);
-        if (restart_mpc == 1)
+        if (restart_fofb == 1)
             read_sofb_setpoints(fpga_array, 0);
-        read_errors = MPC_BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), MPC_get_input());
-        fgm_float * corr_values = MPC_ctr(restart_mpc); // calls parallel routines and invalidates cache
-        if (restart_mpc == 0) {
-            write_errors = MPC_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
+        MPC_BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), MPC_get_input());
+        fgm_float * corr_values = MPC_ctr(restart_fofb); // calls parallel routines and invalidates cache
+        if (restart_fofb == 0) {
+            MPC_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
         } else {
-            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
-        }
-        if ((read_errors > 0) || (write_errors > 0)) {
-            memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
+            memset((void *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
 #else // loopback
         if (read_GPIO_in(GPIO_IN_2) == 1) {
@@ -221,6 +212,10 @@ void pcie_loop (void)
             memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
 #endif
+
+        if (check_watchdog() > 0) {
+            memset((void *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
+        }
 
         cache_writeback((void *)pcie_write_buffer, ARRAY_BYTES_WRITE);
 
@@ -244,6 +239,11 @@ void pcie_loop (void)
 
         /* Indicate transfer completion */
         set_GPIO_out_to_0(GPIO_OUT_1);
+
+        /* Watchdog */
+        if (check_watchdog() > 0) {
+            PCIE_logPrintf(get_watchdog_msg());
+        }
 
         /* Wait for FPGA */
         while (read_GPIO_in(GPIO_IN_1) != 0) {;}
