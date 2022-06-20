@@ -43,7 +43,7 @@
 #include "mpc/fast_gradient_method.h"
 #include "mpc/MPC_watchdog.h"
 #define check_watchdog() MPC_check_watchdog()
-#define get_watchdog_msg() MPC_get_watchdog_msg()
+#define print_watchdog_msg() MPC_print_watchdog_msg()
 #endif
 
 /* Utilities */
@@ -104,9 +104,13 @@ void convert_sofb_setpoints(LIBQDMA_ARR_TYPE * in, float * out)
     float tmp;
     for (i=0; i<192; i++) // hard-coded here: max length covered with 6 cores
     {
-        tmp = (i <= 172) ? (*((float *)&(sofb_setpoints[i]))) : 0.0;
-        sofb_setpoints_mA[i] = tmp * 1000.0; // readbacks are saved in A, MPC uses mA
-        MPC_watch_sofb_mA(sofb_setpoints_mA[i], i);
+        if (i < 172) {
+            tmp = *((float *)&(sofb_setpoints[i]));
+            sofb_setpoints_mA[i] = tmp * 1000.0; // readbacks are saved in A, MPC uses mA
+            MPC_watch_sofb_mA(sofb_setpoints_mA[i], i);
+        } else {
+            sofb_setpoints_mA[i] = 0.0;
+        }
     }
 }
 
@@ -242,7 +246,8 @@ void pcie_loop (void)
 
         /* Watchdog */
         if (check_watchdog() > 0) {
-            PCIE_logPrintf(get_watchdog_msg());
+            MPC_print_watchdog_msg();
+            MPC_watchdog_initialize();
         }
 
         /* Wait for FPGA */

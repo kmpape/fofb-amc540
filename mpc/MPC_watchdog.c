@@ -22,9 +22,9 @@
 #pragma SET_DATA_SECTION(".mpc_watchdog_local")
 #endif // SOC_C6678
 float WD_sofb_values[FGM_MPC_DIM] = {0.0};
-uint16_t WD_beam_error[FGM_MPC_DIM] = {0};
-uint16_t WD_sofb_error[FGM_MPC_DIM] = {0};
-uint16_t WD_fofb_error[FGM_MPC_DIM] = {0};
+int WD_beam_error[FGM_MPC_DIM] = {0};
+int WD_sofb_error[FGM_MPC_DIM] = {0};
+int WD_fofb_error[FGM_MPC_DIM] = {0};
 int WD_beam_err_num = 0;
 int WD_sofb_err_num = 0;
 int WD_fofb_err_num = 0;
@@ -47,9 +47,9 @@ void MPC_watchdog_initialize(void)
     WD_sofb_err_num = 0;
     WD_fofb_err_num = 0;
     memset((void *)WD_sofb_values, 0.0, FGM_MPC_DIM*sizeof(float));
-    memset((void *)WD_beam_error, 0, FGM_MPC_DIM*sizeof(uint16_t));
-    memset((void *)WD_sofb_error, 0, FGM_MPC_DIM*sizeof(uint16_t));
-    memset((void *)WD_fofb_error, 0, FGM_MPC_DIM*sizeof(uint16_t));
+    memset((void *)WD_beam_error, 0, FGM_MPC_DIM*sizeof(int));
+    memset((void *)WD_sofb_error, 0, FGM_MPC_DIM*sizeof(int));
+    memset((void *)WD_fofb_error, 0, FGM_MPC_DIM*sizeof(int));
 }
 
 int MPC_check_watchdog(void)
@@ -57,23 +57,35 @@ int MPC_check_watchdog(void)
     return ((WD_beam_err_num > 0) || (WD_sofb_err_num > 0) || (WD_fofb_err_num > 0));
 }
 
-char* MPC_get_watchdog_msg(void)
+void MPC_print_watchdog_msg(void)
 {
     int i;
     int first_beam_err_ind = -1;
     int first_sofb_err_ind = -1;
     int first_fofb_err_ind = -1;
+
     for (i=0; i<FGM_MPC_DIM; i++) {
-        if ((WD_beam_error[i] > 0) && (first_beam_err_ind < 0)) first_beam_err_ind = i;
-        if ((WD_sofb_error[i] > 0) && (first_sofb_err_ind < 0)) first_sofb_err_ind = i;
-        if ((WD_fofb_error[i] > 0) && (first_fofb_err_ind < 0)) first_fofb_err_ind = i;
+        if (WD_beam_error[i] > 0) {
+            first_beam_err_ind = i;
+            break;
+        }
+    }
+    for (i=0; i<FGM_MPC_DIM; i++) {
+        if (WD_sofb_error[i] > 0) {
+            first_sofb_err_ind = i;
+            break;
+        }
+    }
+    for (i=0; i<FGM_MPC_DIM; i++) {
+        if (WD_fofb_error[i] > 0) {
+            first_fofb_err_ind = i;
+            break;
+        }
     }
 
     // "ERRORS: BEAM=%d (at %d)\tSOFB=%d (at %d)\tFOFB=%d (at %d)\n "
-    sprintf(WD_error_msg_tmp, WD_error_msg, WD_beam_err_num, first_beam_err_ind,
+    printf(WD_error_msg, WD_beam_err_num, first_beam_err_ind,
             WD_sofb_err_num, first_sofb_err_ind, WD_fofb_err_num, first_fofb_err_ind);
-
-    return WD_error_msg_tmp;
 }
 
 void MPC_watch_beam_mum(float beam_mum, int index)
