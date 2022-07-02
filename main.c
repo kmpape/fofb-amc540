@@ -107,7 +107,6 @@ void convert_sofb_setpoints(LIBQDMA_ARR_TYPE * in, float * out)
 
 void read_sofb_setpoints(volatile uint32_t *fpga_array, int is_start)
 {
-    int i;
     LIBQDMA_STATUS QDMAresult;
     const int sofb_offset = 0x1000/4;
 
@@ -168,9 +167,15 @@ void pcie_loop (void)
         tic();
 
         cache_invalidate((void *)pcie_read_buffer, ARRAY_BYTES_READ);
+
         watch_beam((int *)pcie_read_buffer);
 
         restart_fofb = read_GPIO_in(GPIO_IN_2) == 0;
+
+        if (restart_fofb == 1) {
+            watchdog_initialize();
+            read_sofb_setpoints(fpga_array, 0);
+        }
 
 #if (IMC_CONTROL == 1)
         imc_float * float_meas = IMC_DI_get_input();
@@ -184,7 +189,7 @@ void pcie_loop (void)
         }
 #elif (GSVD_CONTROL == 1)
         GSVD_BPM_to_float((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]), GSVD_get_input());
-        gsvd_float * corr_values = GSVD_ctr(restart_gsvd); // calls parallel routines and invalidates cache
+        gsvd_float * corr_values = GSVD_ctr(restart_fofb); // calls parallel routines and invalidates cache
         if (restart_fofb == 0) {
             GSVD_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
         } else {
@@ -240,8 +245,8 @@ void pcie_loop (void)
 
         /* Watchdog */
         if (check_watchdog() > 0) {
-            MPC_print_watchdog_msg();
-            MPC_watchdog_initialize();
+            print_watchdog_msg();
+            watchdog_initialize();
         }
 
         /* Wait for FPGA */

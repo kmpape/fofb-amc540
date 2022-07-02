@@ -23,7 +23,7 @@ void watch_beam(int *beam_in); // [nm]
 void watch_setpoints(int *setp_out);  // [A]*1e6
 
 int check_watchdog(void); // no error -> returns 0, error -> returns 1
-char* get_watchdog_msg(void);
+void print_watchdog_msg(void);
 
 void test_watchdog(void);
 

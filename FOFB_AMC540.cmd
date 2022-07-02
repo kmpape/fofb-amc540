@@ -46,6 +46,7 @@ SECTIONS
     /* Various */
     .init_data				> DDR3
     .shared_data			> MSMCSRAM
+    .shared	    			> MSMCSRAM
 	.local_data				> L2SRAM
 	.watchdog_local			> L2SRAM
 

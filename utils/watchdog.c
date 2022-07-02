@@ -14,7 +14,8 @@
 #define WD_ABS(X)  (((X) > 0) ? (X) : -(X))
 
 #ifdef SOC_C6678
-#pragma DATA_ALIGN(WD_sofb_values,  2)
+#pragma DATA_ALIGN(WD_setpoint_scaled_min,  2)
+#pragma DATA_ALIGN(WD_setpoint_scaled_max,  2)
 #pragma DATA_ALIGN(WD_beam_error,   2)
 #pragma DATA_ALIGN(WD_sofb_error,   2)
 #pragma DATA_ALIGN(WD_fofb_error,   2)
@@ -39,7 +40,6 @@ int WD_fofb_err_num = 0;
 #pragma SET_DATA_SECTION(".shared")
 #endif // SOC_C6678
 char WD_error_msg[] =     "ERRORS: BEAM=%d (at %d)\tSOFB=%d (at %d)\tFOFB=%d (at %d)\n ";
-char WD_error_msg_tmp[] = "00000000000000000000000000000000000000000000000000000000000 ";
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -119,23 +119,35 @@ int check_watchdog(void)
     return ((WD_beam_err_num > 0) || (WD_sofb_err_num > 0) || (WD_fofb_err_num > 0));
 }
 
-char* get_watchdog_msg(void)
+void print_watchdog_msg(void)
 {
     int i;
     int first_beam_err_ind = -1;
     int first_sofb_err_ind = -1;
     int first_fofb_err_ind = -1;
+
     for (i=0; i<WD_LEN; i++) {
-        if ((WD_beam_error[i] > 0) && (first_beam_err_ind < 0)) first_beam_err_ind = i;
-        if ((WD_sofb_error[i] > 0) && (first_sofb_err_ind < 0)) first_sofb_err_ind = i;
-        if ((WD_fofb_error[i] > 0) && (first_fofb_err_ind < 0)) first_fofb_err_ind = i;
+        if (WD_beam_error[i] > 0) {
+            first_beam_err_ind = i;
+            break;
+        }
+    }
+    for (i=0; i<WD_LEN; i++) {
+        if (WD_sofb_error[i] > 0) {
+            first_sofb_err_ind = i;
+            break;
+        }
+    }
+    for (i=0; i<WD_LEN; i++) {
+        if (WD_fofb_error[i] > 0) {
+            first_fofb_err_ind = i;
+            break;
+        }
     }
 
     // "ERRORS: BEAM=%d (at %d)\tSOFB=%d (at %d)\tFOFB=%d (at %d)\n "
-    sprintf(WD_error_msg_tmp, WD_error_msg, WD_beam_err_num, first_beam_err_ind,
+    printf(WD_error_msg, WD_beam_err_num, first_beam_err_ind,
             WD_sofb_err_num, first_sofb_err_ind, WD_fofb_err_num, first_fofb_err_ind);
-
-    return WD_error_msg_tmp;
 }
 
 void test_watchdog(void)
@@ -151,14 +163,14 @@ void test_watchdog(void)
         watchdog_initialize();
         test_array[i] = beam_fail_max;
         for (j=0; j<WD_BEAM_MAX_TRIP_COUNT; j++)
-            watch_beam(&test_array);
+            watch_beam(test_array);
         if (check_watchdog() == 0)
             fail = 1;
 
         watchdog_initialize();
         test_array[i] = beam_fail_min;
         for (j=0; j<WD_BEAM_MAX_TRIP_COUNT; j++)
-            watch_beam(&test_array);
+            watch_beam(test_array);
         if (check_watchdog() == 0)
             fail = 1;
     }
@@ -173,14 +185,14 @@ void test_watchdog(void)
         watchdog_initialize();
         test_array[i] = WD_setpoint_scaled_max[i]+1;
         for (j=0; j<WD_FOFB_MAX_TRIP_COUNT; j++)
-            watch_setpoints(&test_array);
+            watch_setpoints(test_array);
         if (check_watchdog() == 0)
             fail = 1;
 
         watchdog_initialize();
         test_array[i] = WD_setpoint_scaled_min[i]-1;
         for (j=0; j<WD_FOFB_MAX_TRIP_COUNT; j++)
-            watch_setpoints(&test_array);
+            watch_setpoints(test_array);
         if (check_watchdog() == 0)
             fail = 1;
     }
@@ -189,6 +201,7 @@ void test_watchdog(void)
     } else {
         printf("Watchdog SETPOINT test passed\n");
     }
+    watchdog_initialize();
 }
 
 
