@@ -27,6 +27,6 @@ void CM_to_int(const imc_float * in_vec, LIBQDMA_ARR_TYPE * out_vec)
     int i;
     for (i = 0; i < TOT_NUM_CM; i++) {
         LIBQDMA_ARR_TYPE tmp = (LIBQDMA_ARR_TYPE)(in_vec[i]*IMC_SCALING_FACTOR_WRITE);
-        out_vec[i] = T_sat(tmp, IMC_LIMIT_WRITE);
+        out_vec[i] = tmp; // T_sat(tmp, IMC_LIMIT_WRITE);
     }
 }

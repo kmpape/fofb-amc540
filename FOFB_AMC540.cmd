@@ -47,6 +47,7 @@ SECTIONS
     .init_data				> DDR3
     .shared_data			> MSMCSRAM
 	.local_data				> L2SRAM
+	.watchdog_local			> L2SRAM
 
 	/* IPC Sections */
 	.ipc_nocache_section	> MSMCSRAM_NC_VIRT

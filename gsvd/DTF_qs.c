@@ -12,26 +12,14 @@
 #ifdef SOC_C6678
 #pragma DATA_ALIGN(DTF_qs_y0, 64)
 #pragma DATA_ALIGN(DTF_qs_y1, 64)
-#pragma DATA_ALIGN(DTF_qs_y2, 64)
-#pragma DATA_ALIGN(DTF_qs_y3, 64)
-#pragma DATA_ALIGN(DTF_qs_y4, 64)
 #pragma DATA_ALIGN(DTF_qs_u0, 64)
 #pragma DATA_ALIGN(DTF_qs_u1, 64)
-#pragma DATA_ALIGN(DTF_qs_u2, 64)
-#pragma DATA_ALIGN(DTF_qs_u3, 64)
-#pragma DATA_ALIGN(DTF_qs_u4, 64)
 #pragma SET_DATA_SECTION(".gsvd_qs")
 #endif // SOC_C6678
 DTF_qs_ARR_TYPE DTF_qs_y0[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
 DTF_qs_ARR_TYPE DTF_qs_y1[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
-DTF_qs_ARR_TYPE DTF_qs_y2[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
-DTF_qs_ARR_TYPE DTF_qs_y3[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
-DTF_qs_ARR_TYPE DTF_qs_y4[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
 DTF_qs_ARR_TYPE DTF_qs_u0[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
 DTF_qs_ARR_TYPE DTF_qs_u1[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
-DTF_qs_ARR_TYPE DTF_qs_u2[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
-DTF_qs_ARR_TYPE DTF_qs_u3[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
-DTF_qs_ARR_TYPE DTF_qs_u4[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -43,14 +31,8 @@ DTF_qs_ARR_TYPE DTF_qs_u4[DTF_qs_LEN] = {(DTF_qs_ARR_TYPE)0.0};
 #endif // SOC_C6678
 DTF_qs_ARR_TYPE *DTF_qs_y0_ptr = DTF_qs_y0;
 DTF_qs_ARR_TYPE *DTF_qs_y1_ptr = DTF_qs_y1;
-DTF_qs_ARR_TYPE *DTF_qs_y2_ptr = DTF_qs_y2;
-DTF_qs_ARR_TYPE *DTF_qs_y3_ptr = DTF_qs_y3;
-DTF_qs_ARR_TYPE *DTF_qs_y4_ptr = DTF_qs_y4;
 DTF_qs_ARR_TYPE *DTF_qs_u0_ptr = DTF_qs_u0;
 DTF_qs_ARR_TYPE *DTF_qs_u1_ptr = DTF_qs_u1;
-DTF_qs_ARR_TYPE *DTF_qs_u2_ptr = DTF_qs_u2;
-DTF_qs_ARR_TYPE *DTF_qs_u3_ptr = DTF_qs_u3;
-DTF_qs_ARR_TYPE *DTF_qs_u4_ptr = DTF_qs_u4;
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -60,15 +42,9 @@ DTF_qs_ARR_TYPE *DTF_qs_u4_ptr = DTF_qs_u4;
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION(".gsvd_qs")
 #endif // SOC_C6678
-DTF_qs_ARR_TYPE DTF_qs_cy1 = (DTF_qs_ARR_TYPE)3.8893063372560475;
-DTF_qs_ARR_TYPE DTF_qs_cy2 = (DTF_qs_ARR_TYPE)-5.6717272849293376;
-DTF_qs_ARR_TYPE DTF_qs_cy3 = (DTF_qs_ARR_TYPE)3.6754844410226744;
-DTF_qs_ARR_TYPE DTF_qs_cy4 = (DTF_qs_ARR_TYPE)-0.8930637290546378;
-DTF_qs_ARR_TYPE DTF_qs_cu0 = (DTF_qs_ARR_TYPE)0.0000000000000000;
-DTF_qs_ARR_TYPE DTF_qs_cu1 = (DTF_qs_ARR_TYPE)0.0000001020231482;
-DTF_qs_ARR_TYPE DTF_qs_cu2 = (DTF_qs_ARR_TYPE)0.0000003746147757;
-DTF_qs_ARR_TYPE DTF_qs_cu3 = (DTF_qs_ARR_TYPE)-0.0000001636103578;
-DTF_qs_ARR_TYPE DTF_qs_cu4 = (DTF_qs_ARR_TYPE)-0.0000000773223123;
+DTF_qs_ARR_TYPE DTF_qs_cy1 = (DTF_qs_ARR_TYPE)0.9937365126247782;
+DTF_qs_ARR_TYPE DTF_qs_cu0 = (DTF_qs_ARR_TYPE)0.0142857142857143;
+DTF_qs_ARR_TYPE DTF_qs_cu1 = (DTF_qs_ARR_TYPE)-0.0080222269104925;
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -88,23 +64,17 @@ DTF_qs_ARR_TYPE* DTF_qs_get_u0_ptr(void)
 
 void DTF_qs_swap_y(void)
 {
-	DTF_qs_ARR_TYPE* tmp_y4_ptr = DTF_qs_y4_ptr;
-	DTF_qs_y4_ptr = DTF_qs_y3_ptr;
-	DTF_qs_y3_ptr = DTF_qs_y2_ptr;
-	DTF_qs_y2_ptr = DTF_qs_y1_ptr;
+	DTF_qs_ARR_TYPE* tmp_y1_ptr = DTF_qs_y1_ptr;
 	DTF_qs_y1_ptr = DTF_qs_y0_ptr;
-	DTF_qs_y0_ptr = tmp_y4_ptr;
+	DTF_qs_y0_ptr = tmp_y1_ptr;
 }
 
 
 void DTF_qs_swap_u(void)
 {
-	DTF_qs_ARR_TYPE* tmp_u4_ptr = DTF_qs_u4_ptr;
-	DTF_qs_u4_ptr = DTF_qs_u3_ptr;
-	DTF_qs_u3_ptr = DTF_qs_u2_ptr;
-	DTF_qs_u2_ptr = DTF_qs_u1_ptr;
+	DTF_qs_ARR_TYPE* tmp_u1_ptr = DTF_qs_u1_ptr;
 	DTF_qs_u1_ptr = DTF_qs_u0_ptr;
-	DTF_qs_u0_ptr = tmp_u4_ptr;
+	DTF_qs_u0_ptr = tmp_u1_ptr;
 }
 
 
@@ -118,14 +88,8 @@ void DTF_qs_execute(void)
 	{
 		DTF_qs_y0_ptr[i] = DTF_qs_sat(
 			+ DTF_qs_cy1 * DTF_qs_y1_ptr[i]
-			+ DTF_qs_cy2 * DTF_qs_y2_ptr[i]
-			+ DTF_qs_cy3 * DTF_qs_y3_ptr[i]
-			+ DTF_qs_cy4 * DTF_qs_y4_ptr[i]
-			//+ DTF_qs_cu0 * DTF_qs_u0_ptr[i]//coefficient is zero
-			+ DTF_qs_cu1 * DTF_qs_u1_ptr[i]
-			+ DTF_qs_cu2 * DTF_qs_u2_ptr[i]
-			+ DTF_qs_cu3 * DTF_qs_u3_ptr[i]
-			+ DTF_qs_cu4 * DTF_qs_u4_ptr[i], DTF_qs_MAXVAL);
+			+ DTF_qs_cu0 * DTF_qs_u0_ptr[i]
+			+ DTF_qs_cu1 * DTF_qs_u1_ptr[i], DTF_qs_MAXVAL);
 	}
 
 	DTF_qs_swap_u();
@@ -140,14 +104,8 @@ void DTF_qs_init(void)
 	{
 		DTF_qs_y0_ptr[i] = 0.0;
 		DTF_qs_y1_ptr[i] = 0.0;
-		DTF_qs_y2_ptr[i] = 0.0;
-		DTF_qs_y3_ptr[i] = 0.0;
-		DTF_qs_y4_ptr[i] = 0.0;
 		DTF_qs_u0_ptr[i] = 0.0;
 		DTF_qs_u1_ptr[i] = 0.0;
-		DTF_qs_u2_ptr[i] = 0.0;
-		DTF_qs_u3_ptr[i] = 0.0;
-		DTF_qs_u4_ptr[i] = 0.0;
 	}
 }
 

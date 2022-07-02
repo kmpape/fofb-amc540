@@ -22,18 +22,12 @@
 #include "imc/DTF_IMC_DI.h"
 #include "imc/IMC_DI_ctr.h"
 #include "imc/IMC_transfer.h"
-#include "imc/IMC_watchdog.h"
-#define check_watchdog() IMC_check_watchdog()
-#define get_watchdog_msg() IMC_get_watchdog_msg()
 #endif
 
 /* GSVD */
 #if (GSVD_CONTROL == 1)
 #include "gsvd/GSVD_ctr.h"
 #include "gsvd/GSVD_transfer.h"
-#include "gsvd/GSVD_watchdog.h"
-#define check_watchdog() GSVD_check_watchdog()
-#define get_watchdog_msg() GSVD_get_watchdog_msg()
 #endif
 
 /* MPC */
@@ -41,9 +35,6 @@
 #include "mpc/MPC_ctr.h"
 #include "mpc/MPC_transfer.h"
 #include "mpc/fast_gradient_method.h"
-#include "mpc/MPC_watchdog.h"
-#define check_watchdog() MPC_check_watchdog()
-#define print_watchdog_msg() MPC_print_watchdog_msg()
 #endif
 
 /* Utilities */
@@ -55,6 +46,7 @@
 #include "utils/gpio_utils.h"
 #include "utils/ipc_utils.h"
 #include "utils/cache_utils.h"
+#include "utils/watchdog.h"
 
 
 #include <ti/ndk/inc/bsd/socketndk.h>
@@ -107,7 +99,6 @@ void convert_sofb_setpoints(LIBQDMA_ARR_TYPE * in, float * out)
         if (i < 172) {
             tmp = *((float *)&(sofb_setpoints[i]));
             sofb_setpoints_mA[i] = tmp * 1000.0; // readbacks are saved in A, MPC uses mA
-            MPC_watch_sofb_mA(sofb_setpoints_mA[i], i);
         } else {
             sofb_setpoints_mA[i] = 0.0;
         }
@@ -123,10 +114,11 @@ void read_sofb_setpoints(volatile uint32_t *fpga_array, int is_start)
     QDMAresult = LIBQDMA_change_transfer_params_AB(CHUNK_LEN_READ, SOFB_CHUNK_NUM_READ,
                             (LIBQDMA_ARR_TYPE *)(&fpga_array[sofb_offset]),
                             (LIBQDMA_ARR_TYPE *)LIBQDMA_getGlobalAddr((LIBQDMA_ARR_TYPE *)sofb_setpoints));
-
     QDMAresult = LIBQDMA_trigger_and_wait();
 
     convert_sofb_setpoints((LIBQDMA_ARR_TYPE *)sofb_setpoints, (float *)sofb_setpoints_mA);
+    watchdog_read_SOFB_mA((float *)sofb_setpoints_mA);
+
     cache_writeback((void *)sofb_setpoints_mA, 192 * sizeof(float));
 
     QDMAresult = LIBQDMA_change_transfer_params_AB(CHUNK_LEN_READ, CHUNK_NUM_READ,
@@ -176,6 +168,7 @@ void pcie_loop (void)
         tic();
 
         cache_invalidate((void *)pcie_read_buffer, ARRAY_BYTES_READ);
+        watch_beam((int *)pcie_read_buffer);
 
         restart_fofb = read_GPIO_in(GPIO_IN_2) == 0;
 
@@ -217,6 +210,7 @@ void pcie_loop (void)
         }
 #endif
 
+        watch_setpoints((int *)pcie_write_buffer);
         if (check_watchdog() > 0) {
             memset((void *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
@@ -272,6 +266,10 @@ int main() {
     if (selfId == IPC_MASTER_CORENUM)
     {   // MASTER
         PCIE_logPrintf ("Master core is %d.\n", (int)selfId);
+
+        watchdog_initialize();
+        test_watchdog();
+
 #if (IMC_CONTROL == 1)
         PCIE_logPrintf ("IMC_CONTROL\nTOT_NUM_BPM=%d, NUM_ENABLED=%d, NUM_CMs=%d\n",
                         TOT_NUM_BPM, IMC_DI_NY, IMC_DI_NU);

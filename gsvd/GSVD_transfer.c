@@ -5,7 +5,12 @@
 #include "utils/libQDMA.h"
 #include "gsvd/GSVD_transfer.h"
 #include "gsvd/GSVD_ctr.h"
-#include "gsvd/GSVD_storage_ring_config.h"
+
+#if (GSVD_XDIR == 1)
+#include "gsvd/GSVD_storage_ring_config_x.h"
+#else
+#include "gsvd/GSVD_storage_ring_config_y.h"
+#endif /* GSVD_XDIR */
 
 
 #define T_min(X, Y)  ((X) < (Y) ? (X) : (Y))
