@@ -126,6 +126,37 @@ void read_sofb_setpoints(volatile uint32_t *fpga_array, int is_start)
 }
 
 
+#if 0
+#include "gsvd/GSVD_test_data_horizontal.h"
+void gsvd_test(void) {
+    int i, j;
+    for (i=0; i<51; i++) {
+        const int *tmp_in = &GSVD_TEST_IN[i*173];
+        const int *tmp_out = &GSVD_TEST_OUT[i*172];
+        GSVD_BPM_to_float(tmp_in, GSVD_get_input());
+        gsvd_float * corr_values = GSVD_ctr(0); // calls parallel routines and invalidates cache
+        GSVD_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
+
+        int error = 0;
+        for (j=0; j<172; j++) {
+            error += (pcie_write_buffer[READ_WRITE_OFFSET+j]+tmp_out[j])*(pcie_write_buffer[READ_WRITE_OFFSET+j]+tmp_out[j]);
+        }
+        if (error > 0){
+            printf("\nError at %d = %d\nres=", i, error);
+            for (j=0; j<172; j++) {
+                printf("%d, ", pcie_write_buffer[READ_WRITE_OFFSET+j]);
+            }
+            printf("\ndes=");
+            for (j=0; j<172; j++) {
+                printf("%d, ", -tmp_out[j]);
+            }
+        }
+    }
+    printf("gsvd test finished\n");
+}
+#endif
+
+
 int counter = 0;
 void pcie_loop (void)
 {
@@ -168,7 +199,7 @@ void pcie_loop (void)
 
         cache_invalidate((void *)pcie_read_buffer, ARRAY_BYTES_READ);
 
-        watch_beam((int *)pcie_read_buffer);
+        watch_beam((int *)(&pcie_read_buffer[READ_WRITE_OFFSET]));
 
         restart_fofb = read_GPIO_in(GPIO_IN_2) == 0;
 
@@ -307,6 +338,7 @@ int main() {
 
         PCIE_logPrintf ("Start PCIe loop.\n");
         pcie_loop();
+        //gsvd_test();
     } else {
         if (selfId == UDP_CORENUM) {   // UDP communication
             srand(1111);

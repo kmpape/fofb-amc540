@@ -2,7 +2,7 @@
 #define WATCHDOG_H_
 
 
-#define WD_LEN  (172)
+#define WD_LEN  (173)
 
 #define WD_SETP_mA_SCALING          (1e3f)
 #define WD_SOFB_MIN_MARGIN_SCALED   (2e6)

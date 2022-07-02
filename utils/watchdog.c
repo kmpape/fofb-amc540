@@ -69,7 +69,7 @@ void watchdog_initialize(void)
 void watchdog_read_SOFB_mA(float *sofb_mA)
 {
     int i;
-    for (i=0; i<WD_LEN; i++) {
+    for (i=0; i<WD_LEN-1; i++) {
         int sofb_scaled = (int)(sofb_mA[i] * WD_SETP_mA_SCALING);
         WD_setpoint_scaled_max[i] = HARDLIMITS_SCALED[i] - sofb_scaled;
         WD_setpoint_scaled_min[i] = -HARDLIMITS_SCALED[i] - sofb_scaled;
@@ -90,20 +90,19 @@ void watch_beam(int *beam_in)
 {
     int i;
     for (i=0; i<WD_LEN; i++) {
-        if ((WD_ABS(beam_in[i]) >= WD_BEAM_LIMIT_MUM) &&
-                ((i != 75) || (i != 78))) { // TODO: HARDCODED DISABLED BPMs
+        if ((WD_ABS(beam_in[i]) >= WD_BEAM_LIMIT_NM_INT) &&
+                ((i != 75) && (i != 78))) { // TODO: HARDCODED DISABLED BPMs
             WD_beam_error[i]++;
             if (WD_beam_error[i] >= WD_BEAM_MAX_TRIP_COUNT)
                 WD_beam_err_num++;
         }
-
     }
 }
 
 void watch_setpoints(int *setp_out)
 {
     int i;
-    for (i=0; i<WD_LEN; i++) {
+    for (i=0; i<WD_LEN-1; i++) {
         if ((-setp_out[i] >= WD_setpoint_scaled_max[i]) ||
                 (-setp_out[i] <= WD_setpoint_scaled_min[i])) {
                 WD_fofb_error[i]++;
@@ -132,13 +131,13 @@ void print_watchdog_msg(void)
             break;
         }
     }
-    for (i=0; i<WD_LEN; i++) {
+    for (i=0; i<WD_LEN-1; i++) {
         if (WD_sofb_error[i] > 0) {
             first_sofb_err_ind = i;
             break;
         }
     }
-    for (i=0; i<WD_LEN; i++) {
+    for (i=0; i<WD_LEN-1; i++) {
         if (WD_fofb_error[i] > 0) {
             first_fofb_err_ind = i;
             break;
@@ -154,9 +153,17 @@ void test_watchdog(void)
 {
     int i,j;
     int test_array[WD_LEN] = {0};
+    float test_sofb[WD_LEN] = {0.0};
 
     const int beam_fail_max = WD_BEAM_LIMIT_NM_INT+1;
-    const int beam_fail_min = WD_BEAM_LIMIT_NM_INT-1;
+    const int beam_fail_min = -WD_BEAM_LIMIT_NM_INT-1;
+
+    watchdog_read_SOFB_mA(test_sofb);
+    if (check_watchdog() == 0) {
+        printf("Watchdog SOFB test passed\n");
+    } else {
+        printf("Watchdog SOFB test failed\n");
+    }
 
     int fail = 0;
     for (i=0; i<WD_LEN; i++) {
