@@ -11,7 +11,7 @@
 #define WD_BEAM_MAX_TRIP_COUNT      (10) // < 255
 #define WD_BEAM_LIMIT_MUM           (100.0f)
 #define WD_BEAM_LIMIT_NM            (100000.0f)
-#define WD_BEAM_LIMIT_NM_INT        (100000)
+#define WD_BEAM_LIMIT_NM_INT        (125000)
 
 #define WD_SOFB_MAX_TRIP_COUNT      (1) // < 255
 #define WD_FOFB_MAX_TRIP_COUNT      (1) // < 255
@@ -19,7 +19,10 @@
 void watchdog_initialize(void);
 void watchdog_read_SOFB_mA(float *sofb_mA); // [mA]
 
+
+// Gives an error if a BPM exceeds WD_BEAM_LIMIT_NM_INT for WD_BEAM_MAX_TRIP_COUNT consecutive calls of watch_beam
 void watch_beam(int *beam_in); // [nm]
+
 void watch_setpoints(int *setp_out);  // [A]*1e6
 
 int check_watchdog(void); // no error -> returns 0, error -> returns 1

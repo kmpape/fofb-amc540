@@ -95,6 +95,8 @@ void watch_beam(int *beam_in)
             WD_beam_error[i]++;
             if (WD_beam_error[i] >= WD_BEAM_MAX_TRIP_COUNT)
                 WD_beam_err_num++;
+        } else {
+            WD_beam_error[i] = 0;
         }
     }
 }
@@ -108,10 +110,11 @@ void watch_setpoints(int *setp_out)
                 WD_fofb_error[i]++;
                 if (WD_fofb_error[i] >= WD_FOFB_MAX_TRIP_COUNT)
                     WD_fofb_err_num++;
+        } else {
+            WD_fofb_error[i] = 0;
         }
     }
 }
-
 
 int check_watchdog(void)
 {

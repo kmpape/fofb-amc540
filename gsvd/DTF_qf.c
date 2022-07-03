@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "DTF_qf.h"
+#include "fofb_config.h"
 
 #ifdef SOC_C6678
 #include <c6x.h>
@@ -16,7 +17,7 @@
 #pragma DATA_ALIGN(DTF_qf_u0, 64)
 #pragma DATA_ALIGN(DTF_qf_u1, 64)
 #pragma DATA_ALIGN(DTF_qf_u2, 64)
-#pragma SET_DATA_SECTION(".gsvd_qs")
+#pragma SET_DATA_SECTION(".gsvd_qf")
 #endif // SOC_C6678
 DTF_qf_ARR_TYPE DTF_qf_y0[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
 DTF_qf_ARR_TYPE DTF_qf_y1[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
@@ -31,7 +32,7 @@ DTF_qf_ARR_TYPE DTF_qf_u2[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
 
 /* Pointers */
 #ifdef SOC_C6678
-#pragma SET_DATA_SECTION(".gsvd_qs")
+#pragma SET_DATA_SECTION(".gsvd_qf")
 #endif // SOC_C6678
 DTF_qf_ARR_TYPE *DTF_qf_y0_ptr = DTF_qf_y0;
 DTF_qf_ARR_TYPE *DTF_qf_y1_ptr = DTF_qf_y1;
@@ -46,13 +47,21 @@ DTF_qf_ARR_TYPE *DTF_qf_u2_ptr = DTF_qf_u2;
 
 /* Coefficients */
 #ifdef SOC_C6678
-#pragma SET_DATA_SECTION(".gsvd_qs")
+#pragma SET_DATA_SECTION(".gsvd_qf")
 #endif // SOC_C6678
+#if (XDIR == 1)
+DTF_qf_ARR_TYPE DTF_qf_cy1 = (DTF_qf_ARR_TYPE)1.8591799473845780;
+DTF_qf_ARR_TYPE DTF_qf_cy2 = (DTF_qf_ARR_TYPE)-0.8600227407322133;
+DTF_qf_ARR_TYPE DTF_qf_cu0 = (DTF_qf_ARR_TYPE)0.4400000000000001;
+DTF_qf_ARR_TYPE DTF_qf_cu1 = (DTF_qf_ARR_TYPE)-0.7515168492472237;
+DTF_qf_ARR_TYPE DTF_qf_cu2 = (DTF_qf_ARR_TYPE)0.3115168492472237;
+#else
 DTF_qf_ARR_TYPE DTF_qf_cy1 = (DTF_qf_ARR_TYPE)1.8591799473845780;
 DTF_qf_ARR_TYPE DTF_qf_cy2 = (DTF_qf_ARR_TYPE)-0.8600227407322133;
 DTF_qf_ARR_TYPE DTF_qf_cu0 = (DTF_qf_ARR_TYPE)0.3142857142857143;
 DTF_qf_ARR_TYPE DTF_qf_cu1 = (DTF_qf_ARR_TYPE)-0.5001425843580232;
 DTF_qf_ARR_TYPE DTF_qf_cu2 = (DTF_qf_ARR_TYPE)0.1858568700723088;
+#endif
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
