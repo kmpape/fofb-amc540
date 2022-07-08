@@ -4,20 +4,20 @@
 #include "fofb_config.h"
 #define DTF_IMC_DI_UNIT_TEST    (0)
 /*
- * Hard-coded vector-wise (length K=172) filter with * N+1 (N=1) output and M+1 (M=8) input taps: * 
+ * Hard-coded vector-wise (length K=96) filter with * N+1 (N=3) output and M+1 (M=11) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,
  * 
  * where cyi and cui are scalar filter coefficients and
  * yi and ui are arrays of length K.
  * 
  */
-#define DTF_IMC_DI_LEN (172)
+#define DTF_IMC_DI_LEN (96)
 
 #define DTF_IMC_DI_LIMIT (INTEGRATOR_LIMIT)
 
 #define DTF_IMC_DI_XDIR (XDIR)
 
-typedef float DTF_IMC_DI_ARR_TYPE;
+typedef double DTF_IMC_DI_ARR_TYPE;
 
 
 /*
@@ -54,12 +54,7 @@ void DTF_IMC_DI_execute(void);
 /*
  * void DTF_IMC_DI_init(void);
  */
-void DTF_IMC_DI_init(void);
-#if (DTF_IMC_DI_UNIT_TEST == 1)
-int DTF_IMC_DI_unit_test(void);
-#endif
-
-#define DTF_IMC_DI_min(X, Y)  ((X) < (Y) ? (X) : (Y))
+void DTF_IMC_DI_init(void);#define DTF_IMC_DI_min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define DTF_IMC_DI_max(X, Y)  ((X) > (Y) ? (X) : (Y))
 #define DTF_IMC_DI_sat(X, Y)  (DTF_IMC_DI_min(DTF_IMC_DI_max(X,-Y),Y))
 

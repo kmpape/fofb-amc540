@@ -85,8 +85,9 @@ gsvd_float * GSVD_get_input(void)
     return (gsvd_float *)GSVD_measurements;
 }
 
-static void GSVD_mat_mpy(const gsvd_float * in_mat, const gsvd_float * in_vec, double * out_vec,
-                    const int nrows, const int ncols)
+static void GSVD_mat_mpy(const gsvd_float * in_mat, const gsvd_float * in_vec,
+                         double * out_vec,
+                         const int nrows, const int ncols)
 {
     int i, j;
     const gsvd_float * in_mat_ptr = &in_mat[0];

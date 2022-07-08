@@ -17,14 +17,8 @@
 
 #if (IMC_DI_XDIR == 1)
 #include "IMC_DI_gain_mc_x.h"
-#if (IMC_DI_UNIT_TESTS == 1)
-#include "IMC_DI_UNIT_TEST_mc_x.h"
-#endif
 #else /* IMC_DI_XDIR */
 #include "IMC_DI_gain_mc_y.h"
-#if (IMC_DI_UNIT_TESTS == 1)
-#include "IMC_DI_UNIT_TEST_mc_y.h"
-#endif
 #endif /* IMC_DI_XDIR */
 
 #ifdef SOC_C6678
@@ -34,6 +28,7 @@
 #endif /* SOC_C6678 */
 volatile imc_float ctr_input[IMC_DI_DIM]; // ctr_input = gain matrix x measurements
 volatile imc_float measurements[IMC_DI_DIM];
+volatile imc_float ctr_input_out[IMC_DI_DIM];
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif /* SOC_C6678 */
@@ -57,6 +52,30 @@ static void copy_vec(const imc_float *in, imc_float *out, const int len)
 #endif /* SOC_C6678 */
     for (i=0; i<len; i++)
         out[i] = in[i];
+}
+
+void IMC_double_to_float(const double *in, float *out, const int len)
+{
+    int i;
+#ifdef SOC_C6678
+    _nassert((int) in % IMC_DI_ARRAY_ALIGN == 0);
+    _nassert((int) out % IMC_DI_ARRAY_ALIGN == 0);
+#pragma MUST_ITERATE(16, , 16)
+#endif /* SOC_C6678 */
+    for (i=0; i<len; i++)
+        out[i] = (float)in[i];
+}
+
+void IMC_float_to_double(const float *in, double *out, const int len)
+{
+    int i;
+#ifdef SOC_C6678
+    _nassert((int) in % IMC_DI_ARRAY_ALIGN == 0);
+    _nassert((int) out % IMC_DI_ARRAY_ALIGN == 0);
+#pragma MUST_ITERATE(16, , 16)
+#endif /* SOC_C6678 */
+    for (i=0; i<len; i++)
+        out[i] = (double)in[i];
 }
 
 imc_float * IMC_DI_get_input(void)
@@ -148,10 +167,11 @@ imc_float * IMC_DI_ctr(void)
 #endif
 
     /* Filter */
-    copy_vec((imc_float *)ctr_input, (imc_float *)DTF_IMC_DI_get_u0_ptr(), IMC_DI_NU);
+    IMC_float_to_double((imc_float *)ctr_input, (DTF_IMC_DI_ARR_TYPE *)DTF_IMC_DI_get_u0_ptr(), IMC_DI_NU);
     DTF_IMC_DI_execute();
+    IMC_double_to_float((DTF_IMC_DI_ARR_TYPE *)DTF_IMC_DI_get_y0_ptr(), (imc_float *)ctr_input_out, IMC_DI_NU);
 
-    return (imc_float *)DTF_IMC_DI_get_y0_ptr();
+    return (imc_float *)ctr_input_out;
 }
 
 

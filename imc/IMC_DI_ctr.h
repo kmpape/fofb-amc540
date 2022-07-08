@@ -16,12 +16,12 @@
 typedef float imc_float;
 #define IMC_DI_FLOAT_SIZE   (4)
 
-#define IMC_DI_UNIT_TESTS   (1)
+#define IMC_DI_UNIT_TESTS   (0)
 
 #define IMC_DI_XDIR (XDIR)
 
-#define IMC_DI_NY       (TOT_NUM_BPM)
-#define IMC_DI_NU       (TOT_NUM_CM)
+#define IMC_DI_NY       (96)
+#define IMC_DI_NU       (96)
 #if (defined(SOC_C6678) && (USE_IPC==1))
 #define IMC_DI_NUM_WORKERS  (NUMSLAVES)
 #else

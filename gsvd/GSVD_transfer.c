@@ -33,11 +33,11 @@ int GSVD_CM_to_int(const gsvd_float * in_vec, LIBQDMA_ARR_TYPE * out_vec)
     memset((LIBQDMA_ARR_TYPE *)out_vec, 0, TOT_NUM_CM*sizeof(LIBQDMA_ARR_TYPE));
     for (i = 0; i < GSVD_NS; i++) {
         LIBQDMA_ARR_TYPE tmp = round(in_vec[i]*GSVD_SCALING_FACTOR_WRITE);
-        out_vec[GSVD_SLOW_TO_BPM[i]] = T_sat(tmp, GSVD_LIMIT_WRITE);
+        out_vec[GSVD_SLOW_TO_BPM[i]] = tmp; //T_sat(tmp, GSVD_LIMIT_WRITE);
     }
     for (i = 0; i < GSVD_NF; i++) {
         LIBQDMA_ARR_TYPE tmp = round(in_vec[GSVD_NS_PAD+i]*GSVD_SCALING_FACTOR_WRITE);
-        out_vec[GSVD_FAST_TO_BPM[i]] = T_sat(tmp, GSVD_LIMIT_WRITE);
+        out_vec[GSVD_FAST_TO_BPM[i]] = tmp; //T_sat(tmp, GSVD_LIMIT_WRITE);
     }
     return 0;
 }
