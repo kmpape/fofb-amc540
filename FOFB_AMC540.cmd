@@ -56,6 +56,7 @@ SECTIONS
     .ipc_shared_section		> MSMCSRAM
 
 #if (IMC_CONTROL == 1)
+	.imc_shared				> MSMCSRAM
     .imc_DI					> L2SRAM
     .imc_di_shared			> MSMCSRAM
     .imc_di_local			> L2SRAM

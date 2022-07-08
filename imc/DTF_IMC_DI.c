@@ -218,7 +218,6 @@ void DTF_IMC_DI_swap_u(void)
 void DTF_IMC_DI_execute(void)
 {
 	int i;
-	const DTF_IMC_DI_ARR_TYPE maxval = 10000.0;
 
 	DTF_IMC_DI_swap_y();
 

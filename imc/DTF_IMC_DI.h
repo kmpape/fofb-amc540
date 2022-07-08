@@ -54,9 +54,10 @@ void DTF_IMC_DI_execute(void);
 /*
  * void DTF_IMC_DI_init(void);
  */
-void DTF_IMC_DI_init(void);#define DTF_IMC_DI_min(X, Y)  ((X) < (Y) ? (X) : (Y))
+void DTF_IMC_DI_init(void);
+
+#define DTF_IMC_DI_min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define DTF_IMC_DI_max(X, Y)  ((X) > (Y) ? (X) : (Y))
 #define DTF_IMC_DI_sat(X, Y)  (DTF_IMC_DI_min(DTF_IMC_DI_max(X,-Y),Y))
-
 
 #endif // DTF_IMC_DI_H_
