@@ -126,7 +126,7 @@ void read_sofb_setpoints(volatile uint32_t *fpga_array, int is_start)
 }
 
 
-#if 1
+#if 0
 #include "gsvd/GSVD_test_data_horizontal.h"
 void gsvd_test(void) {
     int i, j;
@@ -337,8 +337,8 @@ int main() {
 #endif /* ((USE_IPC == 1) */
 
         PCIE_logPrintf ("Start PCIe loop.\n");
-        //pcie_loop();
-        gsvd_test();
+        pcie_loop();
+        //gsvd_test();
     } else {
         if (selfId == UDP_CORENUM) {   // UDP communication
             srand(1111);
