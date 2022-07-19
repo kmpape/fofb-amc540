@@ -46,6 +46,7 @@
 									<listOptionValue builtIn="false" value="/scratch/clm61942/CCS/bios_6_46_05_55/packages"/>
 									<listOptionValue builtIn="false" value="/dls_sw/FPGA/TI/CCS/pdk_c667x_2_0_7_scratch/packages"/>
 									<listOptionValue builtIn="false" value="/dls_sw/FPGA/TI/CCS/pdk_c667x_2_0_7_scratch/packages/ti/csl"/>
+									<listOptionValue builtIn="false" value="/dls_sw/FPGA/TI/CCS/ndk_2_25_01_11/packages/ti/ndk/inc/bsd"/>
 									<listOptionValue builtIn="false" value="/dls_sw/FPGA/TI/CCS/pdk_c667x_2_0_7_scratch/packages/ti/platform"/>
 									<listOptionValue builtIn="false" value="/dls_sw/FPGA/TI/CCS/pdk_c667x_2_0_7_scratch/packages/ti/transport/ndk/nimu"/>
 									<listOptionValue builtIn="false" value="/scratch/clm61942/CCS/xdctools_3_32_01_22_core/packages"/>
@@ -54,7 +55,7 @@
 									<listOptionValue builtIn="false" value="${PROJECT_ROOT}"/>
 									<listOptionValue builtIn="false" value="${CG_TOOL_ROOT}/include"/>
 								</option>
-								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DEBUGGING_MODEL.1689573540" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DEBUGGING_MODEL.SYMDEBUG__DWARF" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DEBUGGING_MODEL.1689573540" name="Debugging model" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DEBUGGING_MODEL" value="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DEBUGGING_MODEL.SYMDEBUG__NONE" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DEFINE.1872056301" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="${NDK_SYMBOLS}"/>
 									<listOptionValue builtIn="false" value="${CTOOLSLIB_SYMBOLS}"/>
@@ -73,10 +74,10 @@
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DIAG_WARNING.804201945" name="Treat diagnostic &lt;id&gt; as warning (--diag_warning, -pdsw)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.DIAG_WARNING" valueType="stringList">
 									<listOptionValue builtIn="false" value="225"/>
 								</option>
-								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_PARM.2013949136" name="Pass caller's name or address to exit hook (--exit_parm)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_PARM" value="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_PARM.address" valueType="enumerated"/>
-								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_HOOK.924022063" name="Insert this call at exit from each function (--exit_hook)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_HOOK" value="ti_utils_exit" valueType="string"/>
-								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_HOOK.1753938395" name="Insert this call at entry to each function (--entry_hook)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_HOOK" value="ti_utils_entry" valueType="string"/>
-								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_PARM.686313445" name="Pass caller's name or address to entry hook (--entry_parm)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_PARM" value="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_PARM.address" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_PARM.2013949136" name="Pass caller's name or address to exit hook (--exit_parm)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_PARM" value="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_PARM._none" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_HOOK.924022063" name="Insert this call at exit from each function (--exit_hook)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.EXIT_HOOK" value="" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_HOOK.1753938395" name="Insert this call at entry to each function (--entry_hook)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_HOOK" value="" valueType="string"/>
+								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_PARM.686313445" name="Pass caller's name or address to entry hook (--entry_parm)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_PARM" value="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.ENTRY_PARM._none" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.OTHER_FLAGS.1463452724" name="Other flags" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.OTHER_FLAGS" valueType="stringList">
 									<listOptionValue builtIn="false" value=""/>
 								</option>
@@ -84,10 +85,13 @@
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.OPT_LEVEL.794858829" name="Optimization level (--opt_level, -O)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.OPT_LEVEL" value="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.OPT_LEVEL.3" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.OPT_FOR_SPEED.1746283044" name="Speed vs. size trade-offs (--opt_for_speed, -mf)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.OPT_FOR_SPEED" value="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.OPT_FOR_SPEED.5" valueType="enumerated"/>
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.KEEP_ASM.412365237" name="Keep the generated assembly language (.asm) file (--keep_asm, -k)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.KEEP_ASM" value="false" valueType="boolean"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__C_SRCS.655755094" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__C_SRCS"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__CPP_SRCS.1134886967" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__CPP_SRCS"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__ASM_SRCS.935658858" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__ASM_SRCS"/>
-								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__ASM2_SRCS.1048035237" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__ASM2_SRCS"/>
+								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.PROGRAM_LEVEL_COMPILE.346610471" name="Program mode compilation (--program_level_compile, -pm)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.PROGRAM_LEVEL_COMPILE" value="true" valueType="boolean"/>
+								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.CALL_ASSUMPTIONS.1168833040" name="Specify call assumptions when optimizing (--call_assumptions, -op)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.CALL_ASSUMPTIONS" value="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.CALL_ASSUMPTIONS.2" valueType="enumerated"/>
+								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.NO_BAD_ALIASES.1630198013" name="Assume no irregular alias or loop behavior (--no_bad_aliases, -mt)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compilerID.NO_BAD_ALIASES" value="true" valueType="boolean"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__C_SRCS.655755094" multipleOfType="false" name="C Sources" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__C_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__CPP_SRCS.1134886967" multipleOfType="false" name="C++ Sources" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__CPP_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__ASM_SRCS.935658858" multipleOfType="false" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__ASM_SRCS"/>
+								<inputType id="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__ASM2_SRCS.1048035237" multipleOfType="false" name="Assembly Sources" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.compiler.inputType__ASM2_SRCS"/>
 							</tool>
 							<tool id="com.ti.ccstudio.buildDefinitions.C6000_8.1.exe.linkerDebug.1041615530" name="C6000 Linker" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.exe.linkerDebug">
 								<option id="com.ti.ccstudio.buildDefinitions.C6000_8.1.linkerID.OUTPUT_FILE.1131871143" name="Specify output file name (--output_file, -o)" superClass="com.ti.ccstudio.buildDefinitions.C6000_8.1.linkerID.OUTPUT_FILE" value="${ProjName}.out" valueType="string"/>
@@ -96,7 +100,7 @@
 									<listOptionValue builtIn="false" value="${NDK_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${CTOOLSLIB_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${BIOS_LIBRARIES}"/>
-									<listOptionValue builtIn="false" value="/dls_sw/FPGA/TI/CCS/pdk_c667x_2_0_7_scratch/packages/ti/platform/AMC540/platform_lib/lib/debug/ti.platform.AMC540.ae66"/>
+									<listOptionValue builtIn="false" value="/dls_sw/FPGA/TI/CCS/pdk_c667x_2_0_7_scratch/packages/ti/platform/AMC540/platform_lib/lib/release/ti.platform.AMC540.ae66"/>
 									<listOptionValue builtIn="false" value="${TI_PDK_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="${EDMA3_LLD_LIBRARIES}"/>
 									<listOptionValue builtIn="false" value="libc.a"/>

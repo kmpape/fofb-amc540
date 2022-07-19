@@ -14,8 +14,6 @@
  */
 #define DTF_gf_LEN (16)
 
-#define DTF_gf_LIMIT (INTEGRATOR_LIMIT)
-
 #define DTF_gf_XDIR (XDIR)
 
 typedef double DTF_gf_ARR_TYPE;
@@ -56,6 +54,7 @@ void DTF_gf_execute(void);
  * void DTF_gf_init(void);
  */
 void DTF_gf_init(void);
+
 #define DTF_gf_min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define DTF_gf_max(X, Y)  ((X) > (Y) ? (X) : (Y))
 #define DTF_gf_sat(X, Y)  (DTF_gf_min(DTF_gf_max(X,-Y),Y))

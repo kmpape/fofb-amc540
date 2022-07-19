@@ -14,8 +14,6 @@
  */
 #define DTF_qs_LEN (32)
 
-#define DTF_qs_LIMIT (INTEGRATOR_LIMIT)
-
 #define DTF_qs_XDIR (XDIR)
 
 typedef double DTF_qs_ARR_TYPE;
@@ -56,6 +54,7 @@ void DTF_qs_execute(void);
  * void DTF_qs_init(void);
  */
 void DTF_qs_init(void);
+
 #define DTF_qs_min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define DTF_qs_max(X, Y)  ((X) > (Y) ? (X) : (Y))
 #define DTF_qs_sat(X, Y)  (DTF_qs_min(DTF_qs_max(X,-Y),Y))

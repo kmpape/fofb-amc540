@@ -10,7 +10,7 @@
 #define DEBUGLEVEL  0
 
 /* Number of slaves to use */
-#if (GSVD_CONTROL == 1)
+#if (GSVD_CONTROL == 1) || (IMC_CONTROL == 1)
 #define NUMSLAVES   4
 #else
 #define NUMSLAVES   6
