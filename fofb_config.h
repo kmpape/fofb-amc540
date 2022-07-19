@@ -10,7 +10,7 @@
 #define MPC_CONTROL         (0) // enable=1, set to 0 if loopback only
 #define MPC_SLOWFAST        (0) // enable for same storage ring config as GSVD_CONTROL
 #define INTEGRATOR_LIMIT    (4.99) // in Amperes
-#define XDIR                (0) // 1=horizontal plane, 0=vertical plane
+#define XDIR                (1) // 1=horizontal plane, 0=vertical plane
 #define USE_IPC             (1) // switch multi-core (1) and single-core (0)
 
 /*
