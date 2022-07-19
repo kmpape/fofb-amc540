@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "DTF_gs.h"
-#include "fofb_config.h"
 
 #ifdef SOC_C6678
 #include <c6x.h>
@@ -67,7 +66,7 @@ DTF_gs_ARR_TYPE *DTF_gs_u9_ptr = DTF_gs_u9;
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION(".gsvd_gs")
 #endif // SOC_C6678
-#if (XDIR == 1)
+#if (DTF_gs_XDIR == 1)
 DTF_gs_ARR_TYPE DTF_gs_cy1 = (DTF_gs_ARR_TYPE)0.7304026910486456;
 DTF_gs_ARR_TYPE DTF_gs_cu0 = (DTF_gs_ARR_TYPE)0.0000000000000000;
 DTF_gs_ARR_TYPE DTF_gs_cu1 = (DTF_gs_ARR_TYPE)0.0000000000000000;
@@ -91,7 +90,7 @@ DTF_gs_ARR_TYPE DTF_gs_cu6 = (DTF_gs_ARR_TYPE)0.0000000000000000;
 DTF_gs_ARR_TYPE DTF_gs_cu7 = (DTF_gs_ARR_TYPE)0.0000000000000000;
 DTF_gs_ARR_TYPE DTF_gs_cu8 = (DTF_gs_ARR_TYPE)0.0000000000000000;
 DTF_gs_ARR_TYPE DTF_gs_cu9 = (DTF_gs_ARR_TYPE)0.3558495560245918;
-#endif
+#endif // XDIR
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678

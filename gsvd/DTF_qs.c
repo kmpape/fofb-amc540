@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include "DTF_qs.h"
-#include "fofb_config.h"
 
 #ifdef SOC_C6678
 #include <c6x.h>
@@ -43,7 +42,7 @@ DTF_qs_ARR_TYPE *DTF_qs_u1_ptr = DTF_qs_u1;
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION(".gsvd_qs")
 #endif // SOC_C6678
-#if (XDIR == 1)
+#if (DTF_qs_XDIR == 1)
 DTF_qs_ARR_TYPE DTF_qs_cy1 = (DTF_qs_ARR_TYPE)0.9391013674242926;
 DTF_qs_ARR_TYPE DTF_qs_cu0 = (DTF_qs_ARR_TYPE)0.2000000000000000;
 DTF_qs_ARR_TYPE DTF_qs_cu1 = (DTF_qs_ARR_TYPE)-0.1391013674242927;
@@ -51,7 +50,7 @@ DTF_qs_ARR_TYPE DTF_qs_cu1 = (DTF_qs_ARR_TYPE)-0.1391013674242927;
 DTF_qs_ARR_TYPE DTF_qs_cy1 = (DTF_qs_ARR_TYPE)0.9391013674242926;
 DTF_qs_ARR_TYPE DTF_qs_cu0 = (DTF_qs_ARR_TYPE)0.1428571428571429;
 DTF_qs_ARR_TYPE DTF_qs_cu1 = (DTF_qs_ARR_TYPE)-0.0819585102814355;
-#endif
+#endif // XDIR
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
