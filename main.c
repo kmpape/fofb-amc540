@@ -126,7 +126,7 @@ void read_sofb_setpoints(volatile uint32_t *fpga_array, int is_start)
 }
 
 
-#if 0
+#if 1
 #include "gsvd/GSVD_test_data_horizontal.h"
 void gsvd_test(void) {
     int i, j;
@@ -141,13 +141,13 @@ void gsvd_test(void) {
         for (j=0; j<172; j++) {
             error += (pcie_write_buffer[READ_WRITE_OFFSET+j]+tmp_out[j])*(pcie_write_buffer[READ_WRITE_OFFSET+j]+tmp_out[j]);
         }
-        if (error > 0){
+        if (1){
             printf("\nError at %d = %d\nres=", i, error);
-            for (j=0; j<172; j++) {
+            for (j=0; j<10; j++) {
                 printf("%d, ", pcie_write_buffer[READ_WRITE_OFFSET+j]);
             }
             printf("\ndes=");
-            for (j=0; j<172; j++) {
+            for (j=0; j<10; j++) {
                 printf("%d, ", -tmp_out[j]);
             }
         }
@@ -337,8 +337,8 @@ int main() {
 #endif /* ((USE_IPC == 1) */
 
         PCIE_logPrintf ("Start PCIe loop.\n");
-        pcie_loop();
-        //gsvd_test();
+        //pcie_loop();
+        gsvd_test();
     } else {
         if (selfId == UDP_CORENUM) {   // UDP communication
             srand(1111);
