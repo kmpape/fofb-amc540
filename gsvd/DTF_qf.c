@@ -1,30 +1,43 @@
-#include <stdio.h>
 #include "DTF_qf.h"
-#include "fofb_config.h"
-
 #ifdef SOC_C6678
 #include <c6x.h>
 #endif
-#if (DTF_qf_UNIT_TEST == 1)
-#include "DTF_qf_UNIT_TEST.h"
-#endif
+#include "IMC_DI_ctr.h"
 
 /* Arrays */
 #ifdef SOC_C6678
+#if (DTF_qf_XDIR == 1)
 #pragma DATA_ALIGN(DTF_qf_y0, 64)
 #pragma DATA_ALIGN(DTF_qf_y1, 64)
 #pragma DATA_ALIGN(DTF_qf_y2, 64)
 #pragma DATA_ALIGN(DTF_qf_u0, 64)
 #pragma DATA_ALIGN(DTF_qf_u1, 64)
 #pragma DATA_ALIGN(DTF_qf_u2, 64)
+#else
+#pragma DATA_ALIGN(DTF_qf_y0, 64)
+#pragma DATA_ALIGN(DTF_qf_y1, 64)
+#pragma DATA_ALIGN(DTF_qf_y2, 64)
+#pragma DATA_ALIGN(DTF_qf_u0, 64)
+#pragma DATA_ALIGN(DTF_qf_u1, 64)
+#pragma DATA_ALIGN(DTF_qf_u2, 64)
+#endif
 #pragma SET_DATA_SECTION(".gsvd_qf")
 #endif // SOC_C6678
+#if (DTF_qf_XDIR == 1)
 DTF_qf_ARR_TYPE DTF_qf_y0[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
 DTF_qf_ARR_TYPE DTF_qf_y1[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
 DTF_qf_ARR_TYPE DTF_qf_y2[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
 DTF_qf_ARR_TYPE DTF_qf_u0[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
 DTF_qf_ARR_TYPE DTF_qf_u1[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
 DTF_qf_ARR_TYPE DTF_qf_u2[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
+#else
+DTF_qf_ARR_TYPE DTF_qf_y0[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
+DTF_qf_ARR_TYPE DTF_qf_y1[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
+DTF_qf_ARR_TYPE DTF_qf_y2[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
+DTF_qf_ARR_TYPE DTF_qf_u0[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
+DTF_qf_ARR_TYPE DTF_qf_u1[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
+DTF_qf_ARR_TYPE DTF_qf_u2[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
+#endif
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -34,12 +47,21 @@ DTF_qf_ARR_TYPE DTF_qf_u2[DTF_qf_LEN] = {(DTF_qf_ARR_TYPE)0.0};
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION(".gsvd_qf")
 #endif // SOC_C6678
+#if (DTF_qf_XDIR == 1)
 DTF_qf_ARR_TYPE *DTF_qf_y0_ptr = DTF_qf_y0;
 DTF_qf_ARR_TYPE *DTF_qf_y1_ptr = DTF_qf_y1;
 DTF_qf_ARR_TYPE *DTF_qf_y2_ptr = DTF_qf_y2;
 DTF_qf_ARR_TYPE *DTF_qf_u0_ptr = DTF_qf_u0;
 DTF_qf_ARR_TYPE *DTF_qf_u1_ptr = DTF_qf_u1;
 DTF_qf_ARR_TYPE *DTF_qf_u2_ptr = DTF_qf_u2;
+#else
+DTF_qf_ARR_TYPE *DTF_qf_y0_ptr = DTF_qf_y0;
+DTF_qf_ARR_TYPE *DTF_qf_y1_ptr = DTF_qf_y1;
+DTF_qf_ARR_TYPE *DTF_qf_y2_ptr = DTF_qf_y2;
+DTF_qf_ARR_TYPE *DTF_qf_u0_ptr = DTF_qf_u0;
+DTF_qf_ARR_TYPE *DTF_qf_u1_ptr = DTF_qf_u1;
+DTF_qf_ARR_TYPE *DTF_qf_u2_ptr = DTF_qf_u2;
+#endif
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -49,18 +71,18 @@ DTF_qf_ARR_TYPE *DTF_qf_u2_ptr = DTF_qf_u2;
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION(".gsvd_qf")
 #endif // SOC_C6678
-#if (XDIR == 1)
-DTF_qf_ARR_TYPE DTF_qf_cy1 = (DTF_qf_ARR_TYPE)1.7673055487311524;
-DTF_qf_ARR_TYPE DTF_qf_cy2 = (DTF_qf_ARR_TYPE)-0.7777676791717889;
-DTF_qf_ARR_TYPE DTF_qf_cu0 = (DTF_qf_ARR_TYPE)0.4000000000000000;
-DTF_qf_ARR_TYPE DTF_qf_cu1 = (DTF_qf_ARR_TYPE)-0.6869227980757708;
-DTF_qf_ARR_TYPE DTF_qf_cu2 = (DTF_qf_ARR_TYPE)0.2869227980757709;
+#if (DTF_qf_XDIR == 1)
+DTF_qf_ARR_TYPE DTF_qf_cy1 = (DTF_qf_ARR_TYPE)1.8210127457224690;
+DTF_qf_ARR_TYPE DTF_qf_cy2 = (DTF_qf_ARR_TYPE)-0.8282041813068600;
+DTF_qf_ARR_TYPE DTF_qf_cu0 = (DTF_qf_ARR_TYPE)0.2000000000000000;
+DTF_qf_ARR_TYPE DTF_qf_cu1 = (DTF_qf_ARR_TYPE)-0.3420682821839655;
+DTF_qf_ARR_TYPE DTF_qf_cu2 = (DTF_qf_ARR_TYPE)0.1420682821839655;
 #else
-DTF_qf_ARR_TYPE DTF_qf_cy1 = (DTF_qf_ARR_TYPE)1.7673055487311524;
-DTF_qf_ARR_TYPE DTF_qf_cy2 = (DTF_qf_ARR_TYPE)-0.7777676791717889;
-DTF_qf_ARR_TYPE DTF_qf_cu0 = (DTF_qf_ARR_TYPE)0.2857142857142857;
-DTF_qf_ARR_TYPE DTF_qf_cu1 = (DTF_qf_ARR_TYPE)-0.4589742311634271;
-DTF_qf_ARR_TYPE DTF_qf_cu2 = (DTF_qf_ARR_TYPE)0.1732599454491413;
+DTF_qf_ARR_TYPE DTF_qf_cy1 = (DTF_qf_ARR_TYPE)1.8210127457224690;
+DTF_qf_ARR_TYPE DTF_qf_cy2 = (DTF_qf_ARR_TYPE)-0.8282041813068600;
+DTF_qf_ARR_TYPE DTF_qf_cu0 = (DTF_qf_ARR_TYPE)0.1428571428571429;
+DTF_qf_ARR_TYPE DTF_qf_cu1 = (DTF_qf_ARR_TYPE)-0.2279944903810850;
+DTF_qf_ARR_TYPE DTF_qf_cu2 = (DTF_qf_ARR_TYPE)0.0851373475239421;
 #endif
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
@@ -81,20 +103,36 @@ DTF_qf_ARR_TYPE* DTF_qf_get_u0_ptr(void)
 
 void DTF_qf_swap_y(void)
 {
+#if (DTF_qf_XDIR == 1)
 	DTF_qf_ARR_TYPE* tmp_y2_ptr = DTF_qf_y2_ptr;
 	DTF_qf_y2_ptr = DTF_qf_y1_ptr;
 	DTF_qf_y1_ptr = DTF_qf_y0_ptr;
 	DTF_qf_y0_ptr = tmp_y2_ptr;
 }
+#else
+	DTF_qf_ARR_TYPE* tmp_y2_ptr = DTF_qf_y2_ptr;
+	DTF_qf_y2_ptr = DTF_qf_y1_ptr;
+	DTF_qf_y1_ptr = DTF_qf_y0_ptr;
+	DTF_qf_y0_ptr = tmp_y2_ptr;
+}
+#endif
 
 
 void DTF_qf_swap_u(void)
 {
+#if (DTF_qf_XDIR == 1)
 	DTF_qf_ARR_TYPE* tmp_u2_ptr = DTF_qf_u2_ptr;
 	DTF_qf_u2_ptr = DTF_qf_u1_ptr;
 	DTF_qf_u1_ptr = DTF_qf_u0_ptr;
 	DTF_qf_u0_ptr = tmp_u2_ptr;
 }
+#else
+	DTF_qf_ARR_TYPE* tmp_u2_ptr = DTF_qf_u2_ptr;
+	DTF_qf_u2_ptr = DTF_qf_u1_ptr;
+	DTF_qf_u1_ptr = DTF_qf_u0_ptr;
+	DTF_qf_u0_ptr = tmp_u2_ptr;
+}
+#endif
 
 
 void DTF_qf_execute(void)
@@ -106,6 +144,7 @@ void DTF_qf_execute(void)
 	for (i=0; i<DTF_qf_LEN; i++)
 	{
 		DTF_qf_y0_ptr[i] = DTF_qf_sat(
+#if (DTF_qf_XDIR == 1)
 			+ DTF_qf_cy1 * DTF_qf_y1_ptr[i]
 			+ DTF_qf_cy2 * DTF_qf_y2_ptr[i]
 			+ DTF_qf_cu0 * DTF_qf_u0_ptr[i]
@@ -113,6 +152,15 @@ void DTF_qf_execute(void)
 			+ DTF_qf_cu2 * DTF_qf_u2_ptr[i], DTF_qf_MAXVAL);
 	}
 
+#else
+			+ DTF_qf_cy1 * DTF_qf_y1_ptr[i]
+			+ DTF_qf_cy2 * DTF_qf_y2_ptr[i]
+			+ DTF_qf_cu0 * DTF_qf_u0_ptr[i]
+			+ DTF_qf_cu1 * DTF_qf_u1_ptr[i]
+			+ DTF_qf_cu2 * DTF_qf_u2_ptr[i], DTF_qf_MAXVAL);
+	}
+
+#endif
 	DTF_qf_swap_u();
 }
 
@@ -123,12 +171,21 @@ void DTF_qf_init(void)
 
 	for (i=0; i<DTF_qf_LEN; i++)
 	{
+#if (DTF_qf_XDIR == 1)
 		DTF_qf_y0_ptr[i] = 0.0;
 		DTF_qf_y1_ptr[i] = 0.0;
 		DTF_qf_y2_ptr[i] = 0.0;
 		DTF_qf_u0_ptr[i] = 0.0;
 		DTF_qf_u1_ptr[i] = 0.0;
 		DTF_qf_u2_ptr[i] = 0.0;
+#else
+		DTF_qf_y0_ptr[i] = 0.0;
+		DTF_qf_y1_ptr[i] = 0.0;
+		DTF_qf_y2_ptr[i] = 0.0;
+		DTF_qf_u0_ptr[i] = 0.0;
+		DTF_qf_u1_ptr[i] = 0.0;
+		DTF_qf_u2_ptr[i] = 0.0;
+#endif
 	}
 }
 

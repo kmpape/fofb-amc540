@@ -1,16 +1,12 @@
-#include <stdio.h>
 #include "DTF_gs.h"
-#include "fofb_config.h"
-
 #ifdef SOC_C6678
 #include <c6x.h>
 #endif
-#if (DTF_gs_UNIT_TEST == 1)
-#include "DTF_gs_UNIT_TEST.h"
-#endif
+#include "IMC_DI_ctr.h"
 
 /* Arrays */
 #ifdef SOC_C6678
+#if (DTF_gs_XDIR == 1)
 #pragma DATA_ALIGN(DTF_gs_y0, 64)
 #pragma DATA_ALIGN(DTF_gs_y1, 64)
 #pragma DATA_ALIGN(DTF_gs_u0, 64)
@@ -23,8 +19,23 @@
 #pragma DATA_ALIGN(DTF_gs_u7, 64)
 #pragma DATA_ALIGN(DTF_gs_u8, 64)
 #pragma DATA_ALIGN(DTF_gs_u9, 64)
+#else
+#pragma DATA_ALIGN(DTF_gs_y0, 64)
+#pragma DATA_ALIGN(DTF_gs_y1, 64)
+#pragma DATA_ALIGN(DTF_gs_u0, 64)
+#pragma DATA_ALIGN(DTF_gs_u1, 64)
+#pragma DATA_ALIGN(DTF_gs_u2, 64)
+#pragma DATA_ALIGN(DTF_gs_u3, 64)
+#pragma DATA_ALIGN(DTF_gs_u4, 64)
+#pragma DATA_ALIGN(DTF_gs_u5, 64)
+#pragma DATA_ALIGN(DTF_gs_u6, 64)
+#pragma DATA_ALIGN(DTF_gs_u7, 64)
+#pragma DATA_ALIGN(DTF_gs_u8, 64)
+#pragma DATA_ALIGN(DTF_gs_u9, 64)
+#endif
 #pragma SET_DATA_SECTION(".gsvd_gs")
 #endif // SOC_C6678
+#if (DTF_gs_XDIR == 1)
 DTF_gs_ARR_TYPE DTF_gs_y0[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
 DTF_gs_ARR_TYPE DTF_gs_y1[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
 DTF_gs_ARR_TYPE DTF_gs_u0[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
@@ -37,6 +48,20 @@ DTF_gs_ARR_TYPE DTF_gs_u6[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
 DTF_gs_ARR_TYPE DTF_gs_u7[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
 DTF_gs_ARR_TYPE DTF_gs_u8[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
 DTF_gs_ARR_TYPE DTF_gs_u9[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+#else
+DTF_gs_ARR_TYPE DTF_gs_y0[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_y1[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u0[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u1[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u2[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u3[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u4[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u5[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u6[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u7[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u8[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+DTF_gs_ARR_TYPE DTF_gs_u9[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
+#endif
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -46,6 +71,7 @@ DTF_gs_ARR_TYPE DTF_gs_u9[DTF_gs_LEN] = {(DTF_gs_ARR_TYPE)0.0};
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION(".gsvd_gs")
 #endif // SOC_C6678
+#if (DTF_gs_XDIR == 1)
 DTF_gs_ARR_TYPE *DTF_gs_y0_ptr = DTF_gs_y0;
 DTF_gs_ARR_TYPE *DTF_gs_y1_ptr = DTF_gs_y1;
 DTF_gs_ARR_TYPE *DTF_gs_u0_ptr = DTF_gs_u0;
@@ -58,6 +84,20 @@ DTF_gs_ARR_TYPE *DTF_gs_u6_ptr = DTF_gs_u6;
 DTF_gs_ARR_TYPE *DTF_gs_u7_ptr = DTF_gs_u7;
 DTF_gs_ARR_TYPE *DTF_gs_u8_ptr = DTF_gs_u8;
 DTF_gs_ARR_TYPE *DTF_gs_u9_ptr = DTF_gs_u9;
+#else
+DTF_gs_ARR_TYPE *DTF_gs_y0_ptr = DTF_gs_y0;
+DTF_gs_ARR_TYPE *DTF_gs_y1_ptr = DTF_gs_y1;
+DTF_gs_ARR_TYPE *DTF_gs_u0_ptr = DTF_gs_u0;
+DTF_gs_ARR_TYPE *DTF_gs_u1_ptr = DTF_gs_u1;
+DTF_gs_ARR_TYPE *DTF_gs_u2_ptr = DTF_gs_u2;
+DTF_gs_ARR_TYPE *DTF_gs_u3_ptr = DTF_gs_u3;
+DTF_gs_ARR_TYPE *DTF_gs_u4_ptr = DTF_gs_u4;
+DTF_gs_ARR_TYPE *DTF_gs_u5_ptr = DTF_gs_u5;
+DTF_gs_ARR_TYPE *DTF_gs_u6_ptr = DTF_gs_u6;
+DTF_gs_ARR_TYPE *DTF_gs_u7_ptr = DTF_gs_u7;
+DTF_gs_ARR_TYPE *DTF_gs_u8_ptr = DTF_gs_u8;
+DTF_gs_ARR_TYPE *DTF_gs_u9_ptr = DTF_gs_u9;
+#endif
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -67,7 +107,7 @@ DTF_gs_ARR_TYPE *DTF_gs_u9_ptr = DTF_gs_u9;
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION(".gsvd_gs")
 #endif // SOC_C6678
-#if (XDIR == 1)
+#if (DTF_gs_XDIR == 1)
 DTF_gs_ARR_TYPE DTF_gs_cy1 = (DTF_gs_ARR_TYPE)0.7304026910486456;
 DTF_gs_ARR_TYPE DTF_gs_cu0 = (DTF_gs_ARR_TYPE)0.0000000000000000;
 DTF_gs_ARR_TYPE DTF_gs_cu1 = (DTF_gs_ARR_TYPE)0.0000000000000000;
@@ -111,14 +151,22 @@ DTF_gs_ARR_TYPE* DTF_gs_get_u0_ptr(void)
 
 void DTF_gs_swap_y(void)
 {
+#if (DTF_gs_XDIR == 1)
 	DTF_gs_ARR_TYPE* tmp_y1_ptr = DTF_gs_y1_ptr;
 	DTF_gs_y1_ptr = DTF_gs_y0_ptr;
 	DTF_gs_y0_ptr = tmp_y1_ptr;
 }
+#else
+	DTF_gs_ARR_TYPE* tmp_y1_ptr = DTF_gs_y1_ptr;
+	DTF_gs_y1_ptr = DTF_gs_y0_ptr;
+	DTF_gs_y0_ptr = tmp_y1_ptr;
+}
+#endif
 
 
 void DTF_gs_swap_u(void)
 {
+#if (DTF_gs_XDIR == 1)
 	DTF_gs_ARR_TYPE* tmp_u9_ptr = DTF_gs_u9_ptr;
 	DTF_gs_u9_ptr = DTF_gs_u8_ptr;
 	DTF_gs_u8_ptr = DTF_gs_u7_ptr;
@@ -131,6 +179,20 @@ void DTF_gs_swap_u(void)
 	DTF_gs_u1_ptr = DTF_gs_u0_ptr;
 	DTF_gs_u0_ptr = tmp_u9_ptr;
 }
+#else
+	DTF_gs_ARR_TYPE* tmp_u9_ptr = DTF_gs_u9_ptr;
+	DTF_gs_u9_ptr = DTF_gs_u8_ptr;
+	DTF_gs_u8_ptr = DTF_gs_u7_ptr;
+	DTF_gs_u7_ptr = DTF_gs_u6_ptr;
+	DTF_gs_u6_ptr = DTF_gs_u5_ptr;
+	DTF_gs_u5_ptr = DTF_gs_u4_ptr;
+	DTF_gs_u4_ptr = DTF_gs_u3_ptr;
+	DTF_gs_u3_ptr = DTF_gs_u2_ptr;
+	DTF_gs_u2_ptr = DTF_gs_u1_ptr;
+	DTF_gs_u1_ptr = DTF_gs_u0_ptr;
+	DTF_gs_u0_ptr = tmp_u9_ptr;
+}
+#endif
 
 
 void DTF_gs_execute(void)
@@ -142,6 +204,7 @@ void DTF_gs_execute(void)
 	for (i=0; i<DTF_gs_LEN; i++)
 	{
 		DTF_gs_y0_ptr[i] = DTF_gs_sat(
+#if (DTF_gs_XDIR == 1)
 			+ DTF_gs_cy1 * DTF_gs_y1_ptr[i]
 			//+ DTF_gs_cu0 * DTF_gs_u0_ptr[i]//coefficient is zero
 			//+ DTF_gs_cu1 * DTF_gs_u1_ptr[i]//coefficient is zero
@@ -155,6 +218,21 @@ void DTF_gs_execute(void)
 			+ DTF_gs_cu9 * DTF_gs_u9_ptr[i], DTF_gs_MAXVAL);
 	}
 
+#else
+			+ DTF_gs_cy1 * DTF_gs_y1_ptr[i]
+			//+ DTF_gs_cu0 * DTF_gs_u0_ptr[i]//coefficient is zero
+			//+ DTF_gs_cu1 * DTF_gs_u1_ptr[i]//coefficient is zero
+			//+ DTF_gs_cu2 * DTF_gs_u2_ptr[i]//coefficient is zero
+			//+ DTF_gs_cu3 * DTF_gs_u3_ptr[i]//coefficient is zero
+			//+ DTF_gs_cu4 * DTF_gs_u4_ptr[i]//coefficient is zero
+			//+ DTF_gs_cu5 * DTF_gs_u5_ptr[i]//coefficient is zero
+			//+ DTF_gs_cu6 * DTF_gs_u6_ptr[i]//coefficient is zero
+			//+ DTF_gs_cu7 * DTF_gs_u7_ptr[i]//coefficient is zero
+			//+ DTF_gs_cu8 * DTF_gs_u8_ptr[i]//coefficient is zero
+			+ DTF_gs_cu9 * DTF_gs_u9_ptr[i], DTF_gs_MAXVAL);
+	}
+
+#endif
 	DTF_gs_swap_u();
 }
 
@@ -165,6 +243,7 @@ void DTF_gs_init(void)
 
 	for (i=0; i<DTF_gs_LEN; i++)
 	{
+#if (DTF_gs_XDIR == 1)
 		DTF_gs_y0_ptr[i] = 0.0;
 		DTF_gs_y1_ptr[i] = 0.0;
 		DTF_gs_u0_ptr[i] = 0.0;
@@ -177,6 +256,20 @@ void DTF_gs_init(void)
 		DTF_gs_u7_ptr[i] = 0.0;
 		DTF_gs_u8_ptr[i] = 0.0;
 		DTF_gs_u9_ptr[i] = 0.0;
+#else
+		DTF_gs_y0_ptr[i] = 0.0;
+		DTF_gs_y1_ptr[i] = 0.0;
+		DTF_gs_u0_ptr[i] = 0.0;
+		DTF_gs_u1_ptr[i] = 0.0;
+		DTF_gs_u2_ptr[i] = 0.0;
+		DTF_gs_u3_ptr[i] = 0.0;
+		DTF_gs_u4_ptr[i] = 0.0;
+		DTF_gs_u5_ptr[i] = 0.0;
+		DTF_gs_u6_ptr[i] = 0.0;
+		DTF_gs_u7_ptr[i] = 0.0;
+		DTF_gs_u8_ptr[i] = 0.0;
+		DTF_gs_u9_ptr[i] = 0.0;
+#endif
 	}
 }
 
