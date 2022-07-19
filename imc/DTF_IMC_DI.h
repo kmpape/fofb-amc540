@@ -4,7 +4,7 @@
 #include "fofb_config.h"
 #define DTF_IMC_DI_UNIT_TEST    (0)
 /*
- * Hard-coded vector-wise (length K=96) filter with * N+1 (N=3) output and M+1 (M=11) input taps: * 
+ * Hard-coded vector-wise (length K=96) filter with * N+1 (N=2) output and M+1 (M=10) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,
  * 
  * where cyi and cui are scalar filter coefficients and
@@ -55,9 +55,9 @@ void DTF_IMC_DI_execute(void);
  * void DTF_IMC_DI_init(void);
  */
 void DTF_IMC_DI_init(void);
-
 #define DTF_IMC_DI_min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define DTF_IMC_DI_max(X, Y)  ((X) > (Y) ? (X) : (Y))
 #define DTF_IMC_DI_sat(X, Y)  (DTF_IMC_DI_min(DTF_IMC_DI_max(X,-Y),Y))
+
 
 #endif // DTF_IMC_DI_H_
