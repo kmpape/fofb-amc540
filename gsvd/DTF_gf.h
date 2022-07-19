@@ -5,14 +5,14 @@
 #define DTF_gf_UNIT_TEST    (0)
 #define DTF_gf_MAXVAL    (100000000000000000000.0000000000)
 /*
- * Hard-coded vector-wise (length K=16) filter with * N+1 (N=9) output and M+1 (M=1) input taps: * 
+ * Hard-coded vector-wise (length K=32) filter with * N+1 (N=9) output and M+1 (M=1) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,
  * 
  * where cyi and cui are scalar filter coefficients and
  * yi and ui are arrays of length K.
  * 
  */
-#define DTF_gf_LEN (16)
+#define DTF_gf_LEN (32)
 
 #define DTF_gf_XDIR (XDIR)
 
