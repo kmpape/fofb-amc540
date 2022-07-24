@@ -366,8 +366,8 @@ int main() {
 #endif /* ((USE_IPC == 1) */
 
         PCIE_logPrintf ("Start PCIe loop.\n");
-        //pcie_loop();
-        imc_test();
+        pcie_loop();
+        //imc_test();
         //gsvd_test();
     } else {
         if (selfId == UDP_CORENUM) {   // UDP communication
