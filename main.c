@@ -260,6 +260,9 @@ void pcie_loop (void)
     }
 }
 
+#if (UNIT_TEST == 1)
+extern void unit_test(void);
+#endif
 int main() {
     TSCL = 0; // initialise timer
     selfId = CSL_chipReadReg(CSL_CHIP_DNUM);
@@ -306,9 +309,11 @@ int main() {
 #endif /* ((USE_IPC == 1) */
 
         PCIE_logPrintf ("Start PCIe loop.\n");
+#if (UNIT_TEST == 1)
+        unit_test();
+#else
         pcie_loop();
-        //imc_test();
-        //gsvd_test();
+#endif
     } else {
         if (selfId == UDP_CORENUM) {   // UDP communication
             srand(1111);

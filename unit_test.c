@@ -18,7 +18,7 @@
 #if (GSVD_CONTROL == 1)
 #include "gsvd/GSVD_ctr.h"
 #include "gsvd/GSVD_transfer.h"
-#if (IMC_DI_XDIR == 1)
+#if (GSVD_XDIR == 1)
 #include "gsvd/GSVD_test_data_x.h"
 #else
 #include "gsvd/GSVD_test_data_y.h"
@@ -48,8 +48,7 @@
 volatile LIBQDMA_ARR_TYPE pcie_write_buffer_test[256];
 
 #if (GSVD_CONTROL == 1)
-#include "gsvd/GSVD_test_data_horizontal.h"
-void gsvd_test(void) {
+void unit_test(void) {
     int i, j;
     for (i=0; i<GSVD_NTEST+1; i++) {
         const int *tmp_in = &GSVD_TEST_IN[i*173];
@@ -78,7 +77,7 @@ void gsvd_test(void) {
 #endif
 
 #if (IMC_CONTROL == 1)
-void imc_test(void) {
+void unit_test(void) {
     int i, j;
     for (i=0; i<IMC_NTEST+1; i++) {
         const int *tmp_in = &IMC_TEST_IN[i*173];
