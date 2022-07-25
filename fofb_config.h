@@ -5,8 +5,8 @@
 /*
  * Control Algorithms
  */
-#define IMC_CONTROL         (0) // enable=1, set to 0 if loopback only
-#define GSVD_CONTROL        (1) // enable=1, set to 0 if loopback only
+#define IMC_CONTROL         (1) // enable=1, set to 0 if loopback only
+#define GSVD_CONTROL        (0) // enable=1, set to 0 if loopback only
 #define MPC_CONTROL         (0) // enable=1, set to 0 if loopback only
 #define UNIT_TEST           (0) // to run unit test loop
 #define INTEGRATOR_LIMIT    (4.99) // in Amperes

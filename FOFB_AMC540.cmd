@@ -61,7 +61,7 @@ SECTIONS
     .imc_di_shared			> MSMCSRAM
     .imc_di_local			> L2SRAM
     .imc_DI_init			> DDR3
-    .imc_UNIT_TEST			> DDR3
+    .imc_unit_test			> DDR3
 #endif
 
 #if (GSVD_CONTROL == 1)
