@@ -3,6 +3,7 @@
 
 #include "fofb_config.h"
 #define DTF_IMC_DI_UNIT_TEST    (0)
+#define DTF_IMC_DI_MAXVAL    (4.9900000000)
 /*
  * Hard-coded vector-wise (length K=172) filter with * N+1 (N=2) output and M+1 (M=10) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,
@@ -12,8 +13,6 @@
  * 
  */
 #define DTF_IMC_DI_LEN (172)
-
-#define DTF_IMC_DI_LIMIT (INTEGRATOR_LIMIT)
 
 #define DTF_IMC_DI_XDIR (XDIR)
 
@@ -55,6 +54,7 @@ void DTF_IMC_DI_execute(void);
  * void DTF_IMC_DI_init(void);
  */
 void DTF_IMC_DI_init(void);
+
 #define DTF_IMC_DI_min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define DTF_IMC_DI_max(X, Y)  ((X) > (Y) ? (X) : (Y))
 #define DTF_IMC_DI_sat(X, Y)  (DTF_IMC_DI_min(DTF_IMC_DI_max(X,-Y),Y))

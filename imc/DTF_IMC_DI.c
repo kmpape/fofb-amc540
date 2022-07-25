@@ -1,12 +1,15 @@
+#include <stdio.h>
 #include "DTF_IMC_DI.h"
+
 #ifdef SOC_C6678
 #include <c6x.h>
 #endif
-#include "IMC_DI_ctr.h"
+#if (DTF_IMC_DI_UNIT_TEST == 1)
+#include "DTF_IMC_DI_UNIT_TEST.h"
+#endif
 
 /* Arrays */
 #ifdef SOC_C6678
-#if (DTF_IMC_DI_XDIR == 1)
 #pragma DATA_ALIGN(DTF_IMC_DI_y0, 64)
 #pragma DATA_ALIGN(DTF_IMC_DI_y1, 64)
 #pragma DATA_ALIGN(DTF_IMC_DI_y2, 64)
@@ -21,25 +24,8 @@
 #pragma DATA_ALIGN(DTF_IMC_DI_u0, 64)
 #pragma DATA_ALIGN(DTF_IMC_DI_u1, 64)
 #pragma DATA_ALIGN(DTF_IMC_DI_u2, 64)
-#else
-#pragma DATA_ALIGN(DTF_IMC_DI_y0, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y1, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y2, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y3, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y4, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y5, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y6, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y7, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y8, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y9, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_y10, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_u0, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_u1, 64)
-#pragma DATA_ALIGN(DTF_IMC_DI_u2, 64)
-#endif
 #pragma SET_DATA_SECTION(".imc_DI")
 #endif // SOC_C6678
-#if (DTF_IMC_DI_XDIR == 1)
 DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y0[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
 DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y1[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
 DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y2[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
@@ -54,22 +40,6 @@ DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y10[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
 DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_u0[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
 DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_u1[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
 DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_u2[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-#else
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y0[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y1[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y2[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y3[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y4[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y5[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y6[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y7[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y8[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y9[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_y10[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_u0[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_u1[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_u2[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
-#endif
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -79,7 +49,6 @@ DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_u2[DTF_IMC_DI_LEN] = {(DTF_IMC_DI_ARR_TYPE)0.0};
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION(".imc_DI")
 #endif // SOC_C6678
-#if (DTF_IMC_DI_XDIR == 1)
 DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y0_ptr = DTF_IMC_DI_y0;
 DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y1_ptr = DTF_IMC_DI_y1;
 DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y2_ptr = DTF_IMC_DI_y2;
@@ -94,22 +63,6 @@ DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y10_ptr = DTF_IMC_DI_y10;
 DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_u0_ptr = DTF_IMC_DI_u0;
 DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_u1_ptr = DTF_IMC_DI_u1;
 DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_u2_ptr = DTF_IMC_DI_u2;
-#else
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y0_ptr = DTF_IMC_DI_y0;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y1_ptr = DTF_IMC_DI_y1;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y2_ptr = DTF_IMC_DI_y2;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y3_ptr = DTF_IMC_DI_y3;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y4_ptr = DTF_IMC_DI_y4;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y5_ptr = DTF_IMC_DI_y5;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y6_ptr = DTF_IMC_DI_y6;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y7_ptr = DTF_IMC_DI_y7;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y8_ptr = DTF_IMC_DI_y8;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y9_ptr = DTF_IMC_DI_y9;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_y10_ptr = DTF_IMC_DI_y10;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_u0_ptr = DTF_IMC_DI_u0;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_u1_ptr = DTF_IMC_DI_u1;
-DTF_IMC_DI_ARR_TYPE *DTF_IMC_DI_u2_ptr = DTF_IMC_DI_u2;
-#endif
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -147,7 +100,7 @@ DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_cy10 = (DTF_IMC_DI_ARR_TYPE)-0.1041436991263872;
 DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_cu0 = (DTF_IMC_DI_ARR_TYPE)0.3318498497540991;
 DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_cu1 = (DTF_IMC_DI_ARR_TYPE)-0.5064233864369556;
 DTF_IMC_DI_ARR_TYPE DTF_IMC_DI_cu2 = (DTF_IMC_DI_ARR_TYPE)0.1885184592582930;
-#endif
+#endif // XDIR
 #ifdef SOC_C6678
 #pragma SET_DATA_SECTION()
 #endif // SOC_C6678
@@ -167,7 +120,6 @@ DTF_IMC_DI_ARR_TYPE* DTF_IMC_DI_get_u0_ptr(void)
 
 void DTF_IMC_DI_swap_y(void)
 {
-#if (DTF_IMC_DI_XDIR == 1)
 	DTF_IMC_DI_ARR_TYPE* tmp_y10_ptr = DTF_IMC_DI_y10_ptr;
 	DTF_IMC_DI_y10_ptr = DTF_IMC_DI_y9_ptr;
 	DTF_IMC_DI_y9_ptr = DTF_IMC_DI_y8_ptr;
@@ -181,51 +133,26 @@ void DTF_IMC_DI_swap_y(void)
 	DTF_IMC_DI_y1_ptr = DTF_IMC_DI_y0_ptr;
 	DTF_IMC_DI_y0_ptr = tmp_y10_ptr;
 }
-#else
-	DTF_IMC_DI_ARR_TYPE* tmp_y10_ptr = DTF_IMC_DI_y10_ptr;
-	DTF_IMC_DI_y10_ptr = DTF_IMC_DI_y9_ptr;
-	DTF_IMC_DI_y9_ptr = DTF_IMC_DI_y8_ptr;
-	DTF_IMC_DI_y8_ptr = DTF_IMC_DI_y7_ptr;
-	DTF_IMC_DI_y7_ptr = DTF_IMC_DI_y6_ptr;
-	DTF_IMC_DI_y6_ptr = DTF_IMC_DI_y5_ptr;
-	DTF_IMC_DI_y5_ptr = DTF_IMC_DI_y4_ptr;
-	DTF_IMC_DI_y4_ptr = DTF_IMC_DI_y3_ptr;
-	DTF_IMC_DI_y3_ptr = DTF_IMC_DI_y2_ptr;
-	DTF_IMC_DI_y2_ptr = DTF_IMC_DI_y1_ptr;
-	DTF_IMC_DI_y1_ptr = DTF_IMC_DI_y0_ptr;
-	DTF_IMC_DI_y0_ptr = tmp_y10_ptr;
-}
-#endif
 
 
 void DTF_IMC_DI_swap_u(void)
 {
-#if (DTF_IMC_DI_XDIR == 1)
 	DTF_IMC_DI_ARR_TYPE* tmp_u2_ptr = DTF_IMC_DI_u2_ptr;
 	DTF_IMC_DI_u2_ptr = DTF_IMC_DI_u1_ptr;
 	DTF_IMC_DI_u1_ptr = DTF_IMC_DI_u0_ptr;
 	DTF_IMC_DI_u0_ptr = tmp_u2_ptr;
 }
-#else
-	DTF_IMC_DI_ARR_TYPE* tmp_u2_ptr = DTF_IMC_DI_u2_ptr;
-	DTF_IMC_DI_u2_ptr = DTF_IMC_DI_u1_ptr;
-	DTF_IMC_DI_u1_ptr = DTF_IMC_DI_u0_ptr;
-	DTF_IMC_DI_u0_ptr = tmp_u2_ptr;
-}
-#endif
 
 
 void DTF_IMC_DI_execute(void)
 {
 	int i;
-	const DTF_IMC_DI_ARR_TYPE maxval = 10000.0;
-
+	
 	DTF_IMC_DI_swap_y();
 
 	for (i=0; i<DTF_IMC_DI_LEN; i++)
 	{
 		DTF_IMC_DI_y0_ptr[i] = DTF_IMC_DI_sat(
-#if (DTF_IMC_DI_XDIR == 1)
 			+ DTF_IMC_DI_cy1 * DTF_IMC_DI_y1_ptr[i]
 			+ DTF_IMC_DI_cy2 * DTF_IMC_DI_y2_ptr[i]
 			//+ DTF_IMC_DI_cy3 * DTF_IMC_DI_y3_ptr[i]//coefficient is zero
@@ -238,26 +165,9 @@ void DTF_IMC_DI_execute(void)
 			+ DTF_IMC_DI_cy10 * DTF_IMC_DI_y10_ptr[i]
 			+ DTF_IMC_DI_cu0 * DTF_IMC_DI_u0_ptr[i]
 			+ DTF_IMC_DI_cu1 * DTF_IMC_DI_u1_ptr[i]
-			+ DTF_IMC_DI_cu2 * DTF_IMC_DI_u2_ptr[i], DTF_IMC_DI_LIMIT);
+			+ DTF_IMC_DI_cu2 * DTF_IMC_DI_u2_ptr[i], DTF_IMC_DI_MAXVAL);
 	}
 
-#else
-			+ DTF_IMC_DI_cy1 * DTF_IMC_DI_y1_ptr[i]
-			+ DTF_IMC_DI_cy2 * DTF_IMC_DI_y2_ptr[i]
-			//+ DTF_IMC_DI_cy3 * DTF_IMC_DI_y3_ptr[i]//coefficient is zero
-			//+ DTF_IMC_DI_cy4 * DTF_IMC_DI_y4_ptr[i]//coefficient is zero
-			//+ DTF_IMC_DI_cy5 * DTF_IMC_DI_y5_ptr[i]//coefficient is zero
-			//+ DTF_IMC_DI_cy6 * DTF_IMC_DI_y6_ptr[i]//coefficient is zero
-			//+ DTF_IMC_DI_cy7 * DTF_IMC_DI_y7_ptr[i]//coefficient is zero
-			//+ DTF_IMC_DI_cy8 * DTF_IMC_DI_y8_ptr[i]//coefficient is zero
-			+ DTF_IMC_DI_cy9 * DTF_IMC_DI_y9_ptr[i]
-			+ DTF_IMC_DI_cy10 * DTF_IMC_DI_y10_ptr[i]
-			+ DTF_IMC_DI_cu0 * DTF_IMC_DI_u0_ptr[i]
-			+ DTF_IMC_DI_cu1 * DTF_IMC_DI_u1_ptr[i]
-			+ DTF_IMC_DI_cu2 * DTF_IMC_DI_u2_ptr[i], DTF_IMC_DI_LIMIT);
-	}
-
-#endif
 	DTF_IMC_DI_swap_u();
 }
 
@@ -268,7 +178,6 @@ void DTF_IMC_DI_init(void)
 
 	for (i=0; i<DTF_IMC_DI_LEN; i++)
 	{
-#if (DTF_IMC_DI_XDIR == 1)
 		DTF_IMC_DI_y0_ptr[i] = 0.0;
 		DTF_IMC_DI_y1_ptr[i] = 0.0;
 		DTF_IMC_DI_y2_ptr[i] = 0.0;
@@ -283,22 +192,6 @@ void DTF_IMC_DI_init(void)
 		DTF_IMC_DI_u0_ptr[i] = 0.0;
 		DTF_IMC_DI_u1_ptr[i] = 0.0;
 		DTF_IMC_DI_u2_ptr[i] = 0.0;
-#else
-		DTF_IMC_DI_y0_ptr[i] = 0.0;
-		DTF_IMC_DI_y1_ptr[i] = 0.0;
-		DTF_IMC_DI_y2_ptr[i] = 0.0;
-		DTF_IMC_DI_y3_ptr[i] = 0.0;
-		DTF_IMC_DI_y4_ptr[i] = 0.0;
-		DTF_IMC_DI_y5_ptr[i] = 0.0;
-		DTF_IMC_DI_y6_ptr[i] = 0.0;
-		DTF_IMC_DI_y7_ptr[i] = 0.0;
-		DTF_IMC_DI_y8_ptr[i] = 0.0;
-		DTF_IMC_DI_y9_ptr[i] = 0.0;
-		DTF_IMC_DI_y10_ptr[i] = 0.0;
-		DTF_IMC_DI_u0_ptr[i] = 0.0;
-		DTF_IMC_DI_u1_ptr[i] = 0.0;
-		DTF_IMC_DI_u2_ptr[i] = 0.0;
-#endif
 	}
 }
 
