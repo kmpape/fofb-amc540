@@ -58,11 +58,19 @@ void unit_test(void) {
         GSVD_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer_test[READ_WRITE_OFFSET]));
 
         int error = 0;
+        int maxerror = 0;
+        int maxerrorind = -1;
         for (j=0; j<172; j++) {
-            error += (pcie_write_buffer_test[READ_WRITE_OFFSET+j]+tmp_out[j])*(pcie_write_buffer_test[READ_WRITE_OFFSET+j]+tmp_out[j]);
+            int tmp = (pcie_write_buffer_test[READ_WRITE_OFFSET+j]+tmp_out[j])*(pcie_write_buffer_test[READ_WRITE_OFFSET+j]+tmp_out[j]);
+            error += tmp;
+            if (tmp > maxerror) {
+                maxerror = tmp;
+                maxerrorind = j;
+            }
         }
         if (1) {
-            printf("\nError at %d = %d\nres=", i, error);
+            printf("\nError at %d = %d (max=%d at %d res=%d des=%d)\nres=", i, error,
+                   maxerror, maxerrorind, pcie_write_buffer_test[READ_WRITE_OFFSET+maxerrorind], -tmp_out[maxerrorind]);
             for (j=0; j<10; j++) {
                 printf("%d, ", pcie_write_buffer_test[READ_WRITE_OFFSET+j]);
             }
@@ -72,7 +80,7 @@ void unit_test(void) {
             }
         }
     }
-    printf("gsvd test finished\n");
+    printf("\nGSVD test finished\n");
 }
 #endif
 
@@ -109,6 +117,6 @@ void unit_test(void) {
             }
         }
     }
-    printf("imc test finished\n");
+    printf("\nIMC test finished\n");
 }
 #endif

@@ -27,9 +27,6 @@ typedef float gsvd_float;
 #define GSVD_NY       (96)  // HARDCODED (was 108)
 #define GSVD_NS       (96)  // HARDCODED (was 108)
 #define GSVD_NF       (64)  // HARDCODED (was 60)
-//#define GSVD_NY       (108)  // HARDCODED (was 108)
-//#define GSVD_NS       (108)  // HARDCODED (was 108)
-//#define GSVD_NF       (60)  // HARDCODED (was 60)
 #define GSVD_NU       (GSVD_NS+GSVD_NF)
 
 /* Lengths per worker */
