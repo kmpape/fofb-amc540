@@ -8,18 +8,18 @@
 #define IMC_CONTROL         (1) // enable=1, set to 0 if loopback only
 #define GSVD_CONTROL        (0) // enable=1, set to 0 if loopback only
 #define MPC_CONTROL         (0) // enable=1, set to 0 if loopback only
-#define UNIT_TEST           (0) // to run unit test loop
+#define UNIT_TEST           (0) // run unit test loop instead of real-time control
 #define INTEGRATOR_LIMIT    (4.99) // in Amperes
 #define XDIR                (1) // 1=horizontal plane, 0=vertical plane
-#define USE_IPC             (1) // switch multi-core (1) and single-core (0)
+#define USE_IPC             (1) // do not change
 
 /*
  * Interface
  */
-#define TOT_NUM_BPM             (173) // fixed, independent of disabled BPMs, must match IMC_DI_ctr.h or GSVD_ctr.h
-#define TOT_NUM_CM              (172) // fixed, independent of disabled CMs, must match IMC_DI_ctr.h or GSVD_ctr.h
-#define ORBIT_LIMIT             (100000) // in nanometers
-#define READ_WRITE_OFFSET       (1) // BPM ID 1 is on memory location 1 (not 0)
+#define TOT_NUM_BPM             (173)       // do not change. used by XXX_transfer.h
+#define TOT_NUM_CM              (172)       // do not change. used by XXX_transfer.h
+#define ORBIT_LIMIT             (100000)    // in nanometers. used by XXX_transfer.h to saturate incoming BPM signals. Not a watchdog limit.
+#define READ_WRITE_OFFSET       (1)         // BPM ID 1 is on memory location 1 (not 0)
 
 /*
  * DMA: transfers CHUNK_NUM packets of size CHUNK_LEN*4 bytes.
