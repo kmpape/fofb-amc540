@@ -11,7 +11,7 @@
 
 /* Number of slaves to use */
 #if (GSVD_CONTROL == 1) || (IMC_CONTROL == 1)
-#define NUMSLAVES   4
+#define NUMSLAVES   6
 #else
 #define NUMSLAVES   6
 #endif
