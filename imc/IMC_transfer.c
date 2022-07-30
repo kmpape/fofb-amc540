@@ -30,7 +30,7 @@ void CM_to_int(const imc_float * in_vec, LIBQDMA_ARR_TYPE * out_vec)
     int i;
     memset((LIBQDMA_ARR_TYPE *)out_vec, 0, TOT_NUM_CM*sizeof(LIBQDMA_ARR_TYPE));
     for (i = 0; i < IMC_DI_NU; i++) {
-        LIBQDMA_ARR_TYPE tmp = round((LIBQDMA_ARR_TYPE)(in_vec[i]*IMC_SCALING_FACTOR_WRITE));
+        LIBQDMA_ARR_TYPE tmp = round(in_vec[i]*IMC_SCALING_FACTOR_WRITE);
         out_vec[IMC_CM_TO_BPM[i]] = tmp; // T_sat(tmp, IMC_LIMIT_WRITE);
     }
 }
