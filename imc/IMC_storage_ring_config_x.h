@@ -1,10 +1,10 @@
-#ifndef IMC_STORAGE_RING_CONFIG_H
-#define IMC_STORAGE_RING_CONFIG_H
+#ifndef IMC_STORAGE_RING_CONFIG_X_H
+#define IMC_STORAGE_RING_CONFIG_X_H
 #ifdef SOC_C6678
 #pragma DATA_SECTION(IMC_ID_TO_BPM, ".imc_shared");
 #pragma DATA_ALIGN(IMC_ID_TO_BPM, 2);
 #endif // SOC_C6678
-const int IMC_ID_TO_BPM[171] = {(int)0, 
+const int IMC_ID_TO_BPM[168] = {(int)0, 
 (int)1, 
 (int)2, 
 (int)3, 
@@ -36,7 +36,6 @@ const int IMC_ID_TO_BPM[171] = {(int)0,
 (int)29, 
 (int)30, 
 (int)31, 
-(int)32, 
 (int)33, 
 (int)34, 
 (int)35, 
@@ -122,7 +121,6 @@ const int IMC_ID_TO_BPM[171] = {(int)0,
 (int)117, 
 (int)118, 
 (int)119, 
-(int)120, 
 (int)121, 
 (int)122, 
 (int)123, 
@@ -157,7 +155,6 @@ const int IMC_ID_TO_BPM[171] = {(int)0,
 (int)152, 
 (int)153, 
 (int)154, 
-(int)155, 
 (int)156, 
 (int)157, 
 (int)158, 
@@ -179,7 +176,7 @@ const int IMC_ID_TO_BPM[171] = {(int)0,
 #pragma DATA_SECTION(IMC_CM_TO_BPM, ".imc_shared");
 #pragma DATA_ALIGN(IMC_CM_TO_BPM, 2);
 #endif // SOC_C6678
-const int IMC_CM_TO_BPM[172] = {(int)0, 
+const int IMC_CM_TO_BPM[171] = {(int)0, 
 (int)1, 
 (int)2, 
 (int)3, 
@@ -255,7 +252,6 @@ const int IMC_CM_TO_BPM[172] = {(int)0,
 (int)73, 
 (int)74, 
 (int)75, 
-(int)76, 
 (int)77, 
 (int)78, 
 (int)79, 
