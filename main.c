@@ -219,7 +219,7 @@ void pcie_loop (void)
         if (check_watchdog() > 0) {
             memset((void *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
-
+        // pcie_write_buffer[0] = pcie_read_buffer[0]; // for testing the delay in lab tests
         cache_writeback((void *)pcie_write_buffer, ARRAY_BYTES_WRITE);
 
         /* Change transfer params -> write*/
