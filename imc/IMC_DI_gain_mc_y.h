@@ -1,5 +1,5 @@
-#ifndef IMC_DI_GAIN_H
-#define IMC_DI_GAIN_H
+#ifndef IMC_DI_GAIN_Y_H
+#define IMC_DI_GAIN_Y_H
 #define IMC_DI_GAIN_NY (166)
 #define IMC_DI_GAIN_NU (171)
 #ifdef SOC_C6678

@@ -20,8 +20,8 @@ typedef float imc_float;
 
 #define IMC_DI_XDIR (XDIR)
 
-// IMC-X-v1.0.0-delta: NY=168, NU=171
-// IMC-Y-v1.0.0-delta: NY=166, NU=171
+// IMC-X-v1.0.x-delta: NY=168, NU=171
+// IMC-Y-v1.0.x-delta: NY=166, NU=171
 
 #define IMC_DI_NY       (166) // TODO: MUST CHANGE THIS DEPENDING ON STORAGE RING CONFIG
 #define IMC_DI_NU       (171) // TODO: MUST CHANGE THIS DEPENDING ON STORAGE RING CONFIG

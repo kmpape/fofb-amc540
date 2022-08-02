@@ -5,7 +5,7 @@
 #define DTF_IMC_DI_UNIT_TEST    (0)
 #define DTF_IMC_DI_MAXVAL    (4.9900000000)
 /*
- * Hard-coded vector-wise (length K=171) filter with * N+1 (N=2) output and M+1 (M=10) input taps: * 
+ * Hard-coded vector-wise (length K=171) filter with * N+1 (N=2) output and M+1 (M=11) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,
  * 
  * where cyi and cui are scalar filter coefficients and
