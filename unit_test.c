@@ -30,6 +30,11 @@
 #include "mpc/MPC_ctr.h"
 #include "mpc/MPC_transfer.h"
 #include "mpc/fast_gradient_method.h"
+#if (XDIR == 1)
+#include "mpc/standard_data/MPC_test_data_x.h"
+#else
+#include "mpc/standard_data/MPC_test_data_y.h"
+#endif
 #endif
 
 /* Utilities */
@@ -93,6 +98,43 @@ void unit_test(void) {
         BPM_to_float(tmp_in, IMC_DI_get_input());
         imc_float * corr_values = IMC_DI_ctr(); // calls parallel routines and invalidates cache
         CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer_test[0]));
+
+        int error = 0;
+        int maxerror = 0;
+        int maxerrorind = -1;
+        for (j=0; j<172; j++) {
+            int tmp = (pcie_write_buffer_test[0+j]+tmp_out[j])*(pcie_write_buffer_test[0+j]+tmp_out[j]);
+            error += tmp;
+            if (tmp > maxerror) {
+                maxerror = tmp;
+                maxerrorind = j;
+            }
+        }
+        if (1) {
+            printf("\nError at %d = %d (max=%d at %d res=%d des=%d)\nres=", i, error,
+                   maxerror, maxerrorind, pcie_write_buffer_test[maxerrorind], -tmp_out[maxerrorind]);
+            for (j=0; j<172; j++) {
+                printf("%d, ", pcie_write_buffer_test[0+j]);
+            }
+            printf("\ndes=");
+            for (j=0; j<172; j++) {
+                printf("%d, ", -tmp_out[j]);
+            }
+        }
+    }
+    printf("\nIMC test finished\n");
+}
+#endif
+
+#if (MPC_CONTROL == 1)
+void unit_test(void) {
+    int i, j;
+    for (i=0; i<MPC_NTEST+1; i++) {
+        const int *tmp_in = &MPC_TEST_IN[i*173];
+        const int *tmp_out = &MPC_TEST_OUT[i*172];
+        MPC_BPM_to_float(tmp_in, MPC_get_input());
+        fgm_float * corr_values = MPC_ctr(restart_fofb); // calls parallel routines and invalidates cache
+        MPC_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer_test[0]));
 
         int error = 0;
         int maxerror = 0;

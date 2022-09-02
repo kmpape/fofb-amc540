@@ -25,34 +25,11 @@ extern void touch(const void *array,  int length);
 #include <csl_cacheAux.h>
 #endif // SOC_C6678
 
+
 #if (XDIR == 1)
-#if (FGM_MPC_HORIZON == 1)
-#if (MPC_SLOWFAST == 1)
-#include "mpc/slowfast_data/FGM_data_c6678_NWORKERS6_x.h"
-#else
 #include "mpc/standard_data/FGM_data_c6678_NWORKERS6_x.h"
-#endif /* MPC_SLOWFAST */
-#else
-#if (MPC_SLOWFAST == 1)
-#include "mpc/slowfast_data/FGM_data_c6678_NWORKERS6_H2_x.h"
-#else
-#include "mpc/standard_data/FGM_data_c6678_NWORKERS6_H2_x.h"
-#endif /* MPC_SLOWFAST */
-#endif /* FGM_MPC_HORIZON */
-#else
-#if (FGM_MPC_HORIZON == 1)
-#if (MPC_SLOWFAST == 1)
-#include "mpc/slowfast_data/FGM_data_c6678_NWORKERS6_y.h"
 #else
 #include "mpc/standard_data/FGM_data_c6678_NWORKERS6_y.h"
-#endif /* MPC_SLOWFAST */
-#else
-#if (MPC_SLOWFAST == 1)
-#include "mpc/slowfast_data/FGM_data_c6678_NWORKERS6_H2_y.h"
-#else
-#include "mpc/standard_data/FGM_data_c6678_NWORKERS6_H2_y.h"
-#endif /* MPC_SLOWFAST */
-#endif /* FGM_MPC_HORIZON */
 #endif /* XDIR */
 
 /* Algorithm:

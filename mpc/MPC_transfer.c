@@ -6,10 +6,10 @@
 #include "mpc/MPC_transfer.h"
 #include "mpc/MPC_ctr.h"
 
-#if (MPC_SLOWFAST == 1)
-#include "mpc/slowfast_data/MPC_storage_ring_config.h"
+#if (XDIR == 1)
+#include "mpc/standard_data/MPC_storage_ring_config_x.h"
 #else
-#include "mpc/standard_data/MPC_storage_ring_config.h"
+#include "mpc/standard_data/MPC_storage_ring_config_y.h"
 #endif /* MPC_SLOWFAST */
 
 #define TMPC_min(X, Y)  ((X) < (Y) ? (X) : (Y))
