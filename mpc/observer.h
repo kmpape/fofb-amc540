@@ -8,6 +8,7 @@ typedef float obs_float;
 #define OBS_W_NROWS         (32)
 #define OBS_W_NCOLS         (OBS_NUM_WORKERS*OBS_W_NROWS)
 #define OBS_DIM             (OBS_NUM_WORKERS*OBS_W_NROWS)
+#define OBS_delay           (9) // HARDCODED. CAN BE 8 or 9.
 
 #undef OBS_SYNC_EVERY_STEP
 
