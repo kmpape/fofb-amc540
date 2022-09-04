@@ -8,10 +8,10 @@
 #define WD_SOFB_MIN_MARGIN_SCALED   (2e6)
 
 
-#define WD_BEAM_MAX_TRIP_COUNT      (10) // < 255
-#define WD_BEAM_LIMIT_MUM           (100.0f)
-#define WD_BEAM_LIMIT_NM            (100000.0f)
-#define WD_BEAM_LIMIT_NM_INT        (125000)
+#define WD_BEAM_MAX_TRIP_COUNT      (5) // < 255
+#define WD_BEAM_LIMIT_MUM           (145.0f)
+#define WD_BEAM_LIMIT_NM            (145000.0f)
+#define WD_BEAM_LIMIT_NM_INT        (145000)
 
 #define WD_SOFB_MAX_TRIP_COUNT      (1) // < 255
 #define WD_FOFB_MAX_TRIP_COUNT      (1) // < 255
