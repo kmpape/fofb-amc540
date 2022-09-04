@@ -11,8 +11,6 @@
 #include "utils/ipc_utils.h"
 #include "mpc/fast_gradient_method.h"
 
-#define OBS_delay (9)
-
 #if (XDIR == 1)
 #if (FGM_MPC_HORIZON == 1)
 #if (MPC_SLOWFAST == 1)
@@ -697,7 +695,7 @@ void OBS_initialize_master(void)
     OBS_x7_global = &(OBS_x7_static[0]);
     OBS_x8_global = &(OBS_x8_static[0]);
 #if (OBS_delay == 9)
-    OBS_x8_global = &(OBS_x9_static[0]);
+    OBS_x9_global = &(OBS_x9_static[0]);
 #endif
 }
 

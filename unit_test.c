@@ -148,8 +148,8 @@ void unit_test(void) {
             }
         }
         if (1) {
-            printf("\nError at %d = %d (max=%d at %d res=%d des=%d)\nres=", i, error,
-                   maxerror, maxerrorind, pcie_write_buffer_test[maxerrorind], tmp_out[maxerrorind]);
+            printf("\nError at %d = sqrt(%d) (max=%d at %d res=%d des=%d)\nres=", i, error,
+                   pcie_write_buffer_test[maxerrorind]-tmp_out[maxerrorind], maxerrorind, pcie_write_buffer_test[maxerrorind], tmp_out[maxerrorind]);
             for (j=0; j<172; j++) {
                 printf("%d, ", pcie_write_buffer_test[0+j]);
             }
