@@ -77,6 +77,7 @@ SECTIONS
 
 #if (MPC_CONTROL == 1)
 	.mpc_test				> DDR3
+	.mpc_unit_test			> DDR3
 	.mpc_init				> DDR3
     .mpc_awr		  		> L2SRAM
 	.mpc_watchdog_local		> L2SRAM
