@@ -128,37 +128,45 @@ void unit_test(void) {
 
 #if (MPC_CONTROL == 1)
 void unit_test(void) {
-    int i, j;
-    for (i=0; i<MPC_NTEST+1; i++) {
-        const int *tmp_in = &MPC_TEST_IN[i*173];
-        const int *tmp_out = &MPC_TEST_OUT[i*172];
-        MPC_BPM_to_float(tmp_in, MPC_get_input());
-        fgm_float * corr_values = MPC_ctr(0); // calls parallel routines and invalidates cache
-        MPC_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer_test[0]));
+    int i, j, k;
+    for (k=0; k<2; k++) {
+        printf("\nAT RUN %d OF 2.\n", k+1);
+        for (i=0; i<MPC_NTEST+1; i++) {
+            const int *tmp_in = &MPC_TEST_IN[i*173];
+            const int *tmp_out = &MPC_TEST_OUT[i*172];
+            MPC_BPM_to_float(tmp_in, MPC_get_input());
+            fgm_float * corr_values = MPC_ctr(0); // calls parallel routines and invalidates cache
+            MPC_CM_to_int(corr_values, (LIBQDMA_ARR_TYPE *)(&pcie_write_buffer_test[0]));
 
-        int error = 0;
-        int maxerror = 0;
-        int maxerrorind = -1;
-        for (j=0; j<172; j++) {
-            int tmp = (pcie_write_buffer_test[0+j]-tmp_out[j])*(pcie_write_buffer_test[0+j]-tmp_out[j]);
-            error += tmp;
-            if (tmp > maxerror) {
-                maxerror = tmp;
-                maxerrorind = j;
+            int error = 0;
+            int maxerror = 0;
+            int maxerrorind = -1;
+            for (j=0; j<172; j++) {
+                int tmp = (pcie_write_buffer_test[0+j]-tmp_out[j])*(pcie_write_buffer_test[0+j]-tmp_out[j]);
+                error += tmp;
+                if (tmp > maxerror) {
+                    maxerror = tmp;
+                    maxerrorind = j;
+                }
+            }
+            if (i < 10) {
+                printf("\nError at %d = sqrt(%d) (max=%d at %d res=%d des=%d)\nres=", i, error,
+                       pcie_write_buffer_test[maxerrorind]-tmp_out[maxerrorind], maxerrorind, pcie_write_buffer_test[maxerrorind], tmp_out[maxerrorind]);
+                for (j=0; j<172; j++) {
+                    printf("%d, ", pcie_write_buffer_test[0+j]);
+                }
+                printf("\ndes=");
+                for (j=0; j<172; j++) {
+                    printf("%d, ", tmp_out[j]);
+                }
             }
         }
-        if (1) {
-            printf("\nError at %d = sqrt(%d) (max=%d at %d res=%d des=%d)\nres=", i, error,
-                   pcie_write_buffer_test[maxerrorind]-tmp_out[maxerrorind], maxerrorind, pcie_write_buffer_test[maxerrorind], tmp_out[maxerrorind]);
-            for (j=0; j<172; j++) {
-                printf("%d, ", pcie_write_buffer_test[0+j]);
-            }
-            printf("\ndes=");
-            for (j=0; j<172; j++) {
-                printf("%d, ", tmp_out[j]);
-            }
+        if (k == 0) {
+            printf("\nRESTARTING.\n");
+            fgm_float * corr_values = MPC_ctr(1);
+        } else {
+            printf("\nMPC test finished\n");
         }
     }
-    printf("\nIMC test finished\n");
 }
 #endif

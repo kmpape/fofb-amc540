@@ -804,6 +804,9 @@ void FGM_MPC_reset_worker(volatile fgm_float* sofb_setpoints)
                  CACHE_WAIT);
     CACHE_invL1d((void *) &(sofb_setpoints[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
                  CACHE_WAIT);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_t_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_new_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_old_static, 0.0);
     DTF_awr_init();
     FGM_MPC_vec_copy((fgm_float *)&sofb_setpoints[(FGM_MPC_selfId - 1) * FGM_MPC_W_NROWS], FGM_MPC_sofb_local, FGM_MPC_W_NROWS);
     FGM_MPC_initialize_projection();

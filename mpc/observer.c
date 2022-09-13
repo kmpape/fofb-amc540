@@ -701,6 +701,9 @@ void OBS_initialize_master(void)
 
 void OBS_reset_worker()
 {
+    CACHE_invL1d((void *) &OBS_delta_y_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_delta_xN_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
+    CACHE_invL1d((void *) &OBS_delta_xd_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
     CACHE_invL1d((void *) &OBS_xd_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
     CACHE_invL1d((void *) &OBS_x0_new_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
     CACHE_invL1d((void *) &OBS_x0_old_static[0], OBS_BYTES_GLOBAL_ARRAYS, CACHE_WAIT);
@@ -930,7 +933,7 @@ void OBS_update_observer_worker(const obs_float * y_meas)
     CACHE_wbL1d((void *) (&(OBS_x7_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
     CACHE_wbL1d((void *) (&(OBS_x8_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
 #if (OBS_delay == 9)
-    CACHE_wbL1d((void *) (&(OBS_x8_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
+    CACHE_wbL1d((void *) (&(OBS_x9_local[0])), OBS_BYTES_LOCAL_ARRAYS, CACHE_WAIT);
 #endif
 
     ipc_slave_set_ack(1);
