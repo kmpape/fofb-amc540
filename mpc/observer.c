@@ -913,7 +913,7 @@ void OBS_update_observer_worker(const obs_float * y_meas)
 #else
     OBS_update_xN_or_xd((const obs_float *)OBS_delta_xN_local, (obs_float *)OBS_x8_local);
     OBS_update_xN_or_xd((const obs_float *)OBS_delta_xd_local, (obs_float *)OBS_xd_local);
-    OBS_update_xi((const obs_float *)OBS_delta_xN_local, OBS_Ax, (obs_float *)OBS_x7_local);
+    OBS_update_xi((const obs_float *)OBS_delta_xN_local, OBS_Ax_pow_1, (obs_float *)OBS_x7_local);
     OBS_update_xi((const obs_float *)OBS_delta_xN_local, OBS_Ax_pow_2, (obs_float *)OBS_x6_local);
     OBS_update_xi((const obs_float *)OBS_delta_xN_local, OBS_Ax_pow_3, (obs_float *)OBS_x5_local);
     OBS_update_xi((const obs_float *)OBS_delta_xN_local, OBS_Ax_pow_4, (obs_float *)OBS_x4_local);

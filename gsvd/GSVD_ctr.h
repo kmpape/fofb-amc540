@@ -10,7 +10,7 @@
 
 #include "fofb_config.h"
 #if (defined(SOC_C6678) && (USE_IPC==1))
-#include "ipc_utils.h"
+#include "utils/ipc_utils.h"
 #define GSVD_NUM_WORKERS  (NUMSLAVES) // should be set to 4
 #else
 #define GSVD_NUM_WORKERS    (1)

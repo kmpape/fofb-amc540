@@ -6,11 +6,11 @@
 #include <csl_cacheAux.h>
 #endif
 
+#include "fofb_config.h"
 #if (defined(SOC_C6678) && (USE_IPC==1))
-#include "ipc_utils.h"
+#include "utils/ipc_utils.h"
 #endif
 
-#include "fofb_config.h"
 #include "gsvd/GSVD_ctr.h"
 #include "gsvd/DTF_gs.h"
 #include "gsvd/DTF_gf.h"

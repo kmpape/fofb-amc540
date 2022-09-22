@@ -7,13 +7,13 @@
 #include <stdio.h>
 #endif
 
-#if (defined(SOC_C6678) && (USE_IPC==1))
-#include "ipc_utils.h"
-#endif
-
 #include "fofb_config.h"
 #include "DTF_IMC_DI.h"
 #include "IMC_DI_ctr.h"
+
+#if (defined(SOC_C6678) && (USE_IPC==1))
+#include "utils/ipc_utils.h"
+#endif
 
 #if (IMC_DI_XDIR == 1)
 #include "IMC_DI_gain_mc_x.h"

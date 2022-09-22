@@ -5,20 +5,23 @@
 #define DTF_IMC_DI_UNIT_TEST    (0)
 #define DTF_IMC_DI_MAXVAL    (4.9900000000)
 /*
- * Hard-coded vector-wise (length K=165) filter with * N+1 (N=2) output and M+1 (M=11) input taps: * 
+ * Hard-coded vector-wise (length K=167) filter with * N+1 (N=2) output and M+1 (M=11) input taps: * 
  * y0 = cy1*y1+...+cyN*yN+cu0*u0+...+cuM*uM,
  * 
  * where cyi and cui are scalar filter coefficients and
  * yi and ui are arrays of length K.
  * 
  */
-#define DTF_IMC_DI_LEN (165)
-
 #define DTF_IMC_DI_XDIR (XDIR)
 
 typedef double DTF_IMC_DI_ARR_TYPE;
 
 
+#if (XDIR == 1)
+#define DTF_IMC_DI_LEN (167)
+#else
+#define DTF_IMC_DI_LEN (165)
+#endif
 /*
  * DTF_IMC_DI_ARR_TYPE* DTF_IMC_DI_get_u0_ptr(void);
  * Returns pointer to input vector u0. Input data needs to
