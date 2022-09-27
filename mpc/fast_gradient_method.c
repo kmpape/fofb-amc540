@@ -80,6 +80,7 @@ volatile fgm_float FGM_MPC_in_mat_vec_static[FGM_MPC_DIM * 2 * FGM_MPC_N_X0_OR_X
 #pragma DATA_ALIGN(FGM_MPC_y_meas_in,           FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_ampl_max_static,     FGM_MPC_ARRAY_ALIGN)
 #pragma DATA_ALIGN(FGM_MPC_rate_max_static,     FGM_MPC_ARRAY_ALIGN)
+#pragma DATA_ALIGN(FGM_MPC_result_static,       FGM_MPC_ARRAY_ALIGN)
 #if (FGM_MPC_DEBUG_LEVEL > 0)
 #pragma DATA_ALIGN(FGM_MPC_in_vec_global,       FGM_MPC_ARRAY_ALIGN)
 #endif
@@ -92,6 +93,7 @@ volatile fgm_float FGM_MPC_xd_obs_static[FGM_MPC_N_X0_OR_XD];
 volatile fgm_float FGM_MPC_y_meas_in[FGM_MPC_N_X0_OR_XD];
 volatile fgm_float FGM_MPC_ampl_max_static[FGM_MPC_DIM];
 volatile fgm_float FGM_MPC_rate_max_static[FGM_MPC_DIM];
+volatile fgm_float FGM_MPC_result_static[FGM_MPC_DIM];
 #if (FGM_MPC_DEBUG_LEVEL > 0)
 volatile fgm_float FGM_MPC_in_vec_global[FGM_MPC_DIM];
 #endif
@@ -196,7 +198,9 @@ volatile fgm_float * volatile FGM_MPC_vec_t; // = FGM_MPC_vec_t_static;
 volatile fgm_float * volatile FGM_MPC_vec_z_new; // = FGM_MPC_vec_z_new_static;
 volatile fgm_float * volatile FGM_MPC_vec_z_old; // = FGM_MPC_vec_z_old_static;
 volatile fgm_float * volatile out_local; // points to the NROWS part per worker
+volatile fgm_float * volatile FGM_MPC_result_local; // points to the NROWS part per worker
 volatile fgm_float * volatile out_global; // points to the beginning
+volatile fgm_float * volatile FGM_MPC_result_global; // points to the NROWS part per worker
 volatile fgm_float * volatile FGM_MPC_ampl_max_local;
 volatile fgm_float * volatile FGM_MPC_rate_max_local;
 volatile fgm_float * volatile FGM_MPC_x0_obs_local; // points to the beginning of the newest state estimate
@@ -758,6 +762,7 @@ void FGM_MPC_initialize(void)
     FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_t_static, 0.0);
     FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_new_static, 0.0);
     FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_old_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_result_static, 0.0);
     CACHE_wbL1d((void *) &(FGM_MPC_out_vec_static[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
     CACHE_wbL1d((void *) &FGM_MPC_vec_t_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
@@ -766,12 +771,16 @@ void FGM_MPC_initialize(void)
                 CACHE_WAIT);
     CACHE_wbL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
+    CACHE_wbL1d((void *) &FGM_MPC_result_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                CACHE_WAIT);
 
     /* Assign these pointer for printing of debug info */
     FGM_MPC_vec_t = &(FGM_MPC_vec_t_static[0]);
     FGM_MPC_vec_z_new = &(FGM_MPC_vec_z_new_static[0]);
     FGM_MPC_vec_z_old = &(FGM_MPC_vec_z_old_static[0]);
     out_global = &(FGM_MPC_out_vec_static[0]);
+    FGM_MPC_result_local = &(FGM_MPC_result_static[0]);
+    FGM_MPC_result_global = &(FGM_MPC_result_static[0]);
 
     FGM_MPC_is_initialized = 1;
 }
@@ -782,6 +791,7 @@ void FGM_MPC_reset(void)
     FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_new_static, 0.0);
     FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_z_old_static, 0.0);
     FGM_MPC_vec_init((fgm_float *)FGM_MPC_vec_t_static, 0.0);
+    FGM_MPC_vec_init((fgm_float *)FGM_MPC_result_static, 0.0);
     CACHE_wbL1d((void *) &(FGM_MPC_out_vec_static[0]), FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
     CACHE_wbL1d((void *) &FGM_MPC_vec_t_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
@@ -789,6 +799,8 @@ void FGM_MPC_reset(void)
     CACHE_wbL1d((void *) &FGM_MPC_vec_z_new_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
     CACHE_wbL1d((void *) &FGM_MPC_vec_z_old_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
+                CACHE_WAIT);
+    CACHE_wbL1d((void *) &FGM_MPC_result_static[0], FGM_MPC_BYTES_GLOBAL_ARRAYS,
                 CACHE_WAIT);
 }
 
@@ -890,8 +902,10 @@ void FGM_MPC_initialize_worker(volatile int selfId, volatile fgm_float* sofb_set
     FGM_MPC_vec_t = &(FGM_MPC_vec_t_static[(selfId - 1) * FGM_MPC_W_NROWS]);
     FGM_MPC_vec_z_new = &(FGM_MPC_vec_z_new_static[(selfId - 1) * FGM_MPC_W_NROWS]);
     FGM_MPC_vec_z_old = &(FGM_MPC_vec_z_old_static[(selfId - 1) * FGM_MPC_W_NROWS]);
+    FGM_MPC_result_local = &(FGM_MPC_result_static[(selfId - 1) * FGM_MPC_W_NROWS]);
     FGM_MPC_ampl_max_local = &(FGM_MPC_ampl_max_static[(selfId - 1) * FGM_MPC_W_NROWS]);
     FGM_MPC_rate_max_local = &(FGM_MPC_rate_max_static[(selfId - 1) * FGM_MPC_W_NROWS]);
+    FGM_MPC_result_global = &(FGM_MPC_result_static[0]);
 
     /* Projection is also re-initialized after every FGM_MPC_solve() */
     FGM_MPC_vec_copy((fgm_float *)&sofb_setpoints[(selfId - 1) * FGM_MPC_W_NROWS], FGM_MPC_sofb_local, FGM_MPC_W_NROWS);
@@ -1059,7 +1073,8 @@ fgm_float * FGM_MPC_get_input(void)
 
 fgm_float * FGM_MPC_get_output(void)
 {
-    return (fgm_float *)out_global;
+    //return (fgm_float *)out_global;
+    return (fgm_float *)FGM_MPC_result_global;
 }
 
 
@@ -1174,20 +1189,27 @@ int FGM_MPC_solve(void)
      * Update projection limits
      */
 #if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
-        FGM_MPC_tic(7);
+    FGM_MPC_tic(7);
 #endif
 #if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
-        ipc_master_set_req(1); // ML 5
-        ipc_master_wait_ack();
+    ipc_master_set_req(1); // ML 5
+    ipc_master_wait_ack();
 #endif
     /* initialize_projection(...); */
 #if defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)
-        FGM_MPC_toc(7);
+    FGM_MPC_toc(7);
 #endif
 
 #if defined(FGM_MPC_PROFILING)
     FGM_MPC_toc(0);
 #endif
+
+    /*
+     * Workers write-back result. Master array cache-invalidated in MPC_ctr.c
+     */
+    ipc_master_set_req(1); // ML 6, new: use FGM_MPC_vec_z_new as result
+    ipc_master_wait_ack();
+
     return 0;
 }
 
@@ -1257,4 +1279,10 @@ void FGM_MPC_solve_worker(const fgm_float * x0, const fgm_float * xd)
 #if (defined(FGM_MPC_PROFILING) && (FGM_MPC_PROFILING_LEVEL > 1)) || defined(FGM_MPC_SYNC_EVERY_STEP)
     ipc_slave_set_ack(1);
 #endif
+    ipc_slave_wait_req(); // ML 6, new: use FGM_MPC_vec_z_new as result
+    FGM_MPC_vec_copy((const fgm_float *) FGM_MPC_vec_z_new,
+                     (fgm_float *) FGM_MPC_result_local, FGM_MPC_W_NROWS);
+    CACHE_wbL1d((void *) &(FGM_MPC_result_local[0]), FGM_MPC_BYTES_LOCAL_ARRAYS,
+                        CACHE_WAIT);
+    ipc_slave_set_ack(1);
 }
