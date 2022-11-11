@@ -159,29 +159,30 @@ volatile obs_float * volatile OBS_x9_global;
 /* Shared scalars */
 #pragma SET_DATA_SECTION(".obs_shared_const")
 #if (XDIR == 1)
-const obs_float OBS_Ax = 0.7304026910486456;
-const obs_float OBS_Bx = 0.2695973089513544;
-const obs_float OBS_Ax_pow_1 = 0.7304026910486456;
-const obs_float OBS_Ax_pow_2 = 0.5334880910911033;
-const obs_float OBS_Ax_pow_3 = 0.3896611373753469;
-const obs_float OBS_Ax_pow_4 = 0.2846095433360293;
-const obs_float OBS_Ax_pow_5 = 0.2078795763507619;
-const obs_float OBS_Ax_pow_6 = 0.1518358019806489;
-const obs_float OBS_Ax_pow_7 = 0.1109012783641952;
-const obs_float OBS_Ax_pow_8 = 0.0810025921579431;
-const obs_float OBS_Ax_pow_9 = 0.0591645112940776;
+const obs_float OBS_Ad = 9.99998999999999971244E-01;
+const obs_float OBS_Ax = 7.30402691048645635874E-01;
+const obs_float OBS_Bx = 2.69597308951354364126E-01;
+const obs_float OBS_Ax_pow_1 = 7.30402691048645635874E-01;
+const obs_float OBS_Ax_pow_2 = 5.33488091091103289187E-01;
+const obs_float OBS_Ax_pow_3 = 3.89661137375346855460E-01;
+const obs_float OBS_Ax_pow_4 = 2.84609543336029335858E-01;
+const obs_float OBS_Ax_pow_5 = 2.07879576350761929859E-01;
+const obs_float OBS_Ax_pow_6 = 1.51835801980648915643E-01;
+const obs_float OBS_Ax_pow_7 = 1.10901278364195249315E-01;
+const obs_float OBS_Ax_pow_8 = 8.10025921579431429365E-02;
+const obs_float OBS_Ax_pow_9 = 5.91645112940775985688E-02;
 #else
-const obs_float OBS_Ax = 0.6441504439754081;
-const obs_float OBS_Bx = 0.3558495560245919;
-const obs_float OBS_Ax_pow_1 = 0.6441504439754081;
-const obs_float OBS_Ax_pow_2 = 0.4149297944737154;
-const obs_float OBS_Ax_pow_3 = 0.2672772113288686;
-const obs_float OBS_Ax_pow_4 = 0.1721667343419997;
-const obs_float OBS_Ax_pow_5 = 0.1109012783641952;
-const obs_float OBS_Ax_pow_6 = 0.0714371076957367;
-const obs_float OBS_Ax_pow_7 = 0.0460162446385278;
-const obs_float OBS_Ax_pow_8 = 0.0296413844139887;
-const obs_float OBS_Ax_pow_9 = 0.0190935109303166;
+const obs_float OBS_Ad = 9.99998999999999971244E-01;
+const obs_float OBS_Ax = 6.44150443975408104613E-01;
+const obs_float OBS_Bx = 3.55849556024591895387E-01;
+const obs_float OBS_Ax_pow_2 = 4.14929794473715363168E-01;
+const obs_float OBS_Ax_pow_3 = 2.67277211328868613549E-01;
+const obs_float OBS_Ax_pow_4 = 1.72166734341999694280E-01;
+const obs_float OBS_Ax_pow_5 = 1.10901278364195235437E-01;
+const obs_float OBS_Ax_pow_6 = 7.14371076957366901716E-02;
+const obs_float OBS_Ax_pow_7 = 4.60162446385278256500E-02;
+const obs_float OBS_Ax_pow_8 = 2.96413844139886938078E-02;
+const obs_float OBS_Ax_pow_9 = 1.90935109303165574668E-02;
 #endif
 #pragma SET_DATA_SECTION()
 
@@ -584,6 +585,17 @@ void OBS_update_xi(const obs_float * restrict delta_xN_in,
     }
 }
 
+// xd = OBS_Ad*xd
+void OBS_update_xd_local(obs_float * restrict xd_in_out)
+{
+    int i;
+    _nassert((int) xd_in_out % OBS_ARRAY_ALIGN == 0);
+    for (i = 0; i < OBS_W_NROWS; i++)
+    {
+        xd_in_out[i] = OBS_Ad * xd_in_out[i];
+    }
+}
+
 int OBS_arr_ind(const int ncols, const int i_row, const int i_col)
 {
     return i_col + i_row * ncols;
@@ -856,6 +868,9 @@ void OBS_update_observer_worker(const obs_float * y_meas)
     ipc_slave_set_ack(1);
     ipc_slave_wait_req();      // ML 1
 #endif
+
+    /* Added here after changing Ad from 1 to 1-epsilon */
+    OBS_update_xd_local((obs_float *)OBS_xd_local);
 
     /* Compute: delta_y = y - Cx*x8 - xd */
 #if (OBS_delay == 9)
