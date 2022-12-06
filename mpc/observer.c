@@ -175,6 +175,7 @@ const obs_float OBS_Ax_pow_9 = 5.91645112940775985688E-02;
 const obs_float OBS_Ad = 9.99998999999999971244E-01;
 const obs_float OBS_Ax = 6.44150443975408104613E-01;
 const obs_float OBS_Bx = 3.55849556024591895387E-01;
+const obs_float OBS_Ax_pow_1 = 6.44150443975408104613E-01;
 const obs_float OBS_Ax_pow_2 = 4.14929794473715363168E-01;
 const obs_float OBS_Ax_pow_3 = 2.67277211328868613549E-01;
 const obs_float OBS_Ax_pow_4 = 1.72166734341999694280E-01;
