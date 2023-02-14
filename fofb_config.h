@@ -11,9 +11,9 @@
 /*
  * Control Algorithms
  */
-#define IMC_CONTROL         (1) // enable=1, set to 0 if loopback only
+#define IMC_CONTROL         (0) // enable=1, set to 0 if loopback only
 #define GSVD_CONTROL        (0) // enable=1, set to 0 if loopback only
-#define MPC_CONTROL         (0) // enable=1, set to 0 if loopback only
+#define MPC_CONTROL         (1) // enable=1, set to 0 if loopback only
 #define UNIT_TEST           (0) // run unit test loop instead of real-time control
 #define INTEGRATOR_LIMIT    (4.99) // in Amperes
 #define XDIR                (0) // 1=horizontal plane, 0=vertical plane
