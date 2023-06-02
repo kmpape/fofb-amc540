@@ -47,6 +47,9 @@
 #include "utils/ipc_utils.h"
 #include "utils/cache_utils.h"
 #include "utils/watchdog.h"
+#if (USE_REFERENCE == 1)
+#include "utils/reference.h"
+#endif
 
 
 #include <ti/ndk/inc/bsd/socketndk.h>
@@ -133,6 +136,11 @@ void pcie_loop (void)
     LIBQDMA_STATUS QDMAresult;
     volatile uint32_t *fpga_array;
 
+#if (USE_REFERENCE == 1)
+    int start_ref = 0;
+    int run_ref = 0;
+#endif
+
     /* Config GPIO directions */
     config_GPIO();
 
@@ -175,7 +183,24 @@ void pcie_loop (void)
         if (restart_fofb == 1) {
             watchdog_initialize();
             read_sofb_setpoints(fpga_array, 0);
+            REF_initialize();
         }
+
+#if (USE_REFERENCE == 1)
+        if (restart_fofb == 1) {
+            start_ref = 1;
+            run_ref = 0;
+        } else {
+            if (start_ref == 1) {  // restart_fofb switched from 1 to 0
+                run_ref = 1;
+                start_ref = 0;
+            }
+        }
+        if (run_ref == 1) {
+            REF_add_ref_input((LIBQDMA_ARR_TYPE *)(&pcie_read_buffer[READ_WRITE_OFFSET]));
+        }
+#endif
+
 
 #if (IMC_CONTROL == 1)
         imc_float * float_meas = IMC_DI_get_input();
@@ -206,12 +231,19 @@ void pcie_loop (void)
             memset((void *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
         }
 #else // loopback
-        if (read_GPIO_in(GPIO_IN_2) == 1) {
+        if (restart_fofb == 0) {
             int len_cpy = (ARRAY_LEN_READ > ARRAY_LEN_WRITE) ? ARRAY_LEN_WRITE : ARRAY_LEN_READ;
             for (i = 0; i < len_cpy; i++)
                 pcie_write_buffer[i] = pcie_read_buffer[i];
         } else {
             memset((LIBQDMA_ARR_TYPE *)pcie_write_buffer, 0, ARRAY_LEN_WRITE*sizeof(LIBQDMA_ARR_TYPE));
+        }
+#endif
+
+#if (USE_REFERENCE == 1)
+        if (run_ref == 1) {
+            REF_add_ref_output((LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
+            run_ref = REF_is_running();
         }
 #endif
 

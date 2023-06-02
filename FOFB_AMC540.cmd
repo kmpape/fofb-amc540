@@ -90,6 +90,10 @@ SECTIONS
     .obs_local_data  		> L2SRAM
 #endif
 
+#if (USE_REFERENCE == 1)
+    .ref_local		  		> L2SRAM
+#endif
+
 	/* AMC540 */
     platform_lib			> DDR3
     .dstBufSec				> MSMCSRAM
