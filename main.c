@@ -243,7 +243,7 @@ void pcie_loop (void)
 #if (USE_REFERENCE == 1)
         if (run_ref == 1) {
             REF_add_ref_output((LIBQDMA_ARR_TYPE *)(&pcie_write_buffer[READ_WRITE_OFFSET]));
-            run_ref = REF_is_running();
+            run_ref = REF_ref_is_running();
         }
 #endif
 

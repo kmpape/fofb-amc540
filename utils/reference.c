@@ -1,6 +1,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "utils/libQDMA.h"
 #include "utils/reference.h"
 #include "utils/reference_signal.h"
 
@@ -20,7 +21,7 @@ void REF_initialize(void)
     REF_counter_last_bpm = 0;
 }
 
-void REF_add_ref_input(LIBQDMA_ARR_TYPE * in_vec)
+void REF_add_ref_input(LIBQDMA_ARR_TYPE * in_out_vec)
 {
     REF_counter_last_bpm = REF_counter_bpm;
     if (REF_counter_bpm == REF_MAX_BPM) {
@@ -31,7 +32,7 @@ void REF_add_ref_input(LIBQDMA_ARR_TYPE * in_vec)
         REF_counter_pause++;
     } else {
         if (REF_counter_signal < REF_SIGNAL_LEN) {
-            in_vec[REF_counter_bpm] = in_vec[REF_counter_bpm] - ref_signal_nm[REF_counter_signal];
+            in_out_vec[REF_counter_bpm] = in_out_vec[REF_counter_bpm] - ref_signal_nm[REF_counter_signal];
             REF_counter_signal++;
             if (REF_counter_signal == REF_SIGNAL_LEN) {
                 REF_counter_signal = 0;
@@ -42,15 +43,15 @@ void REF_add_ref_input(LIBQDMA_ARR_TYPE * in_vec)
     }
 }
 
-void REF_add_ref_output(LIBQDMA_ARR_TYPE * in_vec)
+void REF_add_ref_output(LIBQDMA_ARR_TYPE * in_out_vec)
 {
     if (REF_counter_last_bpm == REF_MAX_BPM) {
         return;
     }
     if ((REF_counter_pause < REF_PAUSE_LEN) && (REF_counter_last_bpm == REF_counter_bpm)) {
-        out_vec[REF_OUTPUT_IND] = -1;
+        in_out_vec[REF_OUTPUT_IND] = -1;
     } else {
-        out_vec[REF_OUTPUT_IND] = REF_counter_last_bpm;
+        in_out_vec[REF_OUTPUT_IND] = REF_counter_last_bpm;
     }
 }
 
