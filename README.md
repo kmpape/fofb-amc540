@@ -1,5 +1,7 @@
 # fofb-amc540
 
+Note: We are currently using branch experimental.
+
 Fast orbit feedback implementation on the TI C6678 DSP / AMC540. Must be built using Code Composer Studio and the AMC540 patch provided by Vadatech.
 
 - Recommended compiler options: -O3 -pm -op2 -mt
